@@ -1,82 +1,185 @@
-import os
+#---------------DESCRIPTION OF THE ELEPHANT AGENT CLASS-------------------#
 
-import sys
-sys.path.append(os.getcwd())
+# The ELEPHANT agent class contains the following functions:
 
-import shutil
-import json
-import math
-import numpy as np
-import pandas as pd
-import pickle
-from osgeo import gdal
-import rasterio as rio
-import osmnx as ox
-import networkx as nx
-from shapely import geometry, ops
-from shapely.geometry import Point  
-from multiprocessing import freeze_support  
-from math import radians, sin, cos, acos
-from pyproj import Proj, transform  
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
-from matplotlib import colors
-import matplotlib.cm as cm
-import matplotlib.colors as mcolors
-from scipy.ndimage.interpolation import map_coordinates
-import calendar
-import datetime
+#1. __init__(): Initializes the agent attributes/state-variables.
+#2. move_point(): Function to move the agent in the geo-space.
+#3. initialize_memory_matrix(): Function that assigns memory matrix to elephants. The elephant agent has knowledge of the entire simulation landscape.
+#4. initialize_memory_matrix_only_forest(): Function that assigns memory matrix to elephants. The elephant agent has only knowledge of the forests.
+#5. initialize_memory_matrix_with_knowledge_from_fringe(): Function that assigns memory matrix to elephants. The elephant agent has knowledge of the fringe areas.
+#6. distance_calculator_epsg3857(): Returns the distance between current position and target position.
+#7. update_grid_index(): Calculate indices and index array.
+#8. next_step_to_move(): How the elephant agent moves from the current co-ordinates to the next.
+#9. current_mode_of_the_agent(): Function returns the mode of the agent depending on its energy levels and interaction with human agents.
+#10. update_danger_to_life(): Update danger_to_life.
+#11. correlated_random_walk_without_terrain_factor(): Correlated random walk without terrain factor, used when the agent is in RandomWalk mode.
+#12. targeted_walk(): Function to simulate the targeted movement of agents, used when the agent is in TargetedMove mode.
+#13. return_feasible_direction_to_move(): Return feasible direction to move based on the terrain cost.
+#14. target_for_foraging(): Set the target for foraging.
+#15. target_to_drink_water(): Set the target to drink water.
+#16. target_thermoregulation(): Set the target for thermoregulation.
+#17. target_for_escape(): Set the target for escape  in case of conflict with humans.
+#18. InflictDamage(): Function to inflict damage to the crop-infrastructure.
+#19. drink_water(): Function to drink water.
+#20. eat_food(): Function to consume food.
+#21. crop_infrastructure_damage(): Function to inflict damage to the crop-infrastructure.
+#22. update_aggres_factor(): Update the aggression factor of the elephant agent.
+#23. update_fitness_value(): Update the fitness value of the elephant agent.
+#24. update_memory_matrix(): Update the memory matrix of the elephant agent.
+#25. update_age(): Update the age of the elephant agent.
+#26. elephant_cognition(): Function to update the elephant agent's cognition.
+#27. step(): Function to update the agent's state variables at each time step.
+#----------------------------------------------------------------------------#
 
-#to supress warnings
-import warnings     
-warnings.filterwarnings('ignore')   
 
 
-#MESA modules
-#----------------------------------------
+
+#-----------------DESCRIPTION OF THE HUMAN AGENT CLASS-------------------#
+#1. __init__(): Initializes the agent attributes/state-variables.
+#2. initialize_target_destination_nodes(): Function to initialize the target destination nodes.
+#3. initialize_distance_to_target(): Function to initialize the distance to the target.
+#4. move_point(): Function to move the agent in the geo-space.
+#5. update_grid_index(): Update the grid index of the agent.
+#6. human_cognition(): Function to update the human agent's cognition.
+#7. InflictDamage(): Function to inflict damage to the elephant agents.
+#8. EscapeMode(): Function to escape from the elephant agents.
+#9. distance(): Function to calculate the distance between the current position and the target position.
+#10. distance_calculator_epsg3857(): Returns the distance between current position and target position.
+#11. target_for_escape(): Set the target for escape.
+#12. walk_to_target_for_escape(): Function to walk to the target for escape.
+#13. update_fitness(): Update the fitness value of the human agent.
+#14. step(): Function to update the agent's state variables at each time step.
+#-----------------------------------------------------------------------#
+
+
+
+
+#--------------------DESCRIPTION OF THE MODEL ATTRIBUTES---------------------#
+# The model attributes are as follows:
+
+#1. __init__(): Initializes the model attributes.
+#2. initialize_bull_elephants(): Function to initialize the bull elephant agents.
+#3. initialize_herd_elephants(): Function to initialize the herd elephant agents.
+#4. elephant_distribution_random_init_forest: Function to initialize the elephant agents randomly in the forest.
+#5. elephant_distribution_close_to_fringe: Function to initialize the elephant agents close to the fringe areas.
+#6. elephant_distribution_modified: Function to initialize the elephant agents in according to elevation, landuse, and proximity from the fringe.
+#7. assign_body_weight_elephants(): Function to assign body weight to the elephant agents.
+#8. assign_daily_dietary_requiremnt(): Function to assign daily dietary requirement to the elephant agents.
+#9. initialize_human_agents(): Function to initialize the human agents.
+#10. co_ordinates_residential(): Function to return residential co-ordinates.
+#11. co_ordinates_non_residential(): Function to return non-residential co-ordinates.
+#12. co_ordinates_agricultural_plots(): Function to return agricultural plot co-ordinates.
+#13. guard_agent_dist_coords(): Function to return guard agent co-ordinates.
+#14. DEM_study_area(): Function to return the study area DEM.
+#15. LANDUSE_study_area(): Function to return the study area landuse.   
+#16. FOOD_MATRIX(): Function to return the food matrix.
+#17. WATER_MATRIX(): Function to return the water matrix.
+#18. SLOPE_study_area(): Function to return the study area slope.
+#19. initialize_road_network(): Function to initialize the road network.
+#20. proximity_from_plantation(): Function to return the proximity from the plantation.
+#21. proximity_from_forest(): Function to return the proximity from the forest.
+#22. proximity_from_water(): Function to return the proximity from the water source.
+#23. PROPERTY_MATRIX(): Function to return the BUILDING matrix.
+#24. get_indices(): Function to return the indices of the agent given the latitude and longitude.
+#25. pixel2coord(): Function to return the latitude and longitude given the indices.
+#26. pixel2coord_raster(): Function to return the latitude and longitude given the indices.
+#27. no_human_disturbance(): Function to model the human disturbance (when there is no human disturbance).
+#28. update_human_disturbance_explict(): Function to model the human disturbance explicitly.
+#29. update_human_disturbance_implicit(): Function to model the human disturbance implicitly.
+#30. update_food_matrix_constant(): Function to update the food matrix.
+#31. update_prob_drink_water(): Function to update the probability of drinking water.
+#32. update_season(): Function to update the season.
+#33. update_hourly_temp(): Function to update the hourly temperature.
+#34. return_indices_temperature_matrix(): Function to return the indices of the temperature matrix.
+#35. return_landuse_map(): Function to return the landuse map.
+#36. create_traj_plot(): Function to create the trajectory plot.
+#37. plot_ele_traj(): Function to plot the elephant trajectory.
+#38. plot_hum_traj(): Function to plot the human trajectory.
+#39. step(): Function to update the model state variables at each time step.
+#---------------------------------------------------------------------------#
+
+
+
+
+#---------------imports-------------------#
+import os                               # for file operations
+import sys                              # for system operations 
+import shutil                           # to copy files
+import json                             # to read json files
+import math                             # for mathematical operations
+import numpy as np                      # for numerical operations
+import pandas as pd                     # for data manipulation and analysis
+import pickle                           # to save and load pickle objects
+from osgeo import gdal                  # for raster operations
+import rasterio as rio                  # for raster operations
+import osmnx as ox                      # for street network analysis
+import networkx as nx                   # for network analysis  
+from shapely import geometry, ops       # for manipulation georeferenced data 
+from shapely.geometry import Point      # for creating point geometries
+from multiprocessing import freeze_support      # for multiprocessing
+from math import radians, sin, cos, acos        # for mathematical operations
+from pyproj import Proj, transform              # for coordinate transformations
+import matplotlib.pyplot as plt                 # for plotting
+from mpl_toolkits.basemap import Basemap        # for plotting
+from matplotlib import colors                   # for plotting
+import matplotlib.cm as cm                      # for plotting
+import matplotlib.colors as mcolors             # for plotting
+from scipy.ndimage.interpolation import map_coordinates     # for interpolation
+import calendar                         # for date and time operations
+import datetime                         # for date and time operations
+import warnings                         # to ignore warnings
+#---------------imports-------------------#
+
+
+warnings.filterwarnings('ignore')       # to ignore warnings
+sys.path.append(os.getcwd())            # add the current working directory to the system path
+
+
+
+#----------------model imports-------------------#
 #MODEL CLASS
-from mesageo.elephant_project.experiment_setup_files.Mesa_Model_class import Model      #modified implementation (with bug fix)
+from mesageo_elephant_project.elephant_project.experiment_setup_files.Mesa_Model_class import Model      #modified implementation (with bug fix)
 
 #AGENT CLASS
 from mesa_geo.geoagent import GeoAgent
 
 #AGENT SCHEDULES
-from mesageo.elephant_project.experiment_setup_files.Mesa_agent_scheduling import RandomActivation    #Random activation
+from mesageo_elephant_project.elephant_project.experiment_setup_files.Mesa_agent_scheduling import RandomActivation    #Random activation
 
 #GEOSPACE
-from mesageo.elephant_project.experiment_setup_files.Mesa_geospace import GeoSpace          #modified implementation
+from mesageo_elephant_project.elephant_project.experiment_setup_files.Mesa_geospace import GeoSpace          #modified implementation
 
 #AGENT_CREATOR
 from mesa_geo.geoagent import AgentCreator          #Default implementation
 
 #DATA_COLLECTOR
 #from mesa.datacollection import DataCollector           #Default implementation 
-from mesageo.elephant_project.experiment_setup_files.Mesa_Datacollector_v1_0 import DataCollector       #all agent data collected
+from mesageo_elephant_project.elephant_project.experiment_setup_files.datacollector_codes.Mesa_Datacollector_v1_0 import DataCollector       #all agent data collected
 #from experiment_setup_files.Mesa_Datacollector_v1_1 import DataCollector        #ONLY ELEPHANT AGENT DATA COLLECTED
 
-from mesageo.elephant_project.experiment_setup_files.Mesa_BatchRunner_class_v1_1 import batch_run 
-#----------------------------------------
+from mesageo_elephant_project.elephant_project.experiment_setup_files.batch_runner_codes.Mesa_BatchRunner_class_v1_1 import batch_run      #runnning multiple simulations
+#-------------------------------------------------#
 
 
 
 
-##############################################################
-from mesageo.elephant_project.experiment_setup_files.Initialize_Conflict_Model_environment import environment
-##############################################################
+#-----------------environment initialisation-------------------#
+from mesageo_elephant_project.elephant_project.experiment_setup_files.init_env.Initialize_Conflict_Model_environment import environment
+#--------------------------------------------------------------#
 
 
 
 
 #--------------------------------------------------------------------------------------------------------------------------------
 class Elephant(GeoAgent):
-    """ Foraging agent """
+    """Class to define the ELEPHANT agent model"""
 
     def __init__(self,unique_id,model,shape):
         super().__init__(unique_id,model,shape) 
 
 
         #agent initialisation
-        init_file = open(os.path.join(input_folder, "init_files","elephant_init.json"))
+        init_file = open(os.path.join(input_folder, "init_files", "elephant_init.json"))
         init_data = json.load(init_file)
 
 
@@ -139,7 +242,9 @@ class Elephant(GeoAgent):
         self.hour = self.model.hour_in_day
         self.water_source_proximity = self.model.water_proximity[self.ROW][self.COL]
     #-------------------------------------------------------------------
-    def move_point(self,xnew,ynew):     
+    def move_point(self,xnew,ynew): 
+        """
+        Function to move the agent in the geo-space"""    
         #Function to move the agent in the geo-space 
         #coordinates are in EPSG:3857
         #xnew: longitude
@@ -159,17 +264,17 @@ class Elephant(GeoAgent):
                     food_memory[i,j] = self.model.FOOD[i][j]
                     water_memory[i,j] = self.model.WATER[i][j]
 
-        #saving the memory matrix as .tif file 
-        # import rasterio as rio
-        # source = os.path.join(self.model.folder_root, "LULC.tif")
-        # with rio.open(source) as src:
-        #     ras_meta = src.profile
-        # memory_loc = os.path.join("simulation_results_server_run", "food_memory_"+ str(self.unique_id) + ".tif")
-        # with rio.open(memory_loc, 'w', **ras_meta) as dst:
-        #     dst.write(food_memory.astype('float32'), 1)
-        # memory_loc = os.path.join("simulation_results_server_run", "water_memory_"+ str(self.unique_id) + ".tif")
-        # with rio.open(memory_loc, 'w', **ras_meta) as dst:
-        #     dst.write(water_memory.astype('float32'), 1)
+        # saving the memory matrix as .tif file 
+        source = os.path.join(self.model.folder_root, "LULC.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+        memory_loc = os.path.join(self.model.folder_root, "food_memory_" + str(self.unique_id) + ".tif")
+                    
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(food_memory.astype('float32'), 1)
+        memory_loc = os.path.join(self.model.folder_root, "water_memory_" + str(self.unique_id) + ".tif")
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(water_memory.astype('float32'), 1)
 
         return food_memory, water_memory
     #-----------------------------------------------------------------------------------------------------
@@ -186,22 +291,23 @@ class Elephant(GeoAgent):
                     food_memory[i,j] = self.model.FOOD[i][j]
                     water_memory[i,j] = self.model.WATER[i][j]
 
-        # #saving the memory matrix as .tif file 
-        # import rasterio as rio
-        # source = os.path.join(self.model.folder_root, "LULC.tif")
-        # with rio.open(source) as src:
-        #     ras_meta = src.profile
-        # memory_loc = os.path.join("simulation_results_server_run", "food_memory_"+ str(self.unique_id) + ".tif")
-        # with rio.open(memory_loc, 'w', **ras_meta) as dst:
-        #     dst.write(food_memory.astype('float32'), 1)
-        # memory_loc = os.path.join("simulation_results_server_run", "water_memory_"+ str(self.unique_id) + ".tif")
-        # with rio.open(memory_loc, 'w', **ras_meta) as dst:
-        #     dst.write(water_memory.astype('float32'), 1)
+        #saving the memory matrix as .tif file 
+                    
+        source = os.path.join(self.model.folder_root, "LULC.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+        memory_loc = os.path.join(self.model.folder_root, "food_memory_" + str(self.unique_id) + ".tif")
+                    
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(food_memory.astype('float32'), 1)
+        memory_loc = os.path.join(self.model.folder_root, "water_memory_" + str(self.unique_id) + ".tif")
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(water_memory.astype('float32'), 1)
 
         return food_memory, water_memory
     #-----------------------------------------------------------------------------------------------------
     def initialize_memory_matrix_with_knowledge_from_fringe(self):
-        """ Function that assigns memory matrix to elephants"""
+        """ Function that assigns memory matrix to elephants. The elephant agent has knowledge of the fringe areas."""
 
         #self.knowlege_from_fringe : unit is in metres
         no_of_cells = self.model.random.randint(0, int(self.knowledge_from_fringe/self.model.xres))     #spatial resolution 
@@ -231,21 +337,24 @@ class Elephant(GeoAgent):
 
         self.memory = memory.tolist()
 
-        # #saving the memory matrix as .tif file 
-        # import rasterio as rio
-        # source = os.path.join(self.model.folder_root, "LULC.tif")
-        # with rio.open(source) as src:
-        #     ras_meta = src.profile
-        # memory_loc = os.path.join("simulation_results_server_run", "food_memory_"+ str(self.unique_id) + ".tif")
-        # with rio.open(memory_loc, 'w', **ras_meta) as dst:
-        #     dst.write(food_memory.astype('float32'), 1)
-        # memory_loc = os.path.join("simulation_results_server_run", "water_memory_"+ str(self.unique_id) + ".tif")
-        # with rio.open(memory_loc, 'w', **ras_meta) as dst:
-        #     dst.write(water_memory.astype('float32'), 1)
+        #saving the memory matrix as .tif file 
+        import rasterio as rio
+        source = os.path.join(self.model.folder_root, "LULC.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+        memory_loc = os.path.join(self.model.folder_root, "food_memory_"+ str(self.unique_id) + ".tif")
+
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(food_memory.astype('float32'), 1)
+        memory_loc = os.path.join(self.model.folder_root, "water_memory_"+ str(self.unique_id) + ".tif")
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(water_memory.astype('float32'), 1)
 
         return food_memory, water_memory
     #-----------------------------------------------------------------------------------------------------
     def distance_calculator_epsg3857(self,slat,elat,slon,elon):  
+        """
+        Returns the distance between current position and target position"""
         #Returns the distance between current position and target position
         #Input CRS: epsg:3857 
 
@@ -256,6 +365,8 @@ class Elephant(GeoAgent):
         return dist   #returns distance in metres
     #----------------------------------------------------------------------------------------------------- 
     def update_grid_index(self):
+        """
+        Update the grid index of the agent"""
         # calculate indices and index array
         row, col = self.model.get_indices(self.shape.x, self.shape.y)
 
@@ -267,8 +378,6 @@ class Elephant(GeoAgent):
     #-----------------------------------------------------------------------------------------------------  
     def next_step_to_move(self):
         """how the elephant agent moves from the current co-ordinates to the next"""
-
-        self.iter_count = 0
 
         self.mode = self.current_mode_of_the_agent()   
 
@@ -354,8 +463,8 @@ class Elephant(GeoAgent):
         #From the transition probability matrix 
         state1 = 0.8775307
         state2 = 0.9096085
-        #state1_to_state2 = 0.1224693
-        #state2_to_state1 = 0.0903915
+        state1_to_state2 = 0.1224693
+        state2_to_state1 = 0.0903915
 
         ROW, COL = self.model.return_indices_temperature_matrix(self.shape.y, self.shape.x)
         self.prob_thermoregulation = self.model.temp[ROW,COL]
@@ -415,6 +524,7 @@ class Elephant(GeoAgent):
         return mode
     #-------------------------------------------------------------------------------------------------
     def update_danger_to_life(self):
+        """Update danger_to_life"""
             
         if self.conflict_neighbor != None:     #There are human agents in the viscinity
             if self.human_habituation < self.model.human_habituation_tolerance:     #Not used to human agents
@@ -434,6 +544,7 @@ class Elephant(GeoAgent):
         return 
     #-------------------------------------------------------------------------------------------------
     def correlated_random_walk_without_terrain_factor(self):
+        """Correlated random walk without terrain factor, used when the agent is in RandomWalk mode"""
 
         #from fitted HMM model
         mean = -3.0232348
@@ -505,6 +616,7 @@ class Elephant(GeoAgent):
         return new_lon,new_lat
     #-----------------------------------------------------------------------------------------------------
     def return_feasible_direction_to_move(self):
+        """Return feasible direction to move based on the terrain cost"""
 
         radius = int(self.model.terrain_radius/self.model.xres)     #spatial resolution: xres
 
@@ -676,6 +788,7 @@ class Elephant(GeoAgent):
         return row_start, row_end, col_start, col_end
     #-----------------------------------------------------------------------------------------------------
     def target_for_foraging(self, row_start, row_end, col_start, col_end):
+        """ Function returns the foraging target for the elephant agent to move."""
 
         if self.target_present == True:     #If target already exists
             return
@@ -807,7 +920,7 @@ class Elephant(GeoAgent):
     def target_thermoregulation(self, row_start, row_end, col_start, col_end):
 
         """ Function returns the target for the elephant agent to move.
-        The target is selected from the memory matrix, where the elephant agent thinks it can find water.
+        The target is selected from the memory matrix, where the elephant agent thinks it can find water or shade.
         Barrier to movement is considered while selecting the target to move."""
 
         if self.target_present == True:     #If target already exists
@@ -820,7 +933,7 @@ class Elephant(GeoAgent):
                 if i == self.ROW and j == self.COL:
                     pass
 
-                elif self.model.temp[i,j]<=self.model.temp[self.ROW,self.COL]:
+                elif self.model.temp[i,j] <= self.model.temp[self.ROW,self.COL]:
                     coord_list.append([i, j])
 
         if coord_list != []:
@@ -840,6 +953,7 @@ class Elephant(GeoAgent):
         return
     #-----------------------------------------------------------------------------------------------------
     def target_for_escape(self):
+        """ Function returns the target for the elephant agent to move in case of danger to life. """
 
         radius = int(self.radius_forest_search/self.model.xres)     #spatial resolution
 
@@ -890,6 +1004,7 @@ class Elephant(GeoAgent):
         return
     #-----------------------------------------------------------------------------------------------------
     def InflictDamage(self):
+        """Function to inflict damage on the human agents"""
         
         for neighbor in self.conflict_neighbor:
             neighbor.fitness = neighbor.fitness - self.model.random.uniform(0, self.model.fitness_fn_decrement_humans)
@@ -941,10 +1056,10 @@ class Elephant(GeoAgent):
         return
     #----------------------------------------------------------------------------------------------------
     def crop_infrastructure_damage(self):
+        """Function to simulate the crop and infrastructure damage by the elephant agents"""
 
         #print("CROP AND INFRASTRUCTURE DAMAGE!")
         row, col = self.update_grid_index()
-        #print(row,col)
 
         status = self.model.crop_status[row][col] 
 
@@ -1011,6 +1126,7 @@ class Elephant(GeoAgent):
         return
     #----------------------------------------------------------------------------------------------------
     def update_memory_matrix(self):
+        """Function to update the memory matrix of the agent"""
         food = np.array(self.model.FOOD)
         food_mem = np.array(self.memory)
         food_memory = np.zeros_like(food_mem)
@@ -1018,9 +1134,11 @@ class Elephant(GeoAgent):
         self.food_memory = food_memory
     #----------------------------------------------------------------------------------------------------
     def update_age(self):
+        """Function to update the age of the agent"""
         self.age += 1
     #----------------------------------------------------------------------------------------------------
     def elephant_cognition(self):
+        """Function to simulate the cognition of the elephant agent"""
 
         if (self.model.model_time%288) == 0 and self.model.model_time>=288:
             self.food_goal = self.daily_dry_matter_intake   
@@ -1061,6 +1179,7 @@ class Elephant(GeoAgent):
         return
     #----------------------------------------------------------------------------------------------------
     def step(self):     
+        """ Function to simulate the movement of the elephant agent"""
 
         self.elephant_cognition()
 
@@ -1088,6 +1207,7 @@ class Elephant(GeoAgent):
 
 #--------------------------------------------------------------------------------------------------------------------------------
 class Bull_Elephant(Elephant):
+    """Class to simulate the behaviour of the bull elephant agents"""
 
     def __init__(self,unique_id,model,shape):
         super().__init__(unique_id,model,shape)
@@ -1099,13 +1219,13 @@ class Bull_Elephant(Elephant):
 
 #--------------------------------------------------------------------------------------------------------------------------------
 class Herd_Elephant(Elephant):
+    """Class to simulate the behaviour of the herd elephant agents"""
 
     def __init__(self,unique_id,model,shape):
         super().__init__(unique_id,model,shape)
-
-        self.num_food_depreceated_agents = 0
     #----------------------------------------------------------------------------------------------------
     def drink_water_follower(self, follower):
+        """ The elephant agent consumes water from the current cell it is located in"""
         row, col = self.update_grid_index()
 
         if "dry" in self.model.season:
@@ -1118,6 +1238,7 @@ class Herd_Elephant(Elephant):
         return
     #----------------------------------------------------------------------------------------------------
     def eat_food_follower(self, follower):
+        """ The elephant agent consumes food from the current cell it is located in"""
 
         row, col = self.update_grid_index()
 
@@ -1136,6 +1257,7 @@ class Herd_Elephant(Elephant):
         return
     #----------------------------------------------------------------------------------------------------
     def update_fitness_value_follower(self, follower, val) :
+        """The function updates the fitness value of the agent"""
         fitness = follower.fitness
         fitness += val
         if fitness <= 0:
@@ -1146,14 +1268,17 @@ class Herd_Elephant(Elephant):
             follower.fitness = fitness
         return
     #----------------------------------------------------------------------------------------------------
-    def inflict_damage_followers(self, follower):
+    def inflict_damage_followers(self):
+        """Function to inflict damage on the human agents"""
         for neighbor in self.conflict_neighbor:
             neighbor.fitness = neighbor.fitness - self.model.random.uniform(0, self.model.fitness_fn_decrement_humans)
     #----------------------------------------------------------------------------------------------------
     def update_age_follower(self, follower):
+        """Function to update the age of the agent"""
         follower.age += 1
     #----------------------------------------------------------------------------------------------------
     def elephant_cognition(self):
+        """Function to simulate the cognition of the elephant agent"""
 
         if (self.model.model_time%288) == 0 and self.model.model_time>=288:
             #self.food_goal = self.daily_dry_matter_intake   
@@ -1194,6 +1319,7 @@ class Herd_Elephant(Elephant):
         return
     #----------------------------------------------------------------------------------------------------
     def step(self):  
+        """ Function to simulate the movement of the elephant agent"""
 
         self.elephant_cognition()
 
@@ -1267,7 +1393,6 @@ class Herd_Elephant(Elephant):
                 self.model.num_elephant_deaths += 1  
                 return
 
-
             #print("NEW LEADER:", new_leader.unique_id, new_leader.sex, new_leader.age)
 
             elephant = AgentCreator(Herd_Elephant,{"model":self.model})  
@@ -1299,13 +1424,13 @@ class Herd_Elephant(Elephant):
 #--------------------------------------------------------------------------------------------------------------------------------
 #Human agent class: serves as superclass
 class Humans(GeoAgent):
-    """ Human agents"""
+    """ Human agents class"""
 
     def __init__(self,unique_id,model,shape):
         super().__init__(unique_id,model,shape)
 
         #agent initialisation
-        init_file = open(os.path.join(os.getcwd(), "mesageo/elephant_project/data/", "model_init_files_humans_and_bulls", "model_run_" + _model_id_, "init_files", "human_init.json"))
+        init_file = open(os.path.join(os.getcwd(), "mesageo_elephant_project/elephant_project/data/", "model_init_files_humans_and_bulls", "model_run_" + _model_id_, "init_files", "human_init.json"))
         init_data = json.load(init_file)
 
 
@@ -1382,7 +1507,7 @@ class Humans(GeoAgent):
         self.target_for_escape(conflict_lon, conflict_lat)
 
         #walk to the target 
-        self.walk_to_target_for_escape(conflict_lon, conflict_lat)
+        self.walk_to_target_for_escape()
         
         return
     #----------------------------------------------------------------------------------------------------
@@ -1440,7 +1565,7 @@ class Humans(GeoAgent):
         self.escape_target_present = True
         return
     #----------------------------------------------------------------------------------------------------
-    def walk_to_target_for_escape(self, conflict_lon, conflict_lat):
+    def walk_to_target_for_escape(self):
     
         if self.counter <=12:
             self.shape = self.move_point(self.target_lon_escape, self.target_lat_escape)
@@ -2248,7 +2373,7 @@ class environment(environment):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
-        folder_path = os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", self.area[self.area_size])
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", self.area[self.area_size])
         fid = os.path.join(folder_path, self.reso[self.resolution], "LULC.tif")
 
         Plantation = gdal.Open(fid).ReadAsArray()
@@ -2315,7 +2440,7 @@ class environment(environment):
         #Prob_water: probability of water being available in a given cell 
         
         #Reading the LULC and storing the plantation area details
-        folder_path = os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", self.area[self.area_size])
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", self.area[self.area_size])
         fid = os.path.join(folder_path, self.reso[self.resolution], "LULC.tif")
 
         LULC = gdal.Open(fid).ReadAsArray()
@@ -2602,22 +2727,23 @@ class Conflict_model(Model):
         os.mkdir(os.path.join(folder, self.now, "output_files"))
         #os.mkdir(os.path.join(folder, batch_folder, self.now, "food_change"))
 
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/DEM.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/Population.tif", os.path.join(folder, self.now, "env"))     
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_forest.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_plantation_builtup_shrubland.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_plantation.tif", os.path.join(folder, self.now, "env"))     
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_population.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/prox_water_matrix_" + str(prob_water) + "_.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_map_4_5_15.tif", os.path.join(folder, self.now, "env"))     
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/slope.tif", os.path.join(folder, self.now, "env"))  
+
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/DEM.tif", os.path.join(folder, self.now, "env"))
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif", os.path.join(folder, self.now, "env"))
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/population.tif", os.path.join(folder, self.now, "env"))     
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_forest.tif", os.path.join(folder, self.now, "env"))
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_plantation_builtup_shrubland.tif", os.path.join(folder, self.now, "env"))
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_plantation.tif", os.path.join(folder, self.now, "env"))     
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_population.tif", os.path.join(folder, self.now, "env"))
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/prox_water_matrix_" + str(prob_water) + "_.tif", os.path.join(folder, self.now, "env"))
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_map_4_5_15.tif", os.path.join(folder, self.now, "env"))     
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/slope.tif", os.path.join(folder, self.now, "env"))  
         shutil.copy(folder  + "/food_and_water_matrix/crop_status.tif", os.path.join(folder, self.now, "env"))  
         shutil.copy(folder + "/food_and_water_matrix/food_matrix_" + str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif", os.path.join(folder, self.now, "env"))  
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/water_matrix_" + str(prob_water) + "_.tif", os.path.join(folder, self.now, "env"))  
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/osmnx/road_network.pkl", os.path.join(folder, self.now, "env"))  
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/osmnx/nodes_proj.pkl", os.path.join(folder, self.now, "env"))   
-        shutil.copy("mesageo/elephant_project/experiment_setup_files/environment_seethathode/osmnx/edges_proj.pkl", os.path.join(folder, self.now, "env"))  
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/water_matrix_" + str(prob_water) + "_.tif", os.path.join(folder, self.now, "env"))  
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/osmnx/road_network.pkl", os.path.join(folder, self.now, "env"))  
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/osmnx/nodes_proj.pkl", os.path.join(folder, self.now, "env"))   
+        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/osmnx/edges_proj.pkl", os.path.join(folder, self.now, "env"))  
         #-------------------------------------------------------------------
 
 
@@ -2635,7 +2761,7 @@ class Conflict_model(Model):
         self.DEM = self.DEM_study_area()
         self.LANDUSE = self.LANDUSE_study_area()
         self.FOOD = self.FOOD_MATRIX(self.prob_food_forest, self.prob_food_cropland)
-        self.WATER = self.WATER_MATRIX(self.prob_water)
+        self.WATER = self.WATER_MATRIX()
         self.SLOPE = self.SLOPE_study_area()
 
         #self.initialize_road_network() 
@@ -2737,11 +2863,11 @@ class Conflict_model(Model):
 
         #-------------------------------------------------------------------
         if self.num_bull_elephants >= 1:
-            with open('mesageo/elephant_project/experiment_setup_files/hourly_temp_2010_without_juveniles_' + str(THRESHOLD) + '.pkl','rb') as f:
+            with open('mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/temperature/hourly_temp_2010_without_juveniles_' + str(THRESHOLD) + '.pkl','rb') as f:
                 self.hourly_temp = pickle.load(f)
 
         else:
-            with open('mesageo/elephant_project/experiment_setup_files/hourly_temp_2010_with_juveniles_' + str(THRESHOLD) + '.pkl','rb') as f:
+            with open('mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/temperature/hourly_temp_2010_with_juveniles_' + str(THRESHOLD) + '.pkl','rb') as f:
                 self.hourly_temp = pickle.load(f)   
 
         #print(len(self.hourly_temp))        
@@ -3079,7 +3205,7 @@ class Conflict_model(Model):
         coord_agricultural = self.co_ordinates_agricultural_plots()
         coord_agricultural = np.array(coord_agricultural[["0", "1"]])
 
-        init_file = open(os.path.join(os.getcwd(), "mesageo/elephant_project/data/", "model_init_files_humans_and_bulls", "model_run_" + _model_id_, "init_files", "population_init.json"))
+        init_file = open(os.path.join(os.getcwd(), "mesageo_elephant_project/elephant_project/data/", "model_init_files_humans_and_bulls", "model_run_" + _model_id_, "init_files", "population_init.json"))
         init_data = json.load(init_file)
         num_CAL = init_data["num_CAL"]    
         num_OW = init_data["num_OW"] 
@@ -3223,7 +3349,7 @@ class Conflict_model(Model):
         #     map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
         #     return map, ax_background
 
-        #landuse_background, ax_background = return_landuse_map()
+        # landuse_background, ax_background = return_landuse_map()
 
         for k in range(0,self.num_guard_agents):
             num=self.random.choices(coord_guard[:])  
@@ -3260,7 +3386,7 @@ class Conflict_model(Model):
         num_household=[]
 
         for village in villages:
-            path = os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode", "shape_files", village+"_residential.tif")
+            path = os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode", "shape_files", village+"_residential.tif")
 
             distribution = gdal.Open(path).ReadAsArray()
 
@@ -3296,7 +3422,7 @@ class Conflict_model(Model):
 
         for village in villages:
 
-            path = os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode", "shape_files", village+"_non_residential.tif")
+            path = os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode", "shape_files", village+"_non_residential.tif")
 
             distribution = gdal.Open(path).ReadAsArray()
 
@@ -3328,7 +3454,7 @@ class Conflict_model(Model):
         lon=[]
         ID=[]
 
-        path = os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","LULC.tif")
+        path = os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","LULC.tif")
 
         distribution = gdal.Open(path).ReadAsArray()
 
@@ -3355,10 +3481,10 @@ class Conflict_model(Model):
         lat=[]
         lon=[]
 
-        path = os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","proximity_map_4_5_15.tif")
+        path = os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","proximity_map_4_5_15.tif")
         proximity_map = gdal.Open(path).ReadAsArray()
 
-        path = os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","LULC.tif")
+        path = os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","LULC.tif")
         LULC = gdal.Open(path).ReadAsArray()
 
         dist_coords = np.zeros_like(LULC)
@@ -3372,7 +3498,7 @@ class Conflict_model(Model):
         lat = []
         lon = []
 
-        raster = rio.open(os.path.join("mesageo/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","proximity_map_4_5_15.tif"))
+        raster = rio.open(os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","proximity_map_4_5_15.tif"))
 
         for i in range(0,row_size):
             for j in range(0,col_size):
@@ -3393,7 +3519,7 @@ class Conflict_model(Model):
     def DEM_study_area(self):
         """ Returns the digital elevation model of the study area"""
 
-        fid = os.path.join(self.folder_root,"DEM.tif")
+        fid = os.path.join(self.folder_root, "DEM.tif")
 
         DEM = gdal.Open(fid).ReadAsArray()  
         return DEM.tolist()  #Conversion to list so that the object becomes json serializable
@@ -3401,7 +3527,7 @@ class Conflict_model(Model):
     def LANDUSE_study_area(self):
         """ Returns the landuse model of the study area"""
 
-        fid = os.path.join(self.folder_root,"LULC.tif")
+        fid = os.path.join(self.folder_root, "LULC.tif")
 
         LULC = gdal.Open(fid).ReadAsArray()  
         return LULC.tolist()  #Conversion to list so that the object becomes json serializable
@@ -3412,7 +3538,7 @@ class Conflict_model(Model):
         FOOD = gdal.Open(fid).ReadAsArray()  
         return FOOD.tolist()  
     #-----------------------------------------------------------------------------------------------------
-    def WATER_MATRIX(self, prob_water):
+    def WATER_MATRIX(self):
         """ Returns the water matrix model of the study area"""
         fid = os.path.join(self.folder_root ,"water_matrix_"+ str(self.prob_water) +"_.tif")
         WATER = gdal.Open(fid).ReadAsArray()  
@@ -3421,7 +3547,7 @@ class Conflict_model(Model):
     def SLOPE_study_area(self):
         """ Returns the slope model of the study area"""
 
-        fid = os.path.join(self.folder_root,"slope.tif")
+        fid = os.path.join(self.folder_root, "slope.tif")
 
         slope = gdal.Open(fid).ReadAsArray()  
         return slope.tolist()  #Conversion to list so that the object becomes json serializable
@@ -3473,7 +3599,7 @@ class Conflict_model(Model):
     def PROPERTY_MATRIX(self):
         """ Returns the infrastructure and crop matrix of the study area"""
 
-        population = gdal.Open(os.path.join(self.folder_root, "Population.tif")).ReadAsArray()
+        population = gdal.Open(os.path.join(self.folder_root, "population.tif")).ReadAsArray()
         path = os.path.join(self.folder_root, "crop_status.tif")
         distribution = gdal.Open(path).ReadAsArray()
         m,n = distribution.shape
@@ -3543,7 +3669,7 @@ class Conflict_model(Model):
     def update_human_disturbance_explict(self):
         #6am to 6pm: high disturbance
         #6pm to 6am: low disturbance
-        if self.hour_in_day >= 4 and self.hour_in_day <= 18:
+        if self.hour_in_day >= 6 and self.hour_in_day <= 18:
             self.human_disturbance = self.disturbance_tolerance + np.random.randint(5,10)
 
         else:
@@ -3667,7 +3793,7 @@ class Conflict_model(Model):
     #----------------------------------------------------------------------------------------------------
     def return_landuse_map(self):
 
-        ds = gdal.Open("mesageo/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif")
+        ds = gdal.Open("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif")
         data = ds.ReadAsArray()
         data = np.flip(data, axis=0)
         row_size, col_size = data.shape
@@ -3772,7 +3898,7 @@ class Conflict_model(Model):
 
        #TERMINATE THE SIMULATION AND WRITE RESULTS TO FILE
         if self.running == False:
-
+            print("Simulation completed")
 
             #print("Elephant deaths:", self.num_elephant_deaths, "Human deaths:", self.num_human_deaths)
             data_agents = self.datacollector.get_agent_vars_dataframe()
@@ -3786,12 +3912,6 @@ class Conflict_model(Model):
                 if "herd" in agent or "bull" in agent:
                     ele_data = data_agents[data_agents["AgentID"] == agent]
                     self.plot_ele_traj(ele_data["longitude"].values, ele_data["latitude"].values)
-
-            with open(os.path.join(folder, self.now, "output_files", 'ele_traj.pkl'),'wb') as fid:
-                pickle.dump(self.ax_background_01, fid)
-
-            with open(os.path.join(folder, self.now, "output_files", 'ele_traj.pkl'), 'rb') as f:
-                ax_loaded = pickle.load(f)
 
             plt.title("Elephant agent trajectories")
             plt.savefig(os.path.join(folder, self.now, "output_files", 'ele_traj.png'), dpi=300)
@@ -3809,12 +3929,6 @@ class Conflict_model(Model):
                     hum_data = data_agents[data_agents["AgentID"] == agent]
                     self.plot_hum_traj(hum_data["longitude"].values, hum_data["latitude"].values)
 
-            # with open(os.path.join(folder, self.now, "output_files", 'all_traj.pkl'),'wb') as fid:
-            #     pickle.dump(self.ax_background_01, fid)
-
-            # with open(os.path.join(folder, self.now, "output_files", 'all_traj.pkl'), 'rb') as f:
-            #     ax_loaded = pickle.load(f)
-
             plt.title("Agent trajectories")
             plt.savefig(os.path.join(folder, self.now, "output_files", 'all_traj.png'), dpi=300)
             #------------------------------------------------------------------------
@@ -3823,41 +3937,41 @@ class Conflict_model(Model):
             #------------------------------------------------------------------------
             #SAVE CONFLICT LOCATIONS
             #------------------------------------------------------------------------
-            # with open(os.path.join(folder, self.now, "output_files", "conflict_locations.pkl"), 'wb') as f:
-            #     pickle.dump(self.CONFLICT_LOCATIONS, f)
+            with open(os.path.join(folder, self.now, "output_files", "conflict_locations.pkl"), 'wb') as f:
+                pickle.dump(self.CONFLICT_LOCATIONS, f)
 
-            # outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
-            # arr = np.array(self.CONFLICT_LOCATIONS)
+            outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
+            arr = np.array(self.CONFLICT_LOCATIONS)
 
-            # if arr.size != 0:
-            #     lon = arr[:, 1]
-            #     lat = arr[:, 2]
-            #     longitude, latitude = transform(inProj, outProj, lon, lat)
-            #     x_new, y_new = self.landuse_background(longitude,latitude)
-            #     plt.scatter(x_new, y_new, 50, marker='o', color='red', zorder=3)
+            if arr.size != 0:
+                lon = arr[:, 1]
+                lat = arr[:, 2]
+                longitude, latitude = transform(inProj, outProj, lon, lat)
+                x_new, y_new = self.landuse_background(longitude,latitude)
+                plt.scatter(x_new, y_new, 50, marker='o', color='red', zorder=3)
             #------------------------------------------------------------------------
 
 
             #------------------------------------------------------------------------
             #SAVE INTERACTION LOCATIONS
             #------------------------------------------------------------------------
-            # with open(os.path.join(folder, self.now, "output_files", "interaction_locations.plk"), 'wb') as f:
-            #     pickle.dump(self.INTERACTION_LOCATIONS, f)
+            with open(os.path.join(folder, self.now, "output_files", "interaction_locations.pkl"), 'wb') as f:
+                pickle.dump(self.INTERACTION_LOCATIONS, f)
 
-            # outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
-            # arr = np.array(self.INTERACTION_LOCATIONS)
-            # if arr.size != 0:
-            #     lon = arr[:, 1]
-            #     lat = arr[:, 2]
-            #     longitude, latitude = transform(inProj, outProj, lon, lat)
-            #     x_new, y_new = self.landuse_background(longitude,latitude)
-            #     plt.scatter(x_new, y_new, 50, marker='o', color='blue', zorder=3)
+            outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
+            arr = np.array(self.INTERACTION_LOCATIONS)
+            if arr.size != 0:
+                lon = arr[:, 1]
+                lat = arr[:, 2]
+                longitude, latitude = transform(inProj, outProj, lon, lat)
+                x_new, y_new = self.landuse_background(longitude,latitude)
+                plt.scatter(x_new, y_new, 50, marker='o', color='blue', zorder=3)
             #------------------------------------------------------------------------
 
 
             #------------------------------------------------------------------------
-            # plt.title("Conflict and interaction locations")
-            # plt.savefig(os.path.join(folder, self.now, "output_files", 'conflict_and_interactions.png'), dpi=300)
+            plt.title("Conflict and interaction locations")
+            plt.savefig(os.path.join(folder, self.now, "output_files", 'conflict_and_interactions.png'), dpi=300, bbox_inches='tight')
             #------------------------------------------------------------------------
 
 

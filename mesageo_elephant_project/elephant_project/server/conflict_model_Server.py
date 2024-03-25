@@ -4,41 +4,36 @@ import pathlib
 import sys
 sys.path.append(os.getcwd())
 
+# PRINTING CURRENT WORKING DIRECTORY
 # print(os.getcwd())
-from mesageo.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import server_run_model
+
+# importing the server run model function
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import server_run_model
 
 #importing model class
-from mesageo.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import Conflict_model
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import Conflict_model
 
 #importing visualization tools 
 from mesa_geo.visualization.ModularVisualization import ModularServer
 
-from mesa_geo.visualization.MapModule import MapModule
-from mesageo.elephant_project.experiment_setup_files.Mesa_MapVisualization import MapModule
+# from mesa_geo.visualization.MapModule import MapModule        #This is the original import statement
+from mesageo_elephant_project.elephant_project.experiment_setup_files.Mesa_MapVisualization import MapModule
 
-from mesa.visualization.modules import ChartModule, TextElement
+
+from mesa.visualization.modules import TextElement
 
 #importing agent classes
-from mesageo.elephant_project.experiment_setup_files.conflict_model_Elephant_agent import Elephant    
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import Elephant    
 
-from mesageo.elephant_project.experiment_setup_files.initilialize_food_water_matrix_server_run import environment
 
 import os
-from osgeo import gdal
 import json
-import shutil
 import calendar
 
-food_val_cropland = 100
-prob_food_forest = 0.05
-prob_food_cropland = 0.30
-prob_water = 0.01
-threshold = 28
-year = 2010
 
 #model init files
 model = "01"
-model_init = os.path.join(os.getcwd(), "mesageo/elephant_project/data/", "model_init_files_humans_and_bulls", "model_run_" + model)
+model_init = os.path.join(os.getcwd(), "mesageo_elephant_project/elephant_project/data/", "model_init_files_humans_and_bulls", "model_run_" + model)
 
 init_file = open(os.path.join(model_init, "init_files","model_thresholds.json"))
 init_data = json.load(init_file)
@@ -106,20 +101,37 @@ fixed_params = {
     }
 
 
-month_idx = 1
+user_init = {
+    "SIMULATION_MONTH": "Jan",
+    "SIMULATION_YEAR": 2010,
+    "PROB_FOOD_FOREST": 0.05,
+    "PROB_FOOD_CROPLAND": 0.30,
+    "PROB_WATER": 0.05,
+    "FOOD_VAL_CROPLAND": 100,
+    "FOOD_VAL_FOREST": 25,
+    "THRESHOLD": 28,
+
+}
+
+#use dictionary to map month to month index
+month_dict = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+month_idx = month_dict[user_init["SIMULATION_MONTH"]]
+
 month = calendar.month_abbr[month_idx]
-num_days = calendar.monthrange(year, month_idx)[1]
+num_days = calendar.monthrange(user_init["SIMULATION_YEAR"], month_idx)[1]
+
+print("Month: ", month, "Number of simulation days: ", num_days)
 
 variable_params =  { 
-    "year": year,
+    "year": user_init["SIMULATION_YEAR"],
     "month": month,    
     "max_time": num_days*288,                #each day has 288 time steps
-    "prob_food_forest": prob_food_forest,  
-    "prob_food_cropland": prob_food_cropland,  
-    "prob_water": prob_water,  
-    "max_food_val_forest": 5,
-    "max_food_val_cropland": food_val_cropland,
-    "THRESHOLD": threshold,
+    "prob_food_forest": user_init["PROB_FOOD_FOREST"],  
+    "prob_food_cropland": user_init["PROB_FOOD_CROPLAND"],  
+    "prob_water": user_init["PROB_WATER"],  
+    "max_food_val_forest": user_init["FOOD_VAL_FOREST"],
+    "max_food_val_cropland": user_init["FOOD_VAL_CROPLAND"],
+    "THRESHOLD": user_init["THRESHOLD"],
     "elephant_aggression": 0.8
     }
 
@@ -127,40 +139,38 @@ model_params = variable_params
 model_params.update(fixed_params)
 
 expt_name = "_01_aggression_and_crop_raiding_incidents"
-output = "prob_water__" + str(prob_water) + "__output_files"
-food_val = "food_value_forest__" + str(variable_params["max_food_val_forest"]) + "__food_value_cropland__" + str(food_val_cropland)
+output = "prob_water__" + str(user_init["PROB_WATER"]) + "__output_files"
+food_val = "food_value_forest__" + str(variable_params["max_food_val_forest"]) + "__food_value_cropland__" + str(user_init["FOOD_VAL_CROPLAND"])
 temp_threshold = "THRESHOLD_" + str(model_params["THRESHOLD"])
 elephant_category = "solitary_bulls"
 expt_id = "aggression:" + str(model_params["elephant_aggression"])
 
-output_folder = os.path.join( os.getcwd(), "mesageo/elephant_project/outputs", expt_name, output, food_val, temp_threshold, elephant_category, expt_id, "model_" + model, month)
+output_folder = os.path.join( os.getcwd(), "mesageo_elephant_project/elephant_project/outputs/server_run/", expt_name, output, food_val, temp_threshold, elephant_category, expt_id, "model_" + model, month)
 
 path = pathlib.Path(output_folder)
 path.mkdir(parents=True, exist_ok=True)
 
 server_run_model(model_init, model_params, output_folder, model)
 
-#Agent visualization
-def Agent_Visualization(agent):
+#-------agent visualisation-------------------------#
+def agent_visualization(agent):
 
     if agent is None:
         return
 
-    portrayal_agent = {}
+    agent_portrayal = {}
 
-    if type(agent) is Elephant:
-        portrayal_agent ["layer"] = 1
-        portrayal_agent["fitness"] = round(agent.fitness , 2)
-        portrayal_agent["aggression"] = round(agent.aggress_factor , 2)
+    if isinstance(agent, Elephant):
+        agent_portrayal ["layer"] = 1
 
     else:
-        portrayal_agent ["layer"] = 1
-        portrayal_agent["fitness"] = round(agent.fitness , 2)
+        agent_portrayal ["layer"] = 1
 
-    return portrayal_agent
+    return agent_portrayal
+#------------------------------------------------------#
 
 
-#Text visualization
+#-------TEXT ELEMENTS FOR VISUALIZATION----------------#
 class Model_time_display(TextElement):
     """ 
     Display the model time
@@ -169,10 +179,11 @@ class Model_time_display(TextElement):
         pass
 
     def render(self, model):
-        return "Time elapsed in Hours: " + str(model.model_hour) + str("  ") + "Model Day: " + str(model.model_day)
+        return "Time elapsed in Hours: " + str(model.model_hour) + str("  ") + "Day: " + str(model.model_day)
+#------------------------------------------------------#
 
 
-#Text visualization
+#-------TEXT ELEMENTS FOR VISUALIZATION----------------#
 class day_or_night_display(TextElement):
     """
     Display the model time
@@ -183,11 +194,13 @@ class day_or_night_display(TextElement):
     def render(self, model):
 
         if model.hour_in_day >= 6 and model.hour_in_day < 18:
-            return "Day" + "        " + "Time: " + str(model.hour_in_day) + ":00"
+            return "Day, " + "HOUR: " + str(model.hour_in_day) + ":00"
         else:
-            return "Night" + "        " + "Time: " + str(model.hour_in_day) + ":00"
+            return "Night, " + "HOUR: " + str(model.hour_in_day) + ":00"
+#------------------------------------------------------#
 
 
+#-------TEXT ELEMENTS FOR VISUALIZATION----------------#
 class display_elephant_agent_mode(TextElement):
     def __init__(self):
         pass
@@ -195,30 +208,17 @@ class display_elephant_agent_mode(TextElement):
     def render(self, model):
         for a in model.schedule.agents:
             if "bull" in a.unique_id:
-                return "MODE:" + str(a.mode) + "   FITNESS:" + str(round(a.fitness, 4)) + "   AGGRESSION:" + str(round(a.aggress_factor, 4))
-
-
-
-# chart1 = ChartModule(
-#     [{"Label": "elephant_deaths", "Color": "Black"}], data_collector_name="datacollector"
-# )
-# chart2 = ChartModule(
-#     [{"Label": "human_deaths", "Color": "Black"}], data_collector_name="datacollector"
-# )
-# chart3 = ChartModule(
-#     [{"Label": "disturbance", "Color": "Black"}], data_collector_name="datacollector"
-# )
-
-
+                return "MODE:" + str(a.mode) + ", FITNESS:" + str(round(a.fitness, 4)) + ", AGGRESSION:" + str(round(a.aggress_factor, 4))
+#------------------------------------------------------#
 
 model_time_display = Model_time_display()
 display_elephant_mode = display_elephant_agent_mode()
 day_night_display = day_or_night_display()
 
-map=MapModule(Agent_Visualization, Conflict_model.MAP_COORDS, 12, 600, 600)
+map = MapModule(agent_visualization, Conflict_model.MAP_COORDS, 12, 600, 600)
 
 server = ModularServer(
-    Conflict_model,[map, model_time_display, day_night_display, display_elephant_mode],"Forest model with elephant agents", variable_params
+    Conflict_model,[map, model_time_display, day_night_display, display_elephant_mode], "Simulation model for Human-Elephant Conflict", variable_params
 )
 
 server.launch()

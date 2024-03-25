@@ -1,0 +1,8 @@
+{
+    "aggress_threshold_inflict_damage": 0.5,                 
+    "aggress_threshold_enter_cropland": 0.5,           
+    "food_habituation_threshold": 0.5,              
+    "human_habituation_tolerance": 0.5,                    
+    "elephant_habituation_tolerance": 0.5,  
+    "disturbance_tolerance": 100
+}

@@ -1,0 +1,7 @@
+{
+    "aggression_init": 0.8,
+    "fitness_init": 1,
+    "food_habituation_init": 1,
+    "human_habituation_init": 1
+
+}

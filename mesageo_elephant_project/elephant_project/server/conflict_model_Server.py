@@ -25,6 +25,8 @@ from mesa.visualization.modules import TextElement
 #importing agent classes
 from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import Elephant    
 
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import landuse_classes
+
 
 import os
 import json
@@ -110,7 +112,6 @@ user_init = {
     "FOOD_VAL_CROPLAND": 100,
     "FOOD_VAL_FOREST": 25,
     "THRESHOLD": 28,
-
 }
 
 #use dictionary to map month to month index
@@ -161,7 +162,7 @@ def agent_visualization(agent):
     agent_portrayal = {}
 
     if isinstance(agent, Elephant):
-        agent_portrayal ["layer"] = 1
+        agent_portrayal ["layer"] = 2
 
     else:
         agent_portrayal ["layer"] = 1

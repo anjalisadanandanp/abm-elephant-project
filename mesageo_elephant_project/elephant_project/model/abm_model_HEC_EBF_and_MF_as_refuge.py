@@ -128,6 +128,7 @@ from scipy.ndimage.interpolation import map_coordinates     # for interpolation
 import calendar                         # for date and time operations
 import datetime                         # for date and time operations
 import warnings                         # to ignore warnings
+import geopandas as gpd                 # for geospatial operations
 #---------------imports-------------------#
 
 
@@ -151,6 +152,7 @@ from mesageo_elephant_project.elephant_project.experiment_setup_files.Mesa_geosp
 
 #AGENT_CREATOR
 from mesa_geo.geoagent import AgentCreator          #Default implementation
+
 
 #DATA_COLLECTOR
 #from mesa.datacollection import DataCollector           #Default implementation 
@@ -2487,6 +2489,15 @@ class environment(environment):
 
 
 
+#--------------------------------------------------------------------------------------------------------------------------------
+class landuse_classes(GeoAgent):
+    """Class to simulate the behaviour of the bull elephant agents"""
+
+    def __init__(self,unique_id,model,shape):
+        super().__init__(unique_id,model,shape)
+        self.fitness = 1
+#--------------------------------------------------------------------------------------------------------------------------------
+
 
 class Conflict_model(Model):
     """ 
@@ -2942,6 +2953,26 @@ class Conflict_model(Model):
         #ADDITIONAL DATA COLLECTION
         self.CONFLICT_LOCATIONS = []
         self.INTERACTION_LOCATIONS = []
+
+        # #use geopands to read geojson file
+        # self.landuse_types = gpd.read_file("/home/anjalip/Documents/GitHub/abm-elephant-project/mesageo_elephant_project/elephant_project/geojson_files/lulc.geojson")
+        # landuse_class_creator = AgentCreator(landuse_classes, {"model":self})
+
+        # self.landuse_types["unique_id"] = self.landuse_types.index
+
+        # for landuse in [6]:
+
+        #     # save to geojson file
+        #     # self.landuse_types[self.landuse_types["DN"] == landuse].to_file("/home/anjalip/Documents/GitHub/abm-elephant-project/mesageo_elephant_project/elephant_project/geojson_files/landuse_" + str(landuse) + ".geojson", driver='GeoJSON')
+
+        #     newagents = landuse_class_creator.from_GeoDataFrame(self.landuse_types[self.landuse_types["DN"] == landuse])
+
+        #     for newagent in newagents:
+        #         newagent.unique_id = "landuse_" + str(landuse) + "_" + str(newagent.unique_id)
+        #         print(newagent.unique_id)
+        #         self.grid.add_agents(newagent)
+                # self.schedule.add(newagent)
+
     #-------------------------------------------------------------------
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""

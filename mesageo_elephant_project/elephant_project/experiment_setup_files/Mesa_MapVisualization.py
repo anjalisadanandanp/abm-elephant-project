@@ -15,6 +15,8 @@ class MapModule(MapModule):
 
         for agent in model.grid.agents:
 
+            # print("rendering agent: ", agent.unique_id)
+
             agent_vars = agent.__geo_interface__()   #agent_vars is a dictionary: (['type', 'geometry', 'properties'])
             portrayal = self.portrayal_method(agent)    #The portrayal dict defined in server.py
 
@@ -30,6 +32,9 @@ class MapModule(MapModule):
                 agent_portrayal["properties"]["category"] = "Elephant"
                 agent_portrayal["properties"]["color"] = "red"
                 agent_portrayal["properties"]["radius"] = 5
+
+            elif "landuse_6" in agent.unique_id:
+                agent_portrayal["properties"]["color"] = "grey"
 
             else:
                 agent_portrayal["properties"]["category"] = "Human"

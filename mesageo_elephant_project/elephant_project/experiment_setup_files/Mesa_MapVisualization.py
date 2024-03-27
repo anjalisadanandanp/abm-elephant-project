@@ -33,9 +33,6 @@ class MapModule(MapModule):
                 agent_portrayal["properties"]["color"] = "red"
                 agent_portrayal["properties"]["radius"] = 5
 
-            elif "landuse_6" in agent.unique_id:
-                agent_portrayal["properties"]["color"] = "grey"
-
             else:
                 agent_portrayal["properties"]["category"] = "Human"
                 agent_portrayal["properties"]["color"] = "black"

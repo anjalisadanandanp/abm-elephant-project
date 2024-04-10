@@ -617,6 +617,90 @@ class Elephant(GeoAgent):
 
         return new_lon,new_lat
     #-----------------------------------------------------------------------------------------------------
+    def targeted_walk_modified(self):
+        """" Function to simulate the targeted movement of agents """
+        #moving one cell at a time
+
+        distance = self.distance_calculator_epsg3857(self.shape.y, self.target_lat, self.shape.x, self.target_lon)
+
+        if distance < self.model.xres/2:    #Move to the target
+            self.target_present = False
+            self.mode = "RandomWalk"        #switch mode to random walk
+            return self.shape.x, self.shape.y
+
+        dx = self.target_lon - self.shape.x
+        dy = self.target_lat - self.shape.y
+        if dx == 0 and dy == 0:
+            # print("same location")
+            return self.shape.x, self.shape.y
+
+        co_ord = complex(dx/1000,dy/1000)
+        direction = np.angle([co_ord], deg=True)
+
+        #convert direction to degrees between 0 and 360 if it is negative
+        if direction < 0:
+            direction = 360 + direction
+
+        # print("direction: ", direction)
+
+        #direction between -22.5 and 22.5: move right
+        if (direction >= 337.5 and direction <= 360) or (direction >= 0 and direction <= 22.5):
+            # print("should move right")
+            new_lon = self.shape.x + self.model.xres
+            new_lat = self.shape.y
+
+        #direction between 22.5 and 67.5: move up and right 
+        elif direction > 22.5 and direction <= 67.5:
+            # print("should move up and right")
+            new_lon = self.shape.x + self.model.xres
+            new_lat = self.shape.y - self.model.yres
+        
+        #direction between 67.5 and 112.5: move up
+        elif direction > 67.5 and direction <= 112.5:
+            # print("should move up")
+            new_lon = self.shape.x
+            new_lat = self.shape.y - self.model.yres
+
+        #direction between 112.5 and 157.5: move up and left
+        elif direction > 112.5 and direction <= 157.5:
+            # print("should move up and left")
+            new_lon = self.shape.x - self.model.xres
+            new_lat = self.shape.y - self.model.yres
+
+        #direction between 157.5 and 202.5: move left
+        elif direction > 157.5 and direction <= 202.5:
+            # print("should move left")
+            new_lon = self.shape.x - self.model.xres
+            new_lat = self.shape.y
+
+        #direction between 202.5 and 247.5: move down and left
+        elif direction > 202.5 and direction <= 247.5:
+            # print("should move down and left")
+            new_lon = self.shape.x - self.model.xres
+            new_lat = self.shape.y + self.model.yres
+
+        #direction between 247.5 and 292.5: move down
+        elif direction > 247.5 and direction <= 292.5:
+            # print("should move down")
+            new_lon = self.shape.x
+            new_lat = self.shape.y + self.model.yres
+
+        #direction between 292.5 and 337.5: move down and right
+        elif direction > 292.5 and direction <= 337.5:
+            # print("should move down and right")
+            new_lon = self.shape.x + self.model.xres
+            new_lat = self.shape.y + self.model.yres
+
+        # print("cur_lon: ", self.shape.x, "cur_lat: ", self.shape.y)
+        # print("new_lon: ", new_lon, "new_lat: ", new_lat)
+    
+        #update heading direction
+        co_ord = complex(dx/1000,dy/1000)
+        direction = -np.angle([co_ord],deg=True)   
+        self.heading = direction.tolist()        #unit:degrees
+
+        return new_lon, new_lat
+    #-----------------------------------------------------------------------------------------------------
     def return_feasible_direction_to_move(self):
         """Return feasible direction to move based on the terrain cost"""
 
@@ -789,6 +873,145 @@ class Elephant(GeoAgent):
 
         return row_start, row_end, col_start, col_end
     #-----------------------------------------------------------------------------------------------------
+    def return_feasible_direction_to_move_modified(self):
+
+        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   #spatial resolution: xres
+
+        #create a n*n numpy array to store the data
+        data = np.zeros((radius, radius), dtype=object)
+
+        #fill the array with theta values calculated on the basis of row and column index with respect to the center of the array
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = np.arctan2(((i-(radius//2))*np.pi),((j-(radius//2))*np.pi))
+
+        #convert the array to degrees from radians
+        data = np.rad2deg(data.astype(float))
+
+        #find min and max of the array
+        min_val = np.amin(data)
+        max_val = np.amax(data)
+
+        #set center value to -1
+        data[radius//2][radius//2] = -500
+
+        #discretize the array into 8 bins
+        data = np.digitize(data, np.linspace(min_val, max_val, 17))
+
+        #map values in array based on the following mapping
+        map = {0:0, 1:8, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:5, 11:5, 12:6, 13:6, 14:7, 15:7, 16:8, 17:8}
+
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = map[data[i][j]]
+
+        data[radius//2][radius//2] = 9
+        slope = np.array(self.model.SLOPE)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
+
+        #sum the values in each direction based on the data array
+        direction_0 = slope[data == 1]
+        direction_1 = slope[data == 2]
+        direction_2 = slope[data == 3]
+        direction_3 = slope[data == 4]
+        direction_4 = slope[data == 5]
+        direction_5 = slope[data == 6]
+        direction_6 = slope[data == 7]
+        direction_7 = slope[data == 8]
+
+        #find cells greater than 30 degrees in each direction
+        direction_0 = [x for x in direction_0.flatten() if x > 30]
+        direction_1 = [x for x in direction_1.flatten() if x > 30]
+        direction_2 = [x for x in direction_2.flatten() if x > 30]
+        direction_3 = [x for x in direction_3.flatten() if x > 30]
+        direction_4 = [x for x in direction_4.flatten() if x > 30]
+        direction_5 = [x for x in direction_5.flatten() if x > 30]
+        direction_6 = [x for x in direction_6.flatten() if x > 30]
+        direction_7 = [x for x in direction_7.flatten() if x > 30]
+
+        #calculate the cost of movement in each direction as sum of the direction cells
+        cost_0 = sum(x for x in direction_0 if x > 0)
+        cost_1 = sum(x for x in direction_1 if x > 0)
+        cost_2 = sum(x for x in direction_2 if x > 0)
+        cost_3 = sum(x for x in direction_3 if x > 0)
+        cost_4 = sum(x for x in direction_4 if x > 0)
+        cost_5 = sum(x for x in direction_5 if x > 0)
+        cost_6 = sum(x for x in direction_6 if x > 0)
+        cost_7 = sum(x for x in direction_7 if x > 0)
+
+        cost = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
+        direction = [135, 90, 45, 0, 315, 270, 225, 180]
+
+        # print("cost: ", cost)
+
+        #Generate steps in those directions with minimum cost of movement. Discard other directions
+        theta = []
+        for i in range(0, len(direction)):
+            if cost[i] <= self.model.tolerance:
+                theta.append(direction[i]) 
+
+        #if no direction available, choose direction with minimum movement cost
+        if theta == []:    
+            min_cost =  cost[0]
+            theta = [direction[0]]
+            for i in range(1, len(direction)):
+                if cost[i] <= min_cost:
+                    min_cost = cost[i]
+                    theta = [direction[i]]
+
+        #choose a direction to move
+        movement_direction = np.random.choice(theta)
+
+        if movement_direction == 135:
+            #create an array with 0 when data array != 1
+            filter = np.zeros_like(data)
+            filter[data == 1] = 1
+
+        elif movement_direction == 90:
+            #create an array with 0 when data array != 2
+            filter = np.zeros_like(data)
+            filter[data == 2] = 1
+
+        elif movement_direction == 45:
+            #create an array with 0 when data array != 3
+            filter = np.zeros_like(data)
+            filter[data == 3] = 1
+
+        elif movement_direction == 0:
+            #create an array with 0 when data array != 4
+            filter = np.zeros_like(data)
+            filter[data == 4] = 1
+
+        elif movement_direction == 315:
+            #create an array with 0 when data array != 5
+            filter = np.zeros_like(data)
+            filter[data == 5] = 1
+
+        elif movement_direction == 270:
+            #create an array with 0 when data array != 6
+            filter = np.zeros_like(data)
+            filter[data == 6] = 1
+
+        elif movement_direction == 225:
+            #create an array with 0 when data array != 7
+            filter = np.zeros_like(data)
+            filter[data == 7] = 1
+
+        elif movement_direction == 180:
+            #create an array with 0 when data array != 8
+            filter = np.zeros_like(data)
+            filter[data == 8] = 1
+
+        #center value is set to -1
+        filter[radius//2][radius//2] = 2
+
+        # print("\n")
+        # print("Movement Direction:", movement_direction)
+        # print("filter: \n", filter)
+
+        self.direction = movement_direction
+
+        return filter
+    #-----------------------------------------------------------------------------------------------------
     def target_for_foraging(self, row_start, row_end, col_start, col_end):
         """ Function returns the foraging target for the elephant agent to move."""
 
@@ -807,7 +1030,6 @@ class Elephant(GeoAgent):
 
             #print("not food habituated")
 
-            #print("target")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if i == self.ROW and j == self.COL:
@@ -829,7 +1051,6 @@ class Elephant(GeoAgent):
             if self.num_days_food_depreceation >= 3:    #FOOD DEPRECEATED
 
                 if np.random.uniform(0,1) < prob:
-                    #proximity_vals = []
                     #print("move closer to plantation")
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
@@ -849,7 +1070,7 @@ class Elephant(GeoAgent):
 
             else:
 
-                if food_cropland > 1.25*food_forest:    #HIGH FOOD AVAILABILITY IN CROPLAND
+                if food_cropland > 1.5*food_forest:    #HIGH FOOD AVAILABILITY IN CROPLAND
                     #print("High food in cropland")
                     #print("move closer to plantation")
                     for i in range(row_start,row_end):
@@ -985,6 +1206,241 @@ class Elephant(GeoAgent):
                     pass
 
                 elif self.model.LANDUSE[i][j] == 15 and self.model.LANDUSE[i][j] == 4:
+                    coord_list.append([i, j])
+
+        #model: move closer to the forest
+        if coord_list==[]:
+            val = self.model.forest_proximity[self.ROW][self.COL]
+            coord_list.append([self.ROW,self.COL])
+            for _ in range(10):
+                i = self.model.random.randint(row_start, row_end)
+                j = self.model.random.randint(col_start, col_end)
+                if self.model.forest_proximity[i][j] < val:
+                    coord_list.append([i,j])
+
+        x, y = self.model.random.choice(coord_list)
+        lon = self.model.xres * 0.5  + self.model.xmin + y * self.model.xres
+        lat = self.model.yres * 0.5  + self.model.ymax + x * self.model.yres
+        self.target_lon, self.target_lat = lon, lat
+        self.target_present = True
+
+        return
+    #-----------------------------------------------------------------------------------------------------
+    def target_for_foraging_modified(self, filter):
+
+        # print("FORAGING")
+
+        if self.target_present == True:     #If target already exists
+            # print("target already exists")
+            return
+        
+        ##########################################################################
+
+        coord_list=[]
+        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   #spatial resolution: xres
+
+        row_start = self.ROW - radius//2
+        col_start = self.COL - radius//2
+        row_end = self.ROW + radius//2 + 1
+        col_end = self.COL + radius//2 + 1
+
+        val = self.model.plantation_proximity[self.ROW][self.COL]
+        prob = self.aggress_factor
+
+        if self.food_habituation < self.model.food_habituation_threshold:  #Not food habituated
+
+            # print("not food habituated")
+            # print("target in forest")
+            for i in range(row_start,row_end):
+                for j in range(col_start,col_end):
+                    if i == self.ROW and j == self.COL:
+                        pass
+
+                    elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                        coord_list.append([i,j])
+
+        else:  
+
+            # print("food habituated")                                                     #food habituated
+            mask2 = (np.array(self.model.LANDUSE) != 10)  #others
+            mask1 = (np.array(self.model.LANDUSE) == 10)  #cropland
+            food_memory = np.array(self.food_memory)
+            food_forest = sum(food_memory[mask2])
+            food_cropland = sum(food_memory[mask1])
+
+            if self.num_days_food_depreceation >= 3:    #FOOD DEPRECEATED
+
+                if self.model.random.uniform(0,1) < prob:
+                    #proximity_vals = []
+                    # print("move closer to plantation")
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.model.plantation_proximity[i][j] <= val and filter[i - row_start][j - col_start] == 1:
+                                coord_list.append([i,j]) 
+
+                else:
+                    # print("target in forest")
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if i == self.ROW and j == self.COL:
+                                pass
+
+                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                                coord_list.append([i,j])     
+
+            else:
+
+                if food_cropland > 1.25*food_forest:    #HIGH FOOD AVAILABILITY IN CROPLAND
+                    # print("High food in cropland")
+                    # print("move closer to plantation")
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.model.plantation_proximity[i][j] <= val and filter[i - row_start][j - col_start] == 1:
+                                coord_list.append([i,j]) 
+  
+                else:
+                    # print("Low food in cropland")
+                    # print("target in forest")
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if i == self.ROW and j == self.COL:
+                                pass
+
+                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                                coord_list.append([i,j])      
+        ##########################################################################     
+
+        if coord_list == []:
+            coord_list.append([self.ROW,self.COL])
+        x, y = self.model.random.choice(coord_list)
+        lon, lat = self.model.pixel2coord(x, y)
+        self.target_lon, self.target_lat = lon, lat
+        self.target_present = True
+
+        return
+    #-----------------------------------------------------------------------------------------------------
+    def target_to_drink_water_modified(self, filter):
+
+        # print("DRINKING WATER")
+
+        """ Function returns the target for the elephant agent to move.
+        The target is selected from the memory matrix, where the elephant agent thinks it can find water.
+        Barrier to movement is considered while selecting the target to move."""
+
+        if self.target_present == True:     #If target already exists
+            return
+
+        coord_list=[]
+
+        radius = int(self.radius_water_search*2/self.model.xres)     #spatial resolution
+
+        row_start = self.ROW - radius//2
+        col_start = self.COL - radius//2
+        row_end = self.ROW + radius//2 + 1
+        col_end = self.COL + radius//2 + 1
+
+        for i in range(row_start,row_end):
+            for j in range(col_start,col_end):
+                if i == self.ROW and j == self.COL:
+                    pass
+
+                elif self.water_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                    coord_list.append([i, j])
+
+        #model : move closer to the water area
+        if coord_list==[]:
+            val = self.model.water_proximity[self.ROW][self.COL]
+            coord_list.append([self.ROW,self.COL])
+            for _ in range(10):
+                i = self.model.random.randint(row_start, row_end - 1)
+                j = self.model.random.randint(col_start, col_end - 1)
+                if self.model.water_proximity[i][j] <= val and filter[i - row_start][j - col_start] == 1:
+                    coord_list.append([i,j])
+
+        x, y = self.model.random.choice(coord_list)
+        lon, lat = self.model.pixel2coord(x, y)
+        self.target_lon, self.target_lat = lon, lat
+        self.target_present = True
+
+        return
+    #-----------------------------------------------------------------------------------------------------
+    def target_thermoregulation_modified(self, filter):
+
+        # print("THERMOREGULATION")
+
+        """ Function returns the target for the elephant agent to move.
+        The target is selected from the memory matrix, where the elephant agent thinks it can find water.
+        Barrier to movement is considered while selecting the target to move."""
+
+        if self.target_present == True:     #If target already exists
+            return
+
+        coord_list=[]
+
+        radius = int(self.radius_water_search*2/self.model.xres)     #spatial resolution
+
+        row_start = self.ROW - radius//2
+        col_start = self.COL - radius//2
+        row_end = self.ROW + radius//2 + 1
+        col_end = self.COL + radius//2 + 1
+
+        for i in range(row_start,row_end):
+            for j in range(col_start,col_end):
+                if i == self.ROW and j == self.COL:
+                    pass
+
+                elif self.model.temp[i,j] <= self.model.temp[self.ROW,self.COL] and filter[i - row_start][j - col_start] == 1:
+                    coord_list.append([i, j])
+
+        if coord_list != []:
+            x, y = self.model.random.choice(coord_list)
+            # lon = self.model.xres * 0.5  + self.model.xmin + y * self.model.xres
+            # lat = self.model.yres * 0.5  + self.model.ymax + x * self.model.yres
+            lon, lat = self.model.pixel2coord(x, y)
+            self.target_lon, self.target_lat = lon, lat
+            self.target_present = True
+
+        elif coord_list == []:
+            self.target_present = False
+            if self.model.random.uniform(0,1) < 0.85:
+                self.target_to_drink_water(filter)
+            else:
+                self.target_for_foraging(filter)
+
+        return
+    #-----------------------------------------------------------------------------------------------------
+    def target_for_escape_modified(self):
+
+        radius = int(self.radius_water_search/self.model.xres)     #spatial resolution
+
+        row_start = self.ROW-radius    #searches in the viscinity of the current location
+        row_end = self.ROW+radius+1
+        col_start = self.COL-radius
+        col_end = self.COL+radius+1
+                        
+        #To handle edge cases
+        if self.ROW < radius:
+            row_start = 0
+
+        elif self.ROW > self.model.row_size-1-radius:
+            row_end = self.model.row_size-1
+
+        if self.COL < radius:
+            col_start = 0
+
+        elif self.COL > self.model.col_size-radius-1:
+            col_end = self.model.col_size-1
+
+        coord_list=[]
+        
+        for i in range(row_start,row_end):
+            for j in range(col_start,col_end):
+                if i == self.ROW and j == self.COL:
+                    pass
+
+                elif self.model.LANDUSE[i][j] == 15:
                     coord_list.append([i, j])
 
         #model: move closer to the forest

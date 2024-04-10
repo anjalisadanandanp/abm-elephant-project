@@ -21,14 +21,26 @@ The code base of the agent-based model for human-elephant conflict simulations.
 
 The `requirements.txt` file should list all libraries that is necessary for model runs. This file may be used to create an environment using:
 
-`$ conda create --name <env> --file requirements.txt`
+```
+$ conda create --name <env> --file requirements.txt
+```
 
 ## Running the model:
 
-1. server run: ```python mesageo_elephant_project/elephant_project/server/conflict_model_Server.py``` \
-    Launches the browser based server for the model run visualisation. \
-    outputs are collected at: "mesageo_elephant_project/elephant_project/outputs/server_run" 
+1. server run: 
 
-2. batch run: ```python mesageo_elephant_project/elephant_project/run/run_multiple.py``` \
-    Runs the model in batch mode for multiple iterations. \
+    ```
+    python mesageo_elephant_project/elephant_project/server/conflict_model_Server.py
+    ``` 
+
+    Launches the browser based server for the model run visualisation. 
+    The outputs are collected at: "mesageo_elephant_project/elephant_project/outputs/server_run" 
+
+2. batch run: 
+
+    ```
+    python mesageo_elephant_project/elephant_project/run/run_multiple.py
+    ``` 
+
+    Runs the model in batch mode for multiple iterations. 
     outputs are collected at: "mesageo_elephant_project/elephant_project/outputs/batch_run" 

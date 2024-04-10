@@ -21,7 +21,7 @@ The code base of the agent-based model for human-elephant conflict simulations.
 
 The `requirements.txt` file should list all libraries that is necessary for model runs. This file may be used to create an environment using:
 
-`$ conda create --name <env> --file <this file>`
+`$ conda create --name <env> --file requirements.txt`
 
 ## Running the model:
 

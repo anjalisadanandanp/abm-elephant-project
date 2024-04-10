@@ -18,6 +18,11 @@ The code base of the agent-based model for human-elephant conflict simulations.
 
 - `data`: contains the data used in the model: the field data and the elephant movement data
 
+
+The `requirements.txt`` file should list all libraries that is necessary for model runs. You can install the requirements using the following command: \\
+
+```pip install -r requirements.txt```
+
 ## Running the model:
 
 1. server run: ```python mesageo_elephant_project/elephant_project/server/conflict_model_Server.py``` \

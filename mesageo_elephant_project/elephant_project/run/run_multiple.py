@@ -8,7 +8,7 @@ import pathlib
 import calendar
 import multiprocessing
 
-from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import batch_run_model
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC import batch_run_model
 
 food_val_cropland = 100
 prob_food_forest = 0.05

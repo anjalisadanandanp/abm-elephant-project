@@ -8,10 +8,10 @@ sys.path.append(os.getcwd())
 # print(os.getcwd())
 
 # importing the server run model function
-from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import server_run_model
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC import server_run_model
 
 #importing model class
-from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import Conflict_model
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC import Conflict_model
 
 #importing visualization tools 
 from mesa_geo.visualization.ModularVisualization import ModularServer
@@ -23,9 +23,9 @@ from mesageo_elephant_project.elephant_project.experiment_setup_files.Mesa_MapVi
 from mesa.visualization.modules import TextElement
 
 #importing agent classes
-from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import Elephant    
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC import Elephant    
 
-from mesageo_elephant_project.elephant_project.model.abm_model_HEC_EBF_and_MF_as_refuge import landuse_classes
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC import landuse_classes
 
 
 import os

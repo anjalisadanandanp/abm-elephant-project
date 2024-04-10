@@ -43,4 +43,4 @@ $ conda create --name <env> --file requirements.txt
     ``` 
 
     Runs the model in batch mode for multiple iterations. 
-    outputs are collected at: "mesageo_elephant_project/elephant_project/outputs/batch_run" 
+    The outputs are collected at: "mesageo_elephant_project/elephant_project/outputs/batch_run" 

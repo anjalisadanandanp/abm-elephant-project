@@ -57,7 +57,7 @@ fixed_params = {
     "percent_memory_elephant": GA_params_init_data["percent_memory_elephant"],   
     "radius_food_search": GA_params_init_data["radius_food_search"],     
     "radius_water_search": GA_params_init_data["radius_water_search"], 
-    "movement_fitness_depreceation": -0.000576,        
+    "movement_fitness_depreceation": -0.000347,        
     "fitness_increment_when_eats_food": 0.05,      
     "fitness_increment_when_drinks_water_dry": 0,    
     "fitness_increment_when_drinks_water_wet": 0,    

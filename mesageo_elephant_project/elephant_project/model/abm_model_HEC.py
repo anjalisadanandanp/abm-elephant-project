@@ -243,6 +243,9 @@ class Elephant(GeoAgent):
         self.landuse = self.model.LANDUSE[self.ROW][self.COL]
         self.hour = self.model.hour_in_day
         self.water_source_proximity = self.model.water_proximity[self.ROW][self.COL]
+
+        self.num_thermoregulation_steps = 0
+        self.num_steps_thermoregulated = 0
     #-------------------------------------------------------------------
     def move_point(self,xnew,ynew): 
         """
@@ -446,6 +449,10 @@ class Elephant(GeoAgent):
                 self.target_name = "thermoregulation"
             next_lon, next_lat = self.targeted_walk()
             self.shape = self.move_point(next_lon, next_lat)
+
+            # print("proximity to a water source:", self.model.water_proximity[self.ROW][self.COL]*33.33)
+            if self.model.water_proximity[self.ROW][self.COL]*33.33 < 250:
+                self.num_steps_thermoregulated += 1
    
         #Consume food and water if available
         self.eat_food()
@@ -470,6 +477,9 @@ class Elephant(GeoAgent):
 
         ROW, COL = self.model.return_indices_temperature_matrix(self.shape.y, self.shape.x)
         self.prob_thermoregulation = self.model.temp[ROW,COL]
+
+        if self.prob_thermoregulation > 0.5:
+            self.num_thermoregulation_steps += 1
 
         if self.model.elephant_agent_visibility != None:
             for agent in self.model.schedule.agents:
@@ -1480,7 +1490,7 @@ class Elephant(GeoAgent):
                 self.visit_water_source = True
 
                 #update fitness value
-                self.update_fitness_value(self.model.fitness_increment_when_drinks_water_dry)
+                # self.update_fitness_value(self.model.fitness_increment_when_drinks_water_dry)
 
         else: 
 
@@ -1488,7 +1498,7 @@ class Elephant(GeoAgent):
                 self.visit_water_source = True
 
                 #update fitness value
-                self.update_fitness_value(self.model.fitness_increment_when_drinks_water_wet)
+                # self.update_fitness_value(self.model.fitness_increment_when_drinks_water_wet)
 
         return
     #---------------------------------------------------------------------------------------------------
@@ -1509,7 +1519,7 @@ class Elephant(GeoAgent):
                 self.food_memory[row][col] = 0
 
             #update fitness value
-            self.update_fitness_value(self.model.fitness_increment_when_eats_food)
+            # self.update_fitness_value(self.model.fitness_increment_when_eats_food)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1572,6 +1582,8 @@ class Elephant(GeoAgent):
     def update_fitness_value(self, val):
         """The function updates the fitness value of the agent"""
 
+        print("UPDATE FITNESS VALUE:", val)
+
         fitness = self.fitness
         fitness += val
 
@@ -1581,6 +1593,37 @@ class Elephant(GeoAgent):
             self.fitness = 1
         else:
             self.fitness = fitness
+        return
+    #----------------------------------------------------------------------------------------------------
+    def update_fitness_thermoregulation(self, num_thermoregulation_steps, num_steps_thermoregulated):
+        """Function to update the fitness value of the agent as per thermoregulation criteria"""
+        #num_thermoregulation_steps: number of steps the agent has to thermoregulate
+        #num_steps_thermoregulated: number of steps the agent has thermoregulated
+
+        print("UPDATE FITNESS: THERMOREGULATION")
+
+        fitness_increment = (1/10)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
+        self.update_fitness_value(fitness_increment)
+
+        print("Fitness Increment: ", fitness_increment)
+
+        return
+    #----------------------------------------------------------------------------------------------------
+    def update_fitness_foraging(self, num_thermoregulation_steps, food_consumed):
+        """Function to update the fitness value of the agent as per foraging criteria"""
+        #num_thermoregulation_steps: number of steps the agent has to thermoregulate
+        #food_consumed: amount of food consumed by the agent
+
+        print("UPDATE FITNESS: FORAGING")
+
+        fitness_increment = (1/10)*((288-num_thermoregulation_steps)/288)*(min(food_consumed, self.daily_dry_matter_intake)/self.daily_dry_matter_intake)
+        self.update_fitness_value(fitness_increment)
+
+        if food_consumed > self.daily_dry_matter_intake and self.fitness < 0:
+            self.update_fitness_value(0.1)
+
+        print("Fitness Increment: ", fitness_increment)
+
         return
     #----------------------------------------------------------------------------------------------------
     def update_memory_matrix(self):
@@ -1599,6 +1642,20 @@ class Elephant(GeoAgent):
         """Function to simulate the cognition of the elephant agent"""
 
         if (self.model.model_time%288) == 0 and self.model.model_time>=288:
+
+            print("X---------------------------------X")
+
+            print("FITNESS BEFORE THERMOREGULATION AND FORAGING UPDATE: ", self.fitness)
+
+            print("updating the day!")
+            print("Day: ", self.model.model_day, "num_thermoregulation_steps: ", self.num_thermoregulation_steps, "num_steps_thermoregulated: ", self.num_steps_thermoregulated, "food_consumed: ", self.food_consumed, "daily_dry_matter_intake: ", self.daily_dry_matter_intake)
+
+            #update the fitness value as per the thermoregulation criteria and the foraging criteria
+            self.update_fitness_thermoregulation(self.num_thermoregulation_steps, self.num_steps_thermoregulated)
+            self.update_fitness_foraging(self.num_thermoregulation_steps, self.food_consumed)
+
+            print("FITNESS AFTER THERMOREGULATION AND FORAGING UPDATE: ", self.fitness)
+
             self.food_goal = self.daily_dry_matter_intake   
 
             if self.visit_water_source == False:    
@@ -1618,7 +1675,7 @@ class Elephant(GeoAgent):
 
             if self.food_consumed < self.daily_dry_matter_intake:
                 self.num_days_food_depreceation += 1
-                self.update_fitness_value(-0.1)   
+                self.update_fitness_value(0)   
                 self.update_aggression_factor(self.model.aggression_fn_increment_elephants)     
             else:
                 if self.num_days_food_depreceation == 0:
@@ -1631,6 +1688,8 @@ class Elephant(GeoAgent):
                 self.num_days_food_depreceation = 0
             
             self.food_consumed = 0 
+            self.num_steps_thermoregulated = 0
+            self.num_thermoregulation_steps = 0
 
         self.next_step_to_move()
 
@@ -4199,13 +4258,15 @@ class Conflict_model(Model):
         self.FOOD = FOOD.tolist() 
         self.crop_status = crop_status.tolist()
 
-        source = os.path.join(self.folder_root, "LULC.tif")
-        with rio.open(source) as src:
-            ras_meta = src.profile
+        #-------------------save the food matrix-------------------#
+        # source = os.path.join(self.folder_root, "LULC.tif")
+        # with rio.open(source) as src:
+        #     ras_meta = src.profile
 
-        loc = os.path.join(folder, self.now, "env", "food_matrix__" + str( self.model_day) + "__" + ".tif")
-        with rio.open(loc, 'w', **ras_meta) as dst:
-            dst.write(np.array(self.FOOD).reshape(self.row_size, self.col_size), 1)          
+        # loc = os.path.join(folder, self.now, "env", "food_matrix__" + str( self.model_day) + "__" + ".tif")
+        # with rio.open(loc, 'w', **ras_meta) as dst:
+        #     dst.write(np.array(self.FOOD).reshape(self.row_size, self.col_size), 1)          
+        #---------------------------------------------------------#
 
         return
     #-----------------------------------------------------------------------------------------------------
@@ -4342,7 +4403,7 @@ class Conflict_model(Model):
     def step(self):
 
         #-----------------------------------------------------------
-        print("Model time:", self.model_time, "Model day:", self.model_day, "Model hour:", self.model_hour)
+        # print("Model time:", self.model_time, "Model day:", self.model_day, "Model hour:", self.model_hour)
         #-----------------------------------------------------------
 
         self.slon = []

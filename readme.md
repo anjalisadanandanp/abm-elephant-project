@@ -1,6 +1,6 @@
 # abm-elephant project codebase
 
-The code base of the agent-based model for human-elephant conflict simulations.
+The code base of the agent-based model for human-elephant conflict simulations in western ghats.
 
 ## Study Area
 ![environment_attributes](outputs/study_area_map.png)

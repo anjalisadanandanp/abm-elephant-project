@@ -129,6 +129,7 @@ import calendar                         # for date and time operations
 import datetime                         # for date and time operations
 import warnings                         # to ignore warnings
 import geopandas as gpd                 # for geospatial operations
+import uuid                             # for generating unique ids
 #---------------imports-------------------#
 
 
@@ -1582,7 +1583,7 @@ class Elephant(GeoAgent):
     def update_fitness_value(self, val):
         """The function updates the fitness value of the agent"""
 
-        print("UPDATE FITNESS VALUE:", val)
+        # print("UPDATE FITNESS VALUE:", val)
 
         fitness = self.fitness
         fitness += val
@@ -1600,12 +1601,17 @@ class Elephant(GeoAgent):
         #num_thermoregulation_steps: number of steps the agent has to thermoregulate
         #num_steps_thermoregulated: number of steps the agent has thermoregulated
 
-        print("UPDATE FITNESS: THERMOREGULATION")
+        # print("UPDATE FITNESS: THERMOREGULATION")
 
-        fitness_increment = (1/10)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
-        self.update_fitness_value(fitness_increment)
+        try:
 
-        print("Fitness Increment: ", fitness_increment)
+            fitness_increment = (1/10)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
+            self.update_fitness_value(fitness_increment)
+
+        except:
+            pass
+
+        # print("Fitness Increment: ", fitness_increment)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1614,7 +1620,7 @@ class Elephant(GeoAgent):
         #num_thermoregulation_steps: number of steps the agent has to thermoregulate
         #food_consumed: amount of food consumed by the agent
 
-        print("UPDATE FITNESS: FORAGING")
+        # print("UPDATE FITNESS: FORAGING")
 
         fitness_increment = (1/10)*((288-num_thermoregulation_steps)/288)*(min(food_consumed, self.daily_dry_matter_intake)/self.daily_dry_matter_intake)
         self.update_fitness_value(fitness_increment)
@@ -1622,7 +1628,7 @@ class Elephant(GeoAgent):
         if food_consumed > self.daily_dry_matter_intake and self.fitness < 0:
             self.update_fitness_value(0.1)
 
-        print("Fitness Increment: ", fitness_increment)
+        # print("Fitness Increment: ", fitness_increment)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -3244,6 +3250,9 @@ class Conflict_model(Model):
         #MULTIPROCESSING
         #-------------------------------------------------------------------
         self.now = "PID" + str(os.getpid())
+
+        #create a folder name using uuid
+        self.now = str(uuid.uuid4())
 
         if os.path.isdir(os.path.join(folder, self.now)):
             shutil.rmtree(os.path.join(folder, self.now))

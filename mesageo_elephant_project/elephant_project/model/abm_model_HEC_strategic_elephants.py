@@ -247,6 +247,9 @@ class Elephant(GeoAgent):
 
         self.num_thermoregulation_steps = 0
         self.num_steps_thermoregulated = 0
+
+        self.lat = []
+        self.lon = []
     #-------------------------------------------------------------------
     def move_point(self,xnew,ynew): 
         """
@@ -483,7 +486,8 @@ class Elephant(GeoAgent):
 
             if self.target_present == False:
 
-                filter = self.return_feasible_direction_to_move_modified()
+                # filter = self.return_feasible_direction_to_move_modified()
+                filter = self.return_feasible_direction_to_move_strategic()
 
                 rand_num = self.model.random.uniform(0,1)  
                 if rand_num <= self.model.prob_drink_water:
@@ -531,6 +535,7 @@ class Elephant(GeoAgent):
         elif self.mode == "Thermoregulation":
             if self.target_present == False:
                 filter = self.return_feasible_direction_to_move_modified()
+                # filter = self.return_feasible_direction_to_move_strategic()
                 self.target_thermoregulation_modified(filter)
                 self.target_name = "thermoregulation"
             next_lon, next_lat = self.targeted_walk()
@@ -1133,11 +1138,21 @@ class Elephant(GeoAgent):
         #create a n*n numpy array to store the data
         data = np.zeros((radius, radius), dtype=object)
 
+        distance_weight = np.zeros((radius, radius))
+
         #fill the array with theta values calculated on the basis of row and column index with respect to the center of the array
         for i in range(0, radius):
             for j in range(0, radius):
                 data[i][j] = np.arctan2(((i-(radius//2))*np.pi),((j-(radius//2))*np.pi))
 
+        #fill the distance weight array
+        for i in range(0, radius):
+            for j in range(0, radius):
+                distance_weight[i][j] = np.sqrt((i-(radius//2))**2 + (j-(radius//2))**2)
+        
+        #normalise the distance_weight
+        distance_weight = 1 - distance_weight/np.amax(distance_weight)
+                
         #convert the array to degrees from radians
         data = np.rad2deg(data.astype(float))
 
@@ -1165,7 +1180,6 @@ class Elephant(GeoAgent):
 
         #extract the food data
         food = np.array(self.food_memory)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
-        print(food)
 
         #sum the values in each direction based on the data array
         direction_0 = slope[data == 1]
@@ -1187,35 +1201,84 @@ class Elephant(GeoAgent):
         direction_6 = [x for x in direction_6.flatten() if x > 30]
         direction_7 = [x for x in direction_7.flatten() if x > 30]
 
-        #calculate the cost of movement in each direction as sum of the direction cells
-        cost_0 = sum(x for x in direction_0 if x > 0)
-        cost_1 = sum(x for x in direction_1 if x > 0)
-        cost_2 = sum(x for x in direction_2 if x > 0)
-        cost_3 = sum(x for x in direction_3 if x > 0)
-        cost_4 = sum(x for x in direction_4 if x > 0)
-        cost_5 = sum(x for x in direction_5 if x > 0)
-        cost_6 = sum(x for x in direction_6 if x > 0)
-        cost_7 = sum(x for x in direction_7 if x > 0)
+        weight_0 = distance_weight[data == 1]
+        weight_1 = distance_weight[data == 2]
+        weight_2 = distance_weight[data == 3]
+        weight_3 = distance_weight[data == 4]
+        weight_4 = distance_weight[data == 5]
+        weight_5 = distance_weight[data == 6]
+        weight_6 = distance_weight[data == 7]
+        weight_7 = distance_weight[data == 8]
 
-        cost = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
+        #calculate the cost of movement in each direction as sum of the direction cells
+        cost_0 = sum(x*y for x,y in zip(direction_0, weight_0) if x > 0)
+        cost_1 = sum(x*y for x,y in zip(direction_1, weight_1) if x > 0)
+        cost_2 = sum(x*y for x,y in zip(direction_2, weight_2) if x > 0)
+        cost_3 = sum(x*y for x,y in zip(direction_3, weight_3) if x > 0)
+        cost_4 = sum(x*y for x,y in zip(direction_4, weight_4) if x > 0)
+        cost_5 = sum(x*y for x,y in zip(direction_5, weight_5) if x > 0)
+        cost_6 = sum(x*y for x,y in zip(direction_6, weight_6) if x > 0)
+        cost_7 = sum(x*y for x,y in zip(direction_7, weight_7) if x > 0)
+
+        #calculate the cost of movement in each direction as sum of the direction cells
+        food_0 = sum(x for x in food[data == 1] if x > 0)
+        food_1 = sum(x for x in food[data == 2] if x > 0)
+        food_2 = sum(x for x in food[data == 3] if x > 0)
+        food_3 = sum(x for x in food[data == 4] if x > 0)
+        food_4 = sum(x for x in food[data == 5] if x > 0)
+        food_5 = sum(x for x in food[data == 6] if x > 0)
+        food_6 = sum(x for x in food[data == 7] if x > 0)
+        food_7 = sum(x for x in food[data == 8] if x > 0)
+
+        num_food_cells_0 = sum(1 for x in food[data == 1] if x > 0)
+        num_food_cells_1 = sum(1 for x in food[data == 2] if x > 0)
+        num_food_cells_2 = sum(1 for x in food[data == 3] if x > 0)
+        num_food_cells_3 = sum(1 for x in food[data == 4] if x > 0)
+        num_food_cells_4 = sum(1 for x in food[data == 5] if x > 0)
+        num_food_cells_5 = sum(1 for x in food[data == 6] if x > 0)
+        num_food_cells_6 = sum(1 for x in food[data == 7] if x > 0)
+        num_food_cells_7 = sum(1 for x in food[data == 8] if x > 0)
+
         direction = [135, 90, 45, 0, 315, 270, 225, 180]
 
-        # print("cost: ", cost)
+        slope_cost = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
+        
+        food_available = [food_0, food_1, food_2, food_3, food_4, food_5, food_6, food_7]
+        
+        num_food_cells = [num_food_cells_0, num_food_cells_1, num_food_cells_2, num_food_cells_3, num_food_cells_4, num_food_cells_5, num_food_cells_6, num_food_cells_7]
 
-        #Generate steps in those directions with minimum cost of movement. Discard other directions
-        theta = []
-        for i in range(0, len(direction)):
-            if cost[i] <= self.model.tolerance:
-                theta.append(direction[i]) 
+        #normalize the cost
+        if max(slope_cost) > 0:
+            slope_cost = [x/max(slope_cost) for x in slope_cost]
+        else:
+            slope_cost = [x for x in slope_cost]
 
-        #if no direction available, choose direction with minimum movement cost
-        if theta == []:    
-            min_cost =  cost[0]
-            theta = [direction[0]]
-            for i in range(1, len(direction)):
-                if cost[i] <= min_cost:
-                    min_cost = cost[i]
-                    theta = [direction[i]]
+        for i, (x,y) in enumerate(zip(food_available, num_food_cells)):
+            if (x > 0) and (y>0):
+                food_available[i] = x/y
+            else:
+                food_available[i] = 0
+
+        if max(food_available) > 0:
+            food_available = [x/max(food_available) for x in food_available]
+        else:
+            food_available = [x for x in food_available]
+
+        weight_food = 0.025
+        weight_slope = 0.975
+
+        food_available = [x*weight_food for x in food_available]
+        slope_cost = [x*weight_slope for x in slope_cost]
+
+        total_cost = [y-x for x, y in zip(food_available, slope_cost)] 
+        # print("total cost: ", total_cost)
+
+        min_cost =  total_cost[0]
+        theta = [direction[0]]
+        for i in range(1, len(direction)):
+            if slope_cost[i] <= min_cost:
+                min_cost = total_cost[i]
+                theta = [direction[i]]
 
         #choose a direction to move
         movement_direction = np.random.choice(theta)
@@ -1270,15 +1333,15 @@ class Elephant(GeoAgent):
         self.direction = movement_direction
 
         #plot the data and filter array in 1*2 grid
-        fig, ax = plt.subplots(1,2)
-        ax[0].imshow(slope, cmap='coolwarm')
+        fig, ax = plt.subplots(1,4)
+        ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
         ax[0].set_title("Slope")
         ax[1].imshow(filter, cmap='viridis')
         ax[1].set_title("Filter")
-
-        #add colorbar
-        cbar = plt.colorbar(ax[0].imshow(slope, cmap='coolwarm'), ax=ax[0], orientation='vertical', shrink=0.5)
-        cbar.set_label('Slope (degrees)')
+        ax[2].imshow(food, cmap='viridis', vmin=0, vmax=100)
+        ax[2].set_title("Food")
+        ax[3].imshow(distance_weight, cmap="twilight_shifted", vmin=0, vmax=1)
+        ax[3].set_title("Distance Weight")
 
         # remove x and y axis ticks and labels
         for axis in ax:
@@ -1286,6 +1349,9 @@ class Elephant(GeoAgent):
             axis.set_yticks([])
 
         plt.savefig(os.path.join(folder, self.model.now, "output_files", 'data_filter_' + str(self.model.model_time) + '_.png'), dpi=300, bbox_inches='tight')
+
+        #close figure
+        plt.close()
 
         return filter
     #-----------------------------------------------------------------------------------------------------
@@ -1526,8 +1592,6 @@ class Elephant(GeoAgent):
 
         if self.food_habituation < self.model.food_habituation_threshold:  #Not food habituated
 
-            # print("not food habituated")
-            # print("target in forest")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if i == self.ROW and j == self.COL:
@@ -1538,59 +1602,18 @@ class Elephant(GeoAgent):
 
         else:  
 
-            # print("food habituated")                                                     #food habituated
-            mask2 = (np.array(self.model.LANDUSE) != 10)  #others
-            mask1 = (np.array(self.model.LANDUSE) == 10)  #cropland
-            food_memory = np.array(self.food_memory)
-            food_forest = sum(food_memory[mask2])
-            food_cropland = sum(food_memory[mask1])
+            for i in range(row_start,row_end):
+                for j in range(col_start,col_end):
+                    if i == self.ROW and j == self.COL:
+                        pass
 
-            if self.num_days_food_depreceation >= 3:    #FOOD DEPRECEATED
-
-                if self.model.random.uniform(0,1) < prob:
-                    #proximity_vals = []
-                    # print("move closer to plantation")
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-
-                            if self.model.plantation_proximity[i][j] <= val and filter[i - row_start][j - col_start] == 1:
-                                coord_list.append([i,j]) 
-
-                else:
-                    # print("target in forest")
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-                            if i == self.ROW and j == self.COL:
-                                pass
-
-                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
-                                coord_list.append([i,j])     
-
-            else:
-
-                if food_cropland > 1.25*food_forest:    #HIGH FOOD AVAILABILITY IN CROPLAND
-                    # print("High food in cropland")
-                    # print("move closer to plantation")
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-
-                            if self.model.plantation_proximity[i][j] <= val and filter[i - row_start][j - col_start] == 1:
-                                coord_list.append([i,j]) 
-  
-                else:
-                    # print("Low food in cropland")
-                    # print("target in forest")
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-                            if i == self.ROW and j == self.COL:
-                                pass
-
-                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
-                                coord_list.append([i,j])      
+                    elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                        coord_list.append([i,j])     
         ##########################################################################     
 
         if coord_list == []:
             coord_list.append([self.ROW,self.COL])
+
         x, y = self.model.random.choice(coord_list)
         lon, lat = self.model.pixel2coord(x, y)
         self.target_lon, self.target_lat = lon, lat
@@ -1971,7 +1994,13 @@ class Elephant(GeoAgent):
     def step(self):     
         """ Function to simulate the movement of the elephant agent"""
 
-        self.elephant_cognition()
+        try:
+            self.elephant_cognition()
+        except:
+            self.model.schedule.remove(self)     #REMOVING FROM THE SCHEDULE
+            self.model.grid.remove_agent(self)   #REMOVING FROM THE GRID
+            self.model.num_elephant_deaths += 1
+            return
 
         self.ROW, self.COL = self.update_grid_index()
         self.update_aggression_factor(0)
@@ -1990,6 +2019,9 @@ class Elephant(GeoAgent):
         self.water_source_proximity = self.model.water_proximity[self.ROW][self.COL]
 
         self.conflict_neighbor = None
+
+        self.lat.append(self.shape.y)
+        self.lon.append(self.shape.x)
     #----------------------------------------------------------------------------------------------------
 
 
@@ -2247,6 +2279,7 @@ class Humans(GeoAgent):
         self.num_days_food_depreceation = None
         self.water_source_proximity = None
         self.num_days_water_source_visit = None
+        self.slope = None
     #----------------------------------------------------------------------------------------------------
     def initialize_target_destination_nodes(self):     
         # To initialize target latitude and longitude
@@ -3729,6 +3762,7 @@ class Conflict_model(Model):
                                                 "mode": "mode",
                                                 "hour": "hour",
                                                 "landuse": "landuse",
+                                                "slope": "slope",
                                                 "food_consumed": "food_consumed" ,
                                                 "daily_dry_matter_intake": "daily_dry_matter_intake",
                                                 "num_days_food_depreceation": "num_days_food_depreceation",

@@ -17,8 +17,8 @@ prob_water = 0.01
 threshold = 32
 aggression_values = [0.2, 0.4, 0.6, 0.8]
 year = 2010
-number_processes = 1
-iterations = 20
+number_processes = 2
+iterations = 5
 
 #model init files
 model = "01"
@@ -51,7 +51,7 @@ fixed_params = {
     "fitness_threshold": GA_params_init_data["fitness_threshold"],   
     "terrain_radius": 725,  
     "discount": GA_params_init_data["discount"],     
-    "tolerance": GA_params_init_data["tolerance"],   
+    "tolerance": None,   
     "AW_onward_time_start": population_init_data["AW_onward_time_start"],      
     "AW_onward_time_end": population_init_data["AW_onward_time_end"],       
     "AW_return_time_start": population_init_data["AW_return_time_start"],    
@@ -278,8 +278,6 @@ def run_models():
 
     #empty the output folder
     folder = os.path.join(os.getcwd(), "mesageo_elephant_project/elephant_project/outputs/strategic_elephants")
-    
-    os.system("rm -rf " + folder)
 
     for month_idx in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
         month = calendar.month_abbr[month_idx]
@@ -312,6 +310,10 @@ def run_models():
         print("Finished running: ", "month:", month, "num days:", num_days, "aggression:",  aggression, "food_val_forest:", 15)
         print("Finished running: ", "month:", month, "num days:", num_days, "aggression:",  aggression, "food_val_forest:", 20)
         print("Finished running: ", "month:", month, "num days:", num_days, "aggression:",  aggression, "food_val_forest:", 25)
+
+#clear the output folder
+folder = os.path.join(os.getcwd(), "mesageo_elephant_project/elephant_project/outputs/strategic_elephants")
+os.system("rm -rf " + folder)
 
 for aggression in aggression_values:
     for action_prob in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:

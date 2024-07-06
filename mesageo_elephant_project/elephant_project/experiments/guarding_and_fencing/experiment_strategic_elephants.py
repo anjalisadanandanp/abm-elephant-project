@@ -18,7 +18,7 @@ threshold = 32
 aggression_values = [0.2, 0.4, 0.6, 0.8]
 year = 2010
 number_processes = 2
-iterations = 5
+iterations = 4
 
 #model init files
 model = "01"

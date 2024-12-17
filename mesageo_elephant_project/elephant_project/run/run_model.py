@@ -18,7 +18,7 @@ food_val_forest = 30
 prob_food_forest = 0.10
 prob_food_cropland = 0.30
 prob_water = 0.01
-threshold = 28
+thermoregulation_threshold = 28
 year = 2010
 month = "Jan"
 number_processes = 1
@@ -35,7 +35,7 @@ population_init_data = json.load(population_init_file)
 fixed_params = {
     "num_bull_elephants": 1, 
     "area_size": 1100,              
-    "resolution": 30, 
+    "spatial_resolution": 30, 
     "temporal_resolution": 5,
     "prob_drink_water_dry": 0.3333,   
     "prob_drink_water_wet": 0.0000, 
@@ -47,20 +47,18 @@ fixed_params = {
     "fitness_increment_when_drinks_water_dry": 0.05,    
     "fitness_increment_when_drinks_water_wet": 0.005,    
     "fitness_threshold": GA_params_init_data["fitness_threshold"],   
-    "terrain_radius": GA_params_init_data["terrain_radius"],  
-    "discount": GA_params_init_data["discount"],     
+    "terrain_radius": GA_params_init_data["terrain_radius"],       
     "tolerance": GA_params_init_data["tolerance"],   
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
-    "prob_infrastructure_damage": 0.01,   
-    "radius_forest_search": 1000
+    "prob_infrastructure_damage": 0.01
     }
 
 
 
 
 
-def run_model(year, month, mon_len, prob_food_forest, prob_food_cropland, prob_water, food_val_forest, food_val_cropland, threshold):
+def run_model(year, month, mon_len, prob_food_forest, prob_food_cropland, prob_water, food_val_forest, food_val_cropland, thermoregulation_threshold):
 
     variable_params =  { 
         "year": year,
@@ -71,7 +69,7 @@ def run_model(year, month, mon_len, prob_food_forest, prob_food_cropland, prob_w
         "prob_water_sources": prob_water,  
         "max_food_val_forest": food_val_forest,
         "max_food_val_cropland": food_val_cropland,
-        "THRESHOLD": threshold,
+        "thermoregulation_threshold": thermoregulation_threshold,
         }
 
     model_params = fixed_params
@@ -81,6 +79,10 @@ def run_model(year, month, mon_len, prob_food_forest, prob_food_cropland, prob_w
     elephant_category = "solitary_bulls"
     
     output_folder = os.path.join( os.getcwd(), "model_runs/", expt_name, elephant_category, month)
+
+    #delete the folder if it already exists
+    if os.path.exists(output_folder):
+        os.system("rm -r "+output_folder)
     
     path = pathlib.Path(output_folder)
     path.mkdir(parents=True, exist_ok=True)
@@ -90,7 +92,7 @@ def run_model(year, month, mon_len, prob_food_forest, prob_food_cropland, prob_w
     return
 
 
-def run():
+def run_abm():
 
     month_idx = list(calendar.month_abbr).index(month)
     num_days = calendar.monthrange(year, month_idx)[1]
@@ -104,9 +106,9 @@ def run():
                                        prob_water, 
                                        food_val_forest, 
                                        food_val_cropland, 
-                                       threshold))
+                                       thermoregulation_threshold))
 
     p1.start()
     p1.join()
 
-run()
+run_abm()

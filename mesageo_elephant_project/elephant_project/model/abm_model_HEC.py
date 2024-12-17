@@ -1,105 +1,3 @@
-#---------------DESCRIPTION OF THE ELEPHANT AGENT CLASS-------------------#
-
-# The ELEPHANT agent class contains the following functions:
-
-#1. __init__(): Initializes the agent attributes/state-variables.
-#2. move_point(): Function to move the agent in the geo-space.
-#3. initialize_memory_matrix(): Function that assigns memory matrix to elephants. The elephant agent has knowledge of the entire simulation landscape.
-#4. initialize_memory_matrix_only_forest(): Function that assigns memory matrix to elephants. The elephant agent has only knowledge of the forests.
-#5. initialize_memory_matrix_with_knowledge_from_fringe(): Function that assigns memory matrix to elephants. The elephant agent has knowledge of the fringe areas.
-#6. distance_calculator_epsg3857(): Returns the distance between current position and target position.
-#7. update_grid_index(): Calculate indices and index array.
-#8. next_step_to_move(): How the elephant agent moves from the current co-ordinates to the next.
-#9. current_mode_of_the_agent(): Function returns the mode of the agent depending on its energy levels and interaction with human agents.
-#10. update_danger_to_life(): Update danger_to_life.
-#11. correlated_random_walk_without_terrain_factor(): Correlated random walk without terrain factor, used when the agent is in RandomWalk mode.
-#12. targeted_walk(): Function to simulate the targeted movement of agents, used when the agent is in TargetedMove mode.
-#13. return_feasible_direction_to_move(): Return feasible direction to move based on the terrain cost.
-#14. target_for_foraging(): Set the target for foraging.
-#15. target_to_drink_water(): Set the target to drink water.
-#16. target_thermoregulation(): Set the target for thermoregulation.
-#17. target_for_escape(): Set the target for escape  in case of conflict with humans.
-#18. InflictDamage(): Function to inflict damage to the crop-infrastructure.
-#19. drink_water(): Function to drink water.
-#20. eat_food(): Function to consume food.
-#21. crop_infrastructure_damage(): Function to inflict damage to the crop-infrastructure.
-#22. update_aggres_factor(): Update the aggression factor of the elephant agent.
-#23. update_fitness_value(): Update the fitness value of the elephant agent.
-#24. update_memory_matrix(): Update the memory matrix of the elephant agent.
-#25. update_age(): Update the age of the elephant agent.
-#26. elephant_cognition(): Function to update the elephant agent's cognition.
-#27. step(): Function to update the agent's state variables at each time step.
-#----------------------------------------------------------------------------#
-
-
-
-
-#-----------------DESCRIPTION OF THE HUMAN AGENT CLASS-------------------#
-#1. __init__(): Initializes the agent attributes/state-variables.
-#2. initialize_target_destination_nodes(): Function to initialize the target destination nodes.
-#3. initialize_distance_to_target(): Function to initialize the distance to the target.
-#4. move_point(): Function to move the agent in the geo-space.
-#5. update_grid_index(): Update the grid index of the agent.
-#6. human_cognition(): Function to update the human agent's cognition.
-#7. InflictDamage(): Function to inflict damage to the elephant agents.
-#8. EscapeMode(): Function to escape from the elephant agents.
-#9. distance(): Function to calculate the distance between the current position and the target position.
-#10. distance_calculator_epsg3857(): Returns the distance between current position and target position.
-#11. target_for_escape(): Set the target for escape.
-#12. walk_to_target_for_escape(): Function to walk to the target for escape.
-#13. update_fitness(): Update the fitness value of the human agent.
-#14. step(): Function to update the agent's state variables at each time step.
-#-----------------------------------------------------------------------#
-
-
-
-
-#--------------------DESCRIPTION OF THE MODEL ATTRIBUTES---------------------#
-# The model attributes are as follows:
-
-#1. __init__(): Initializes the model attributes.
-#2. initialize_bull_elephants(): Function to initialize the bull elephant agents.
-#3. initialize_herd_elephants(): Function to initialize the herd elephant agents.
-#4. elephant_distribution_random_init_forest: Function to initialize the elephant agents randomly in the forest.
-#5. elephant_distribution_close_to_fringe: Function to initialize the elephant agents close to the fringe areas.
-#6. elephant_distribution_modified: Function to initialize the elephant agents in according to elevation, landuse, and proximity from the fringe.
-#7. assign_body_weight_elephants(): Function to assign body weight to the elephant agents.
-#8. assign_daily_dietary_requiremnt(): Function to assign daily dietary requirement to the elephant agents.
-#9. initialize_human_agents(): Function to initialize the human agents.
-#10. co_ordinates_residential(): Function to return residential co-ordinates.
-#11. co_ordinates_non_residential(): Function to return non-residential co-ordinates.
-#12. co_ordinates_agricultural_plots(): Function to return agricultural plot co-ordinates.
-#13. guard_agent_dist_coords(): Function to return guard agent co-ordinates.
-#14. DEM_study_area(): Function to return the study area DEM.
-#15. LANDUSE_study_area(): Function to return the study area landuse.   
-#16. FOOD_MATRIX(): Function to return the food matrix.
-#17. WATER_MATRIX(): Function to return the water matrix.
-#18. SLOPE_study_area(): Function to return the study area slope.
-#19. initialize_road_network(): Function to initialize the road network.
-#20. proximity_from_plantation(): Function to return the proximity from the plantation.
-#21. proximity_from_forest(): Function to return the proximity from the forest.
-#22. proximity_from_water(): Function to return the proximity from the water source.
-#23. PROPERTY_MATRIX(): Function to return the BUILDING matrix.
-#24. get_indices(): Function to return the indices of the agent given the latitude and longitude.
-#25. pixel2coord(): Function to return the latitude and longitude given the indices.
-#26. pixel2coord_raster(): Function to return the latitude and longitude given the indices.
-#27. no_human_disturbance(): Function to model the human disturbance (when there is no human disturbance).
-#28. update_human_disturbance_explict(): Function to model the human disturbance explicitly.
-#29. update_human_disturbance_implicit(): Function to model the human disturbance implicitly.
-#30. update_food_matrix_constant(): Function to update the food matrix.
-#31. update_prob_drink_water(): Function to update the probability of drinking water.
-#32. update_season(): Function to update the season.
-#33. update_hourly_temp(): Function to update the hourly temperature.
-#34. return_indices_temperature_matrix(): Function to return the indices of the temperature matrix.
-#35. return_landuse_map(): Function to return the landuse map.
-#36. create_traj_plot(): Function to create the trajectory plot.
-#37. plot_ele_traj(): Function to plot the elephant trajectory.
-#38. plot_hum_traj(): Function to plot the human trajectory.
-#39. step(): Function to update the model state variables at each time step.
-#---------------------------------------------------------------------------#
-
-
-
 
 #---------------imports-------------------#
 import os                               # for file operations
@@ -164,11 +62,6 @@ from mesageo_elephant_project.elephant_project.experiment_setup_files.batch_runn
 #-------------------------------------------------#
 
 
-
-
-#-----------------environment initialisation-------------------#
-from mesageo_elephant_project.elephant_project.experiment_setup_files.init_env.Initialize_Conflict_Model_environment import environment
-#--------------------------------------------------------------#
 
 
 
@@ -1728,1243 +1621,75 @@ class Elephant(GeoAgent):
 
 
 
-#--------------------------------------------------------------------------------------------------------------------------------
-class Bull_Elephant(Elephant):
-    """Class to simulate the behaviour of the bull elephant agents"""
 
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-#--------------------------------------------------------------------------------------------------------------------------------
+class environment():
 
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class Herd_Elephant(Elephant):
-    """Class to simulate the behaviour of the herd elephant agents"""
-
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-    #----------------------------------------------------------------------------------------------------
-    def drink_water_follower(self, follower):
-        """ The elephant agent consumes water from the current cell it is located in"""
-        row, col = self.update_grid_index()
-
-        if "dry" in self.model.season:
-            if self.model.WATER[row][col]>0:
-                self.update_fitness_value_follower(follower, self.model.fitness_increment_when_drinks_water_dry)
-
-        else: 
-            if self.model.WATER[row][col]>0:
-                self.update_fitness_value_follower(follower, self.model.fitness_increment_when_drinks_water_wet)
-        return
-    #----------------------------------------------------------------------------------------------------
-    def eat_food_follower(self, follower):
-        """ The elephant agent consumes food from the current cell it is located in"""
-
-        row, col = self.update_grid_index()
-
-        if self.model.FOOD[row][col] > 0:
-            food_consumed = self.model.random.uniform(0,self.model.FOOD[row][col])
-            follower.food_consumed += food_consumed
-            self.model.FOOD[row][col] -= food_consumed
-            self.food_memory[row][col] -= food_consumed
-
-            if self.model.FOOD[row][col] < 0:
-                self.model.FOOD[row][col] = 0
-                self.food_memory[row][col] = 0
-
-            #update fitness value
-            self.update_fitness_value_follower(follower, self.model.fitness_increment_when_eats_food)
-        return
-    #----------------------------------------------------------------------------------------------------
-    def update_fitness_value_follower(self, follower, val) :
-        """The function updates the fitness value of the agent"""
-        fitness = follower.fitness
-        fitness += val
-        if fitness <= 0:
-            follower.fitness = 0
-        elif fitness > 1:
-            follower.fitness = 1
-        else:
-            follower.fitness = fitness
-        return
-    #----------------------------------------------------------------------------------------------------
-    def inflict_damage_followers(self):
-        """Function to inflict damage on the human agents"""
-        for neighbor in self.conflict_neighbor:
-            neighbor.fitness = neighbor.fitness - self.model.random.uniform(0, self.model.fitness_fn_decrement_humans)
-    #----------------------------------------------------------------------------------------------------
-    def update_age_follower(self, follower):
-        """Function to update the age of the agent"""
-        follower.age += 1
-    #----------------------------------------------------------------------------------------------------
-    def elephant_cognition(self):
-        """Function to simulate the cognition of the elephant agent"""
-
-        if (self.model.model_time%288) == 0 and self.model.model_time>=288:
-            #self.food_goal = self.daily_dry_matter_intake   
-
-            if self.visit_water_source == False:    
-                self.num_days_water_source_visit += 1     
-                self.update_fitness_value(0)     
-                self.update_aggression_factor(self.model.aggression_fn_increment_elephants)     
-            else:
-                if self.num_days_water_source_visit == 0:
-                    self.update_fitness_value(0)        
-                    self.update_aggression_factor(0)        
-                else:                   
-                    self.update_fitness_value(0)        
-                    self.update_aggression_factor(0)     
-
-                self.visit_water_source = False
-                self.num_days_water_source_visit = 0    
-
-            if self.food_consumed < self.daily_dry_matter_intake:
-                self.num_days_food_depreceation += 1
-                self.update_fitness_value(-0.1)   
-                self.update_aggression_factor(self.model.aggression_fn_increment_elephants)     
-            else:
-                if self.num_days_food_depreceation == 0:
-                    self.update_fitness_value(0)     
-                    self.update_aggression_factor(0)     
-                else:                  
-                    self.update_fitness_value(0)     
-                    self.update_aggression_factor(0)   
-
-                self.num_days_food_depreceation = 0
-            
-            self.food_consumed = 0 
-
-        self.next_step_to_move()
-
-        return
-    #----------------------------------------------------------------------------------------------------
-    def step(self):  
-        """ Function to simulate the movement of the elephant agent"""
-
-        self.elephant_cognition()
-
-        for agent in self.followers:
-
-            agent.shape = self.shape
-
-            #self.eat_food_follower(agent)
-            #self.drink_water_follower(agent)
-
-            self.update_fitness_value_follower(agent, self.model.movement_fitness_depreceation)
-
-            if self.mode == "InflictDamage":
-                if self.random.uniform(0,1) < 0.1:
-                    self.inflict_damage_followers(agent)
-
-            if agent.age >= 15 and agent.sex == "Male":
-
-                self.model.num_bull_elephants += 1
-                elephant = AgentCreator(Bull_Elephant,{"model":self.model}) 
-                newagent = elephant.create_agent(Point(agent.shape.x, agent.shape.y), "bull_" + str(self.model.num_bull_elephants))
-                newagent.herdID = 0   #variables for assigning the social structure of the elephants. herdID = 0 corresponds to solitary bulls.
-                newagent.Leader = True   #bull elephants are always leaders
-                newagent.sex = "Male"
-                newagent.age = agent.age
-                newagent.conflict_neighbor = None
-            
-                #Assign body weight of the elephant agent depending on the sex and age
-                newagent.body_weight = self.model.assign_body_weight_elephants(newagent.age, newagent.sex)
-
-                #Assign daily dry matter intake depending on the body weight
-                newagent.daily_dry_matter_intake = self.model.assign_daily_dietary_requiremnt(newagent.body_weight)
-
-                self.model.schedule.add(newagent)
-                self.model.grid.add_agents(newagent)
-                
-                self.followers = np.delete(self.followers, np.where(self.followers == agent))
-                del agent
-
-
-        self.ROW, self.COL = self.update_grid_index()
-
-        if (self.model.model_time%2880) == 0 and self.model.model_time >= 288:
-            self.update_memory_matrix()
-
-        self.conflict_neighbor = None
-        self.slope = self.model.SLOPE[self.ROW][self.COL]
-        self.hour = self.model.hour_in_day
-        self.landuse = self.model.LANDUSE[self.ROW][self.COL]
-        self.water_source_proximity = self.model.water_proximity[self.ROW][self.COL]
-
-        if self.fitness <= 0:  #Assign a new leader
-
-            new_leader = None
-            num_juveniles = 0
-
-            for agent in self.followers:
-                if agent.sex == "Female" and agent.age >= 10:
-                    new_leader = agent
-
-                else:
-                    num_juveniles += 1
-
-
-            if len(self.followers) == num_juveniles:        #IF ONLY JUVENILES ARE REMAINING
-                for juvenile in self.followers:
-                    del juvenile
-                    self.model.num_elephant_deaths += 1 
-                self.model.schedule.remove(self)     #REMOVING FROM THE SCHEDULE
-                self.model.grid.remove_agent(self)   #REMOVING FROM THE GRID
-                self.model.num_elephant_deaths += 1  
-                return
-
-            #print("NEW LEADER:", new_leader.unique_id, new_leader.sex, new_leader.age)
-
-            elephant = AgentCreator(Herd_Elephant,{"model":self.model})  
-            newagent = elephant.create_agent(Point(new_leader.shape.x,new_leader.shape.y), self.unique_id)
-            newagent.herdID = new_leader.herdID   #variables for assigning the social structure of the elephants. herdID = 0 corresponds to solitary bulls.
-            newagent.age = new_leader.age
-            newagent.conflict_neighbor = None
-            newagent.Leader = True
-            newagent.sex = "Female"
-            #Assign body weight of the elephant agent depending on the sex and age
-            newagent.body_weight = self.model.assign_body_weight_elephants(new_leader.age, new_leader.sex)
-            #Assign daily dry matter intake depending on the body weight
-            newagent.daily_dry_matter_intake = self.daily_dry_matter_intake - self.model.assign_daily_dietary_requiremnt(new_leader.body_weight)
-
-            newagent.follow = None
-            newagent.followers = self.followers[:-1]
-
-            self.model.schedule.remove(self)     #REMOVING FROM THE SCHEDULE
-            self.model.grid.remove_agent(self)   #REMOVING FROM THE GRID
-            self.model.num_elephant_deaths += 1
-
-            self.model.grid.add_agents(newagent)
-            self.model.schedule.add(newagent)
-#--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-#Human agent class: serves as superclass
-class Humans(GeoAgent):
-    """ Human agents class"""
-
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-
-        #agent initialisation
-        init_file = open(os.path.join(os.getcwd(), "mesageo_elephant_project/elephant_project/data/", "model_init_files_humans_and_bulls", "model_run_" + _model_id_, "init_files", "human_init.json"))
-        init_data = json.load(init_file)
-
-
-        #INITIALIZE BEHAVIOURAL PARAMETERS: FITNESS AND AGGRESSION
-        #-------------------------------------------------------------------
-        self.fitness = init_data["fitness_init"]    #fitness value of the individual at the start of the simulation
-        self.elephant_habituation = init_data["elephant_habituation_init"]   #aggression value of the individual at the start of the simulation
-        #-------------------------------------------------------------------
-
-        #Home latitude and longitude of the agent
-        self.home_lon = self.shape.x
-        self.home_lat = self.shape.y
-        self.escape_target_present = False
-        self.counter = 0
-
-        self.mode = None
-        self.hour = self.model.hour_in_day
-        self.ROW, self.COL = self.update_grid_index() 
-        self.landuse = self.model.LANDUSE[self.ROW][self.COL]
-        self.aggress_factor = None
-        self.prob_thermoregulation = None
-        self.food_consumed = None
-        self.daily_dry_matter_intake = None
-        self.num_days_food_depreceation = None
-        self.water_source_proximity = None
-        self.num_days_water_source_visit = None
-    #----------------------------------------------------------------------------------------------------
-    def initialize_target_destination_nodes(self):     
-        # To initialize target latitude and longitude
-        return
-    #----------------------------------------------------------------------------------------------------
-    def initialize_distance_to_target(self):        
-        # To initialize distance from home location to target location
-        return
-    #----------------------------------------------------------------------------------------------------
-    def move_point(self,xnew,ynew):     #To move the agents in the geo-space
-        """ Moves the agent in space"""
-        #xnew: longitude
-        #ynew: latitude
-        return Point(xnew,ynew)
-    #----------------------------------------------------------------------------------------------------   
-    def update_grid_index(self):
-        # calculate indices and index array
-        row, col = self.model.get_indices(self.shape.x, self.shape.y)
-
-        if row == (self.model.row_size - 1) or row == 0 or col == (self.model.col_size - 1) or col == 0:      #if agent is at the border
-            lon, lat = self.model.pixel2coord(row, col)
-            self.shape = self.move_point(lon, lat)
-
-        return row, col
-    #----------------------------------------------------------------------------------------------------   
-    def human_cognition(self):
-        """The human agents cognition"""
-        return
-    #----------------------------------------------------------------------------------------------------
-    def InflictDamage(self, conflict_agent):
-        #Reduce the fitness of the elephant agent
-        conflict_agent.fitness = conflict_agent.fitness - self.model.random.uniform(0, self.model.fitness_fn_decrement_elephants)
-        #Reduce the aggression of the elephant agent
-        conflict_agent.aggress_factor = conflict_agent.aggress_factor - self.model.random.uniform(0, self.model.aggression_fn_decrement_elephants)
-
-        if isinstance(conflict_agent , Herd_Elephant):
-            if self.model.random.uniform(0,1) < 0.1:
-                agt = self.model.random.choice(conflict_agent.followers)
-                #Reduce the fitness of the elephant agent
-                agt.fitness = agt.fitness - self.model.random.uniform(0, self.model.fitness_fn_decrement_elephants)
-                #Reduce the aggression of the elephant agent
-                agt.aggress_factor = agt.aggress_factor - self.model.random.uniform(0, self.model.aggression_fn_decrement_elephants)
-        return
-    #----------------------------------------------------------------------------------------------------
-    def EscapeMode(self, conflict_lon, conflict_lat):
-
-        #set the target for escape
-        self.target_for_escape(conflict_lon, conflict_lat)
-
-        #walk to the target 
-        self.walk_to_target_for_escape()
-        
-        return
-    #----------------------------------------------------------------------------------------------------
-    def distance(self,slat,elat,slon,elon):  
-        #Returns the distance between current position and target position
-        #Input CRS: epsg:3857 
-
-        if slat==elat and slon==elon:
-            return 0
-            
-        dist = np.sqrt((slat-elat)**2+(slon-elon)**2)
-        return dist   #returns distance in metres
-    #----------------------------------------------------------------------------------------------------
-    def distance_calculator_epsg3857(self,slat,elat,slon,elon):
-        #returns the distance between current position and target position
-        #the latitude and longitude are in EPSG 3857
-        
-        if slat==elat and slon==elon:
-            return 0
-            
-        dist = np.sqrt((slat-elat)**2+(slon-elon)**2)
-        return dist   #returns distance in metres
-    #----------------------------------------------------------------------------------------------------
-    def target_for_escape(self, conflict_lon, conflict_lat):
-        """ Function returns the target for the human agent to move in case of threat to life.
-        The agent moves to a random extremity of the search radius"""
-
-        #sets the target to move for foraging
-        #conflict_lon --- epsg:3857 ---
-        #conflict_lat --- epsg:3857 ---
-        
-        if self.escape_target_present == True and self.conflict_neighbor == None:      #If target to escape is already assigned
-            return
-
-        dx = conflict_lon - self.shape.x
-        dy = conflict_lat - self.shape.y
-
-        #setting target latitude and longitude for escape away from the conlict location
-        if dx >= 0 and dy >= 0:
-            self.target_lat_escape = self.shape.y - self.model.random.uniform(0, self.model.escape_radius_humans)
-            self.target_lon_escape = self.shape.x - self.model.random.uniform(0, self.model.escape_radius_humans)
-
-        if dx >= 0 and dy <= 0:
-            self.target_lat_escape = self.shape.y + self.model.random.uniform(0, self.model.escape_radius_humans)
-            self.target_lon_escape = self.shape.x - self.model.random.uniform(0, self.model.escape_radius_humans)
-
-        if dx <= 0 and dy >= 0:
-            self.target_lat_escape = self.shape.y - self.model.random.uniform(0, self.model.escape_radius_humans)
-            self.target_lon_escape = self.shape.x + self.model.random.uniform(0, self.model.escape_radius_humans)
-
-        if dx <= 0 and dy <= 0:
-            self.target_lat_escape = self.shape.y + self.model.random.uniform(0, self.model.escape_radius_humans)
-            self.target_lon_escape = self.shape.x + self.model.random.uniform(0, self.model.escape_radius_humans)
-
-        self.escape_target_present = True
-        return
-    #----------------------------------------------------------------------------------------------------
-    def walk_to_target_for_escape(self):
-    
-        if self.counter <=12:
-            self.shape = self.move_point(self.target_lon_escape, self.target_lat_escape)
-            self.counter +=1
-
-        else:
-            self.counter = 0
-            self.escape_target_present = False
-
-        return
-    #----------------------------------------------------------------------------------------------------
-    def update_fitness(self):
-
-        if self.conflict_neighbor == None: 
-            if self.fitness > 0 and self.fitness < 1:
-                self.fitness += 0.05
-
-        if self.fitness < 0:
-            self.fitness = 0
-
-        if self.fitness > 1:
-            self.fitness = 1
-
-        return
-    #----------------------------------------------------------------------------------------------------
-    def step(self):
-
-        #start = timeit.default_timer()
-        self.human_cognition()
-        #stop = timeit.default_timer()
-        #execution_time = stop - start
-        #print("Human agent step: "+str(execution_time)+" seconds") # It returns time in seconds
-
-        self.update_fitness()
-
-        self.ROW, self.COL = self.update_grid_index() 
-        self.landuse = self.model.LANDUSE[self.ROW][self.COL]
-
-        #Remove Dead Agents
-        if self.fitness <= 0:
-            self.model.schedule.remove(self)     #REMOVING FROM THE SCHEDULE
-            self.model.grid.remove_agent(self)   #REMOVING FROM THE GRID
-            self.model.num_human_deaths += 1
-
-        return
-    #----------------------------------------------------------------------------------------------------
-    def __repr__(self):
-        return "Agent_Human_ " + str(self.unique_id)
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-#Commuters agent class: serves as superclass
-class Commuters(Humans):
-    """ Commuters: Both agricultural labourers/ Cultivators and other workers who commutes to their job location daily"""
-    
-    #agricultural labourers/Cultivators: commutes to agricultural plots
-    #other workers: commutes to commercial centres
-
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-        self.target_reached = False     
-        self.dist_to_target = None
-        self.next = 0
-        self.on_ward = True
-        self.return_journey = False
-    #----------------------------------------------------------------------------------------------------
-    def distance_calculator(self,slat,elat,slon,elon):  
-        # returns the distance between current position and target position
-        # slat: current latitude  --- epsg:4326 ---
-        # elat: target latitude  --- epsg:4326 ---
-        # slon: current longitude   --- epsg:4326 ---
-        # elon: target longitude   --- epsg:4326 ---
-
-        if slat==elat and slon==elon:
-            return 0
-
-        slat = radians(slat)   
-        slon = radians(slon)
-        elat = radians(elat)
-        elon = radians(elon)
-        dist = 6371.01 * acos(sin(slat)*sin(elat)  + cos(slat)*cos(elat)*cos(slon - elon))   #unit of distance: Km
-        return dist*1000    #returns distnce in metres
-    #----------------------------------------------------------------------------------------------------
-    def distance_calculator_epsg3857(self,slat,elat,slon,elon):
-        #returns the distance between current position and target position
-        #the latitude and longitude are in EPSG 3857
-        
-        if slat==elat and slon==elon:
-            return 0
-            
-        dist = np.sqrt((slat-elat)**2+(slon-elon)**2)
-        return dist   #returns distance in metres
-    #----------------------------------------------------------------------------------------------------
-    def walk_to_target(self, target_lat, target_lon):
-        #The coordinates are in EPSG 3857
-
-        dx=self.shape.x-target_lon
-        dy=self.shape.y-target_lat
-
-        if dx < self.model.xres/2 and self.model.xres/2 :   #The agent is close to the target
-            self.target_reached = True
-            self.move_point(target_lon,target_lat)
-            return
-
-        co_ord = complex(dx,dy)
-        direction = np.angle([co_ord],deg=True)
-        theta=self.model.random.uniform(direction-5,direction+5)
-        dx=self.speed_walking*self.model.temporal_scale*60*np.cos(theta*0.0174533)    #speed is in m/s and Time is in minutes
-        dy=self.speed_walking*self.model.temporal_scale*60*np.sin(theta*0.0174533)
-        new_lat = dy+self.shape.y
-        new_lon = dx+self.shape.x
-        self.move_point(new_lon,new_lat)
-        return
-    #----------------------------------------------------------------------------------------------------
-    def initialize_target_destination_nodes(self):
-        self.orig_node = ox.distance.nearest_nodes(self.model.road_network, self.shape.x, self.shape.y)   #pass co-ordinates in UTM 
-        self.dest_node = ox.distance.nearest_nodes(self.model.road_network, self.target_lon, self.target_lat)   #pass co-ordinates in UTM
-        self.find_route() 
-    #----------------------------------------------------------------------------------------------------
-    def initialize_distance_to_target(self):
-        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
-        longitude_x, latitude_y  = transform(inProj, outProj, self.shape.x, self.shape.y)
-        target_lon,target_lat = transform(inProj, outProj, self.target_lon, self.target_lat)
-        self.dist_to_target = self.distance_calculator(latitude_y,target_lat,longitude_x,target_lon)
-    #----------------------------------------------------------------------------------------------------
-    def find_route(self):
-        """ Function returns the route for commute via road depending on the travel speed"""
-
-        route = nx.shortest_path(self.model.road_network, source=self.orig_node, target=self.dest_node, weight='length')
-        line = []
-
-        # the length of each edge traversed along the path
-        lengths = ox.utils_graph.get_route_edge_attributes(self.model.road_network, route, 'length')
-
-        # the total length of the path
-        path_length = sum(lengths)
-
-        if path_length==0:
-            self.route_x = []
-            self.route_y = []
-            return
-
-        dist = self.speed_vehicle*self.model.temporal_scale*60
-
-        for i in range(0,len(route)-1):
-            line.append(self.model.edges_proj.loc[(route[i],route[i+1],0)].geometry)
-            
-        multi_line = geometry.MultiLineString(line)
-        merged_line = ops.linemerge(multi_line)
-
-        #print("Merged line: ", merged_line)
-        #print("Boundary: ", merged_line.boundary)
-
-        distance_delta = dist
-        distances = np.arange(0, merged_line.length, distance_delta)
-
-        route = [merged_line.interpolate(distance) for distance in distances] + [Point(merged_line.coords[-1])]
-        
-        self.route_x = []       #longitude
-        self.route_y = []       #latitude
-
-        self.route_x.append(self.home_lon)
-        self.route_y.append(self.home_lat)
-
-        #print(len(route))
-        #print(route)
-
-        for i in range(0,len(route)):
-            #print(i, route[i].coords.xy)
-            #print(i, route[i].coords.xy[0][0], route[i].coords.xy[1][0])
-            self.route_x.append(route[i].coords.xy[0][0])
-            self.route_y.append(route[i].coords.xy[1][0])
-
-        self.route_x.append(self.target_lon)
-        self.route_y.append(self.target_lat)
-        return
-    #----------------------------------------------------------------------------------------------------
-    def MoveViaVehicle(self):
-
-        if len(self.route_x) < 2:
-            return
-
-        if self.on_ward == True:        #Travelling to the destination
-            x_new=self.route_x[self.next]
-            y_new=self.route_y[self.next]
-
-            self.shape=self.move_point(x_new,y_new)
-            self.next=self.next+1
-
-            if (x_new==self.route_x[-1]) and (y_new==self.route_y[-1]):     #End of the journey
-                self.on_ward = False
-                self.return_journey = False
-                self.next=len(self.route_x)-1
-
-        elif self.return_journey == True:       #returning back home
-            x_new=self.route_x[self.next]
-            y_new=self.route_y[self.next]
-
-            self.shape=self.move_point(x_new,y_new)
-            self.next=self.next-1
-
-            if (x_new==self.route_x[0]) and (y_new==self.route_y[0]):     #End of the journey
-                self.on_ward = False
-                self.return_journey = False
-                self.next=0
-        return
-    #----------------------------------------------------------------------------------------------------
-    def human_cognition(self):
-        """The human agents cognition"""
-        #If the distance is less than 2km, the agents walks to the target location
-        #Else the agents commutes via vehicle
-
-        self.model.random.shuffle(self.model.elephant_agents)
-
-        for elephant_agent in self.model.elephant_agents:
-            self.dist_to_bull = self.distance_calculator_epsg3857(elephant_agent.shape.y, self.shape.y, elephant_agent.shape.x, self.shape.x)
-            if self.dist_to_bull <= self.model.human_agent_visibility:
-                self.conflict_neighbor = elephant_agent
-            else:
-                self.conflict_neighbor = None
-
-        if self.conflict_neighbor != None:       #In conflict
-            #Conflict Cognition
-
-            #if not habituated to elephants
-            if self.elephant_habituation < self.model.elephant_habituation_tolerance:
-                self.model.CONFLICT_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                #either Inflict Damage or Escape to Safety
-                rand = self.model.random.uniform(0,1)
-
-                if rand < self.model.action_probability:          #Inflict Damage with a probability of 0.5
-                    self.mode = "inflict_damage"
-                    self.InflictDamage(self.conflict_neighbor)     #Inflict damage on a random elephant agent in the viscinity  
-
-                else:           #Escape to safety with a probability of 0.5
-                    self.mode = "escape_mode"
-                    self.EscapeMode(self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y)
-            
-            else:
-                self.mode = "interaction"
-                self.model.INTERACTION_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                
-                if self.target_reached ==  True:
-                    #At the target, move randomly
-                    self.shape=self.move_point(self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10))
-
-                #Going for work
-                elif (self.model.hour_in_day >= self.onward_time and self.model.hour_in_day < self.return_time) and (self.target_reached == False):       #Time for the onward journey
-                    if self.dist_to_target < 2000:
-                        #walks to the target location
-                        self.walk_to_target(self.target_lat, self.target_lon)
-
-                    else:
-                        #commutes via the road
-                        if self.model.hour_in_day == self.onward_time:
-                            self.on_ward = True 
-                            self.return_journey =  False
-
-                        if self.on_ward == True and self.return_journey ==  False:
-                            self.next_target_lat = self.target_lat
-                            self.next_target_lon = self.target_lon
-                            self.MoveViaVehicle()
-
-                        else:
-                            self.shape=self.move_point(self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10))
-
-                #Returning home
-                elif (self.model.hour_in_day > self.onward_time and self.model.hour_in_day >= self.return_time) and (self.target_reached == False):
-                    if self.dist_to_target < 2000:
-                        #walks to the target location
-                        self.walk_to_target(self.home_lat,self.home_lon)
-
-                    else:
-
-                        if self.model.hour_in_day == self.return_time:
-                            self.on_ward = False
-                            self.return_journey =  True
-
-                        if self.on_ward == False and self.return_journey ==  True:
-                            self.next_target_lat = self.home_lat
-                            self.next_target_lon = self.home_lon
-
-                        else:
-                            self.shape=self.move_point(self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10))
-                            
-                        self.MoveViaVehicle()
-
-
-        else:       #Not in conflict
-
-            self.mode = "not in conflict"
-
-            if self.counter!=0:
-                self.EscapeMode(None, None)
-                return
-
-            if self.target_reached ==  True:
-                #At the target, move randomly
-                self.shape=self.move_point(self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10))
-
-            #Going for work
-            elif (self.model.hour_in_day >= self.onward_time and self.model.hour_in_day < self.return_time) and (self.target_reached == False):       #Time for the onward journey
-                if self.dist_to_target < 2000:
-                    #walks to the target location
-                    self.walk_to_target(self.target_lat, self.target_lon)
-
-                else:
-                    #commutes via the road
-                    if self.model.hour_in_day == self.onward_time:
-                        self.on_ward = True 
-                        self.return_journey =  False
-
-                    if self.on_ward == True and self.return_journey ==  False:
-                        self.next_target_lat = self.target_lat
-                        self.next_target_lon = self.target_lon
-                        self.MoveViaVehicle()
-
-                    else:
-                        self.shape=self.move_point(self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10))
-
-            #Returning home
-            elif (self.model.hour_in_day > self.onward_time and self.model.hour_in_day >= self.return_time) and (self.target_reached == False):
-                if self.dist_to_target < 2000:
-                    #walks to the target location
-                    self.walk_to_target(self.home_lat,self.home_lon)
-
-                else:
-
-                    if self.model.hour_in_day == self.return_time:
-                        self.on_ward = False
-                        self.return_journey =  True
-
-                    if self.on_ward == False and self.return_journey ==  True:
-                        self.next_target_lat = self.home_lat
-                        self.next_target_lon = self.home_lon
-
-                    else:
-                        self.shape=self.move_point(self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10))
-                        
-                    self.MoveViaVehicle()
-
-        self.conflict_neighbor = None
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class Cultivators_Agricultural_labourers(Commuters):
-    """agricultural labourers/ Cultivators commutes to agricultural plots"""
-
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-
-        #Initializing the onward and return time of the agents
-        #We assume a uniform distribution 
-        self.onward_time = self.model.random.randint(self.model.AW_onward_time_start,self.model.AW_onward_time_end)
-        self.return_time = self.model.random.randint(self.model.AW_return_time_start,self.model.AW_return_time_end)
-        
-        #speed of commute
-        #We assume a uniform distribution 
-        self.speed_walking = self.model.random.uniform(self.model.speed_walking_start,self.model.speed_walking_end)
-        self.speed_vehicle = self.model.random.uniform(self.model.speed_vehicle_start,self.model.speed_vehicle_end)
-#--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class Other_workers(Commuters):
-    """ workers commuting to commercial centres"""
-
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-
-        #Initializing the onward and return time of the agents
-        #We assume a uniform distribution 
-        self.onward_time = self.model.random.randint(self.model.OW_onward_time_start,self.model.OW_onward_time_end)
-        self.return_time = self.model.random.randint(self.model.OW_return_time_start,self.model.OW_return_time_end)
-        
-        #speed of commute
-        #We assume a uniform distribution 
-        self.speed_walking = self.model.random.uniform(self.model.speed_walking_start,self.model.speed_walking_end)
-        self.speed_vehicle = self.model.random.uniform(self.model.speed_vehicle_start,self.model.speed_vehicle_end)
-#--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class HomeBound(Humans):
-    """ Stays at home """
-
-    def initialize_target_destination_nodes(self):
-        return
-    #----------------------------------------------------------------------------------------------------
-    def human_cognition(self):
-        """The human agents cognition"""
-        #Does nothing, remains at home always
-
-        self.model.random.shuffle(self.model.elephant_agents)
-
-        for elephant_agent in self.model.elephant_agents:
-            self.dist_to_bull = self.distance_calculator_epsg3857(elephant_agent.shape.y, self.shape.y, elephant_agent.shape.x, self.shape.x)
-            if self.dist_to_bull <= self.model.human_agent_visibility:
-                self.conflict_neighbor = elephant_agent
-            else:
-                self.conflict_neighbor = None
-
-        if self.conflict_neighbor != None:       #In conflict
-            #Conflict Cognition
-
-            #if not habituated to elephants
-            if self.elephant_habituation < self.model.elephant_habituation_tolerance:
-                self.model.CONFLICT_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                #either Inflict Damage or Escape to Safety
-                rand = self.model.random.uniform(0,1)
-
-                if rand < self.model.action_probability:          #Inflict Damage with a probability of 0.5
-                    self.mode = "inflict_damage"
-                    self.InflictDamage(self.conflict_neighbor)     #Inflict damage on a random elephant agent in the viscinity  
-
-                else:           #Escape to safety with a probability of 0.5
-                    self.mode = "escape_mode"
-                    self.EscapeMode(self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y)
-            
-            else:   #Not in conflict --> stay at home
-                self.mode = "interaction"
-                self.model.INTERACTION_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                self.shape = self.move_point(self.home_lon, self.home_lat)
-
-        else:   #Not in conflict --> stay at home
-            self.mode = "not in conflict"
-            if self.counter!=0:
-                self.EscapeMode(None, None)
-                return
-
-            self.shape = self.move_point(self.home_lon, self.home_lat)
-
-        self.conflict_neighbor = None
-
-        return
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class RandomWalkers_homebound(Humans):
-    """ Does random walk everyday near the home, but returns home at the end of the day"""
-    #----------------------------------------------------------------------------------------------------
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-        self.onward_time = self.model.random.randint(self.model.RW_onward_time_start,self.model.RW_onward_time_end)
-        self.return_time = self.model.random.randint(self.model.RW_return_time_start,self.model.RW_return_time_end)
-    #----------------------------------------------------------------------------------------------------
-    def human_cognition(self):
-        """The human agents cognition"""
-
-        self.model.random.shuffle(self.model.elephant_agents)
-
-        for elephant_agent in self.model.elephant_agents:
-            self.dist_to_bull = self.distance_calculator_epsg3857(elephant_agent.shape.y, self.shape.y, elephant_agent.shape.x, self.shape.x)
-            if self.dist_to_bull <= self.model.human_agent_visibility:
-                self.conflict_neighbor = elephant_agent
-            else:
-                self.conflict_neighbor = None
-
-        if self.conflict_neighbor != None:       #In conflict
-            #Conflict Cognition
-
-            #if not habituated to elephants
-            if self.elephant_habituation < self.model.elephant_habituation_tolerance:
-                self.model.CONFLICT_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                #either Inflict Damage or Escape to Safety
-                rand = self.model.random.uniform(0,1)
-
-                if rand < self.model.action_probability:          #Inflict Damage with a probability of 0.5
-                    self.mode = "inflict_damage"
-                    self.InflictDamage(self.conflict_neighbor)     #Inflict damage on a random elephant agent in the viscinity  
-
-                else:           #Escape to safety with a probability of 0.5
-                    self.mode = "escape_mode"
-                    self.EscapeMode(self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y)
-            
-            else:
-                self.mode = "interaction"
-                self.model.INTERACTION_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                if self.model.hour_in_day >= self.return_time or self.model.hour_in_day <= self.onward_time:
-                    self.shape=self.move_point(self.home_lon, self.home_lat)
-                    
-
-                else:
-                    shape_x,shape_y = self.shape.x+self.model.random.uniform(-100,100),self.shape.y+self.model.random.uniform(-100,100)
-                    self.shape=self.move_point(shape_x,shape_y)
-
-        else:       #Not in conflict
-            self.mode = "not in conflict"
-
-            if self.counter!=0:
-                self.EscapeMode(None, None)
-                return
-
-            if self.model.hour_in_day >= self.return_time or self.model.hour_in_day <= self.onward_time:
-                self.shape=self.move_point(self.home_lon, self.home_lat)
-
-            else:
-                shape_x,shape_y = self.shape.x+self.model.random.uniform(-100,100),self.shape.y+self.model.random.uniform(-100,100)
-                self.shape=self.move_point(shape_x,shape_y)
-
-        self.conflict_neighbor = None
-        return
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class RandomWalkers_perpetual(Humans):
-    """ Does random walk everyday, doesnt return home"""
-    #----------------------------------------------------------------------------------------------------
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-    #----------------------------------------------------------------------------------------------------
-    def human_cognition(self):
-        """The human agents cognition"""
-
-        self.model.random.shuffle(self.model.elephant_agents)
-
-        for elephant_agent in self.model.elephant_agents:
-            self.dist_to_bull = self.distance_calculator_epsg3857(elephant_agent.shape.y, self.shape.y, elephant_agent.shape.x, self.shape.x)
-            if self.dist_to_bull <= self.model.human_agent_visibility:
-                self.conflict_neighbor = elephant_agent
-            else:
-                self.conflict_neighbor = None
-
-        if self.conflict_neighbor != None:     #In conflict
-            #Conflict Cognition
-
-            #if not habituated to elephants
-            if self.elephant_habituation < self.model.elephant_habituation_tolerance:
-                self.model.CONFLICT_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                #either Inflict Damage or Escape to Safety
-                rand = self.model.random.uniform(0,1)
-
-                if rand < self.model.action_probability:          #Inflict Damage with a probability of 0.5
-                    self.mode = "inflict_damage"
-                    self.InflictDamage(self.conflict_neighbor)     #Inflict damage on a random elephant agent in the viscinity  
-
-                else:           #Escape to safety with a probability of 0.5
-                    self.mode = "escape_mode"
-                    self.EscapeMode(self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y)
-            
-            else:
-                self.mode = "interaction"
-                self.model.INTERACTION_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                shape_x,shape_y = self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10)
-                self.shape=self.move_point(shape_x,shape_y)
-
-        else:       #Not in conlict
-            self.mode = "not in conflict"
-            if self.counter!=0:
-                self.EscapeMode(None, None)
-                return
-
-            shape_x,shape_y = self.shape.x+self.model.random.uniform(-10,10),self.shape.y+self.model.random.uniform(-10,10)
-            self.shape=self.move_point(shape_x,shape_y)
-
-        self.conflict_neighbor = None
-        return
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class commuters_perpetual(Humans):
-    """ Always on road"""
-    #To simulate traffic flow on the roads
-    #----------------------------------------------------------------------------------------------------
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-        self.dist_to_target = None
-        self.next = 0
-        self.on_ward = True
-    #----------------------------------------------------------------------------------------------------
-    def distance_calculator(self,slat,elat,slon,elon):  
-        # returns the distance between current position and target position
-        # slat: current latitude  --- epsg:4326 ---
-        # elat: target latitude  --- epsg:4326 ---
-        # slon: current longitude   --- epsg:4326 ---
-        # elon: target longitude   --- epsg:4326 ---
-
-        if slat==elat and slon==elon:
-            return 0
-        slat = radians(slat)   
-        slon = radians(slon)
-        elat = radians(elat)
-        elon = radians(elon)
-        dist = 6371.01 * acos(sin(slat)*sin(elat)  + cos(slat)*cos(elat)*cos(slon - elon))   #unit of distance: Km
-        return dist*1000    #returns distnce in metres
-    #----------------------------------------------------------------------------------------------------
-    def initialize_target_destination_nodes(self):
-        self.orig_node = ox.distance.nearest_nodes(self.model.road_network, self.shape.x, self.shape.y)   #pass co-ordinates in UTM 
-        self.dest_node = ox.distance.nearest_nodes(self.model.road_network, self.target_lon, self.target_lat)   #pass co-ordinates in UTM
-        self.find_route() 
-    #----------------------------------------------------------------------------------------------------
-    def initialize_distance_to_target(self):
-        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
-        longitude_x, latitude_y  = transform(inProj, outProj, self.shape.x, self.shape.y)
-        target_lon,target_lat = transform(inProj, outProj, self.target_lon, self.target_lat)
-        self.dist_to_target = self.distance_calculator(latitude_y,target_lat,longitude_x,target_lon)
-    #----------------------------------------------------------------------------------------------------
-    def find_route(self):
-        """ Function returns the route for commute via road depending on the travel speed"""
-
-        route = nx.shortest_path(self.model.road_network, source=self.orig_node, target=self.dest_node, weight='length')
-        line =[]
-
-        # the length of each edge traversed along the path
-        lengths = ox.utils_graph.get_route_edge_attributes(self.model.road_network, route, 'length')
-
-        # the total length of the path
-        path_length = sum(lengths)
-
-        if path_length == 0:
-            self.route_x = []
-            self.route_y = []
-            return
-
-        dist = self.model.random.uniform(50,500)
-
-        for i in range(0,len(route)-1):
-            line.append(self.model.edges_proj.loc[(route[i],route[i+1],0)].geometry)
-            
-        multi_line = geometry.MultiLineString(line)
-        merged_line = ops.linemerge(multi_line)
-        distance_delta = dist
-        distances = np.arange(0, merged_line.length, distance_delta)
-
-        route = [merged_line.interpolate(distance) for distance in distances] + [Point(merged_line.coords[-1])]
-        
-        self.route_x = []       #longitude
-        self.route_y = []       #latitude
-
-
-        for i in range(0,len(route)):
-            self.route_x.append(route[i].coords.xy[0][0])
-            self.route_y.append(route[i].coords.xy[1][0])
-
-        return
-    #----------------------------------------------------------------------------------------------------
-    def MoveViaVehicle(self):
-
-        if self.on_ward == True:        #Travelling to the destination
-            x_new = self.route_x[self.next]
-            y_new = self.route_y[self.next]
-
-            self.shape=self.move_point(x_new,y_new)
-            self.next = self.next+1
-
-            if (x_new == self.route_x[-1]) and (y_new == self.route_y[-1]):     #End of the journey
-                self.on_ward = False 
-
-        return
-    #----------------------------------------------------------------------------------------------------
-    def human_cognition(self):
-        """The human agents cognition"""
-
-        self.model.random.shuffle(self.model.elephant_agents)
-
-        for elephant_agent in self.model.elephant_agents:
-            self.dist_to_bull = self.distance_calculator_epsg3857(elephant_agent.shape.y, self.shape.y, elephant_agent.shape.x, self.shape.x)
-            if self.dist_to_bull <= self.model.human_agent_visibility:
-                self.conflict_neighbor = elephant_agent
-            else:
-                self.conflict_neighbor = None
-
-        if self.conflict_neighbor != None:     #In conflict
-            #Conflict Cognition
-
-            #if not habituated to elephants
-            if self.elephant_habituation < self.model.elephant_habituation_tolerance:
-                self.model.CONFLICT_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                #either Inflict Damage or Escape to Safety
-                rand = self.model.random.uniform(0,1)
-
-                if rand < self.model.action_probability:          #Inflict Damage with a probability of 0.5
-                    self.mode = "inflict_damage"
-                    self.InflictDamage(self.conflict_neighbor)     #Inflict damage on a random elephant agent in the viscinity  
-
-                else:           #Escape to safety with a probability of 0.5
-                    self.mode = "escape_mode"
-                    self.EscapeMode(self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y)
-            
-            else:
-                self.mode = "interaction"
-                self.model.INTERACTION_LOCATIONS.append([self.unique_id, self.shape.x, self.shape.y, self.conflict_neighbor.unique_id, self.conflict_neighbor.shape.x, self.conflict_neighbor.shape.y])
-                if self.on_ward == True:
-                    self.next_target_lat = self.target_lat
-                    self.next_target_lon = self.target_lon
-
-                else:
-                    self.target_lat = self.model.random.uniform(self.model.LAT_MIN_epsg3857,self.model.LAT_MAX_epsg3857)
-                    self.target_lon = self.model.random.uniform(self.model.LON_MIN_epsg3857,self.model.LON_MAX_epsg3857)
-                    self.initialize_target_destination_nodes()
-                    self.initialize_distance_to_target()     
-                    self.on_ward = True    
-                    self.next = 0 
-
-                try:
-                    self.MoveViaVehicle()  
-
-                except:
-                    self.on_ward = False        
-
-        else:       #Not in conflict
-            self.mode = "not in conflict"
-            if self.counter!=0:
-                self.EscapeMode(None, None)
-                return
-
-            if self.on_ward == True:
-                self.next_target_lat = self.target_lat
-                self.next_target_lon = self.target_lon
-
-            else:
-                self.target_lat = self.model.random.uniform(self.model.LAT_MIN_epsg3857,self.model.LAT_MAX_epsg3857)
-                self.target_lon = self.model.random.uniform(self.model.LON_MIN_epsg3857,self.model.LON_MAX_epsg3857)
-                self.initialize_target_destination_nodes()
-                self.initialize_distance_to_target()  
-                self.on_ward = True 
-                self.next = 0  
-
-            try:
-                self.MoveViaVehicle()  
-
-            except:
-                self.on_ward = False  
-
-        self.conflict_neighbor = None
-
-        return
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
-class Guard_agents(Humans):
-    """ Stays within the crop lands/ agricultural plots and guards them"""
-    #----------------------------------------------------------------------------------------------------
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-    #----------------------------------------------------------------------------------------------------
-    def human_cognition(self):
-        """The human agents cognition"""
-        #Guarding duty
-
-        self.model.random.shuffle(self.model.elephant_agents)
-
-        for elephant_agent in self.model.elephant_agents:
-            self.dist_to_bull = self.distance_calculator_epsg3857(elephant_agent.shape.y, self.shape.y, elephant_agent.shape.x, self.shape.x)
-            if self.dist_to_bull <= self.model.human_agent_visibility:
-                self.conflict_neighbor = elephant_agent
-            else:
-                self.conflict_neighbor = None
-
-        if self.conflict_neighbor != None:     #In conflict
-            self.conflict_neighbor.used_firecracker = True
-
-        self.conflict_neighbor = None
-        return
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-#To set up the environment for the simulation
-class environment(environment):
-
-    def __init__(self, area_size, resolution, Prob_food_in_forest, Prob_food_in_cropland, Prob_water, max_food_val_forest, max_food_val_cropland, folder):
-        super().__init__(area_size, resolution) 
-        self.Prob_food_in_forest =  Prob_food_in_forest
-        self.Prob_food_in_cropland = Prob_food_in_cropland
-        self.Prob_water = Prob_water
+    def __init__(self, prob_food_in_forest, prob_food_in_cropland, prob_water_sources, max_food_val_forest, max_food_val_cropland, output_folder):
+        self.prob_food_in_forest =  prob_food_in_forest
+        self.prob_food_in_cropland = prob_food_in_cropland
+        self.prob_water_sources = prob_water_sources
         self.max_food_val_forest = max_food_val_forest
         self.max_food_val_cropland = max_food_val_cropland
-        self.folder = folder
+        self.output_folder = output_folder
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix(self, Prob_food_in_forest, Prob_food_in_cropland):
+    def initialize_food_matrix(self):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", self.area[self.area_size])
-        fid = os.path.join(folder_path, self.reso[self.resolution], "LULC.tif")
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
 
         Plantation = gdal.Open(fid).ReadAsArray()
         m,n=Plantation.shape
 
         food_matrix = np.zeros_like(Plantation)
-
-        crop_status = np.zeros_like(Plantation)
-        prop_fixed_crops = 0.15
-        prop_fixed_vegetation = 1
+        landscape_cell_status = np.zeros_like(Plantation)
 
         for i in range(0,m):
             for j in range(0,n):
-                if np.random.uniform(0,1) < Prob_food_in_cropland and Plantation[i,j] == 10:
-                    if np.random.uniform(0,1) < prop_fixed_crops:
-                        crop_status[i,j] = 1
+                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10:
+                    landscape_cell_status[i,j] = 2
 
-                    else:
-                        crop_status[i,j] = 2
+                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
+                    landscape_cell_status[i,j] = 1
 
-                elif np.random.uniform(0,1) < Prob_food_in_forest and Plantation[i,j] == 15:   
-                    if np.random.uniform(0,1) < prop_fixed_vegetation:
-                        crop_status[i,j] = 3
+        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
+        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
 
-                    else:
-                        crop_status[i,j] = 4
-
-        forest_mask_fixed = (Plantation == 15) & (crop_status == 3)
-        forest_mask_variable = (Plantation == 15) & (crop_status == 4)
-        cropland_mask_fixed = (Plantation == 10) & (crop_status == 1)
-        cropland_mask_variable = (Plantation == 10) & (crop_status == 2)
-
-        food_matrix[forest_mask_fixed] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask_fixed]
-        #food_matrix[forest_mask_variable] = np.random.uniform(0,4, size=(m,n))[forest_mask_variable]
-        food_matrix[cropland_mask_fixed] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask_fixed]
-        #food_matrix[cropland_mask_variable] = np.random.uniform(0,11, size=(m,n))[cropland_mask_variable]
+        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
+        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[cropland_mask]
 
         #saving the food matrix
-        fid = os.path.join(folder_path, self.reso[self.resolution], "LULC.tif")
+        fid = os.path.join(folder_path, "LULC.tif")
 
         with rio.open(fid) as src:
             ras_data = src.read()
             ras_meta = src.profile
 
-        # make any necessary changes to raster properties, e.g.:
         ras_meta['dtype'] = "float64"
         ras_meta['nodata'] = -99
 
-        fid = os.path.join(self.folder, "food_and_water_matrix", "food_matrix_"+ str(Prob_food_in_forest) + "_" + str(Prob_food_in_cropland) + "_.tif")
+        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
 
         with rio.open(fid, 'w', **ras_meta) as dst:
             dst.write(food_matrix.astype(float), 1)
 
-        fid = os.path.join(self.folder, "food_and_water_matrix", "crop_status.tif")
+        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
         with rio.open(fid, 'w', **ras_meta) as dst:
-            dst.write(crop_status.astype(float), 1)
+            dst.write(landscape_cell_status.astype(float), 1)
 
-        return food_matrix, crop_status
+        return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix(self,Prob_water):
+    def initialize_water_matrix(self):
         
         """The function initializes water matrix based on the simulation parameters"""
         #Prob_water: probability of water being available in a given cell 
         
         #Reading the LULC and storing the plantation area details
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", self.area[self.area_size])
-        fid = os.path.join(folder_path, self.reso[self.resolution], "LULC.tif")
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
 
         LULC = gdal.Open(fid).ReadAsArray()
         rowmax, colmax = LULC.shape
@@ -2976,11 +1701,11 @@ class environment(environment):
                 if LULC[i,j]==9:
                     water_matrix[i,j]=1
 
-                if np.random.uniform(0,1) < Prob_water:
+                if np.random.uniform(0,1) < self.prob_water_sources:
                     water_matrix[i,j]=1
 
         #saving the water matrix
-        fid = os.path.join(folder_path, self.reso[self.resolution], "LULC.tif")
+        fid = os.path.join(folder_path, "LULC.tif")
 
         with rio.open(fid) as src:
             ras_data = src.read()
@@ -2990,18 +1715,18 @@ class environment(environment):
         ras_meta['dtype'] = "int32"
         ras_meta['nodata'] = -99
 
-        fid = os.path.join(self.folder, "food_and_water_matrix", "water_matrix_" + str(Prob_water) +"_.tif")
+        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
 
         with rio.open(fid, 'w', **ras_meta) as dst:
             dst.write(water_matrix.astype(int), 1)
 
-        return water_matrix
+        return
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
-        self.initialize_food_matrix(Prob_food_in_forest = self.Prob_food_in_forest, Prob_food_in_cropland = self.Prob_food_in_cropland)
-        self.initialize_water_matrix(self.Prob_water)
+        self.initialize_food_matrix()
+        self.initialize_water_matrix()
 
         return
     #---------------------------------------------------------------------------------------------------------
@@ -3010,44 +1735,26 @@ class environment(environment):
 
 
 
-#--------------------------------------------------------------------------------------------------------------------------------
-class landuse_classes(GeoAgent):
-    """Class to simulate the behaviour of the bull elephant agents"""
-
-    def __init__(self,unique_id,model,shape):
-        super().__init__(unique_id,model,shape)
-        self.fitness = 1
-#--------------------------------------------------------------------------------------------------------------------------------
-
 
 class Conflict_model(Model):
     """ 
     Model class: Elephant-Human interaction model
     """
 
-    #Study area co-ordinates: Seethathode
-    MAP_COORDS=[9.3245, 76.9974]       
-
     #Model Initialization
     def __init__(self,
-        #Following parameters corresponds with simulation set up:
-        temporal_scale, #temporal resolution of one tick in minutes
         num_bull_elephants, #number of solitary bull elephants in the simulation
-        num_herds, #number of herds
         year,
         month,
         max_time, #maximum simulation time (in ticks)
         area_size, #simulation area in sq. km
-        resolution, #spatial resolution of the simulation area
-
-        #Following parameters corresponds with resource(food/water) set up in the environment:
+        spatial_resolution, #spatial resolution of the simulation area
+        temporal_resolution, #temporal resolution of one tick in minutes
         prob_food_forest, #probability of food in the forest
         prob_food_cropland, #probability of food in the forest
-        prob_water, #probability of water in the forest
-        max_food_val_forest,
-        max_food_val_cropland,
-
-        #Elephant agent initialisation at the start of the simulation
+        prob_water_sources, #probability of water in the forest
+        max_food_val_forest, #maximum food value in the forest cell
+        max_food_val_cropland,  #maximum food value in the cropland cell
         prob_drink_water_dry, #probability of the elephant agent drinking water in each tick: dry season
         prob_drink_water_wet, #probability of the elephant agent drinking water in each tick: wet season
         percent_memory_elephant, #percentage memory of the landscape cells by the elephant agents at the start of the simulation
@@ -3061,52 +1768,16 @@ class Conflict_model(Model):
         discount, #parameter in terrain cost function
         tolerance, #parameter in terrain cost function
         terrain_radius, #parameter in terrain cost function
-
-        #Human agent initialisation at the start of the smulation
-        AW_onward_time_start, #Cultivators_Agricultural_labourers onward journey start time
-        AW_onward_time_end, #Cultivators_Agricultural_labourers onward journey end time
-        AW_return_time_start, #Cultivators_Agricultural_labourers return journey start time
-        AW_return_time_end, #Cultivators_Agricultural_labourers return journey end time
-        OW_onward_time_start, #Other_workers onward journey start time
-        OW_onward_time_end, #Other_workers onward journey end time
-        OW_return_time_start, #Other_workers return journey start time
-        OW_return_time_end, #Other_workers return journey end time
-        RW_onward_time_start, #RandomWalkers_homebound onward journey start time
-        RW_onward_time_end, #RandomWalkers_homebound onward journey end time
-        RW_return_time_start, #RandomWalkers_homebound return journey start time
-        RW_return_time_end, #RandomWalkers_homebound return journey end time
-        speed_walking_start, #minimum walking speed
-        speed_walking_end, #maximum walking speed
-        speed_vehicle_start, #minimum vehicular speed
-        speed_vehicle_end, #maximum vehicular speed
-
-        #Conflict parameters
         knowledge_from_fringe,  #distance from the fringe where elephants knows food availability
-        human_agent_visibility, #distance within which human agents can perceive the presence of elephant agents
-        elephant_agent_visibility, #distance within which elephant agents can perceive the presence of human agents
         prob_crop_damage, #probability of damaging crop if entered an agricultural field
-        prob_infrastructure_damage, #probability of damaging infrastructure if entered a settlement area
-        fitness_fn_decrement_humans, #the magnitude by which the elephant agents depreciates the fitness value of human agents in case of encounter
-        fitness_fn_decrement_elephants, #the magnitude by which the human agents depreciates the fitness value of elephant agents in case of encounter
-        aggression_fn_decrement_elephants,
-        aggression_fn_increment_elephants,
-        escape_radius_humans, #the distance to which the human agent recedes in case of conflict with elephant agents
-        radius_forest_search, #radius within which agent remembers the forest boundary, to escape in case of conflict with humans
-        aggress_threshold_inflict_damage, #the aggression threshold used to simulate conflict with humans
-        aggress_threshold_enter_cropland, #the aggression threshold above which the elephant agent dares to enter a cropland
-        food_habituation_threshold, #the threshold above which the elephants are habituated towards crops
-        human_habituation_tolerance, #the threshold above which the elephants are habituated towards humans
-        elephant_habituation_tolerance, #the threshold above which the humans are habituated towards elephants
-        disturbance_tolerance,
-        action_probability,
-        num_guard_agents,
-        THRESHOLD,
-        elephant_aggression
+        prob_infrastructure_damage #probability of damaging infrastructure if entered a settlement area
         ):
 
 
-        #NOTE: Some parameter listed above are used to parameterize the submodels
-        #They are not necessarily simulation parameters, but instead can be fixed
+
+        MAP_COORDS=[9.3245, 76.9974]   
+
+
 
         #Folders to read the data files from depending upon the area and resolution
         self.area = {800:"area_800sqKm", 900:"area_900sqKm", 1000:"area_1000sqKm", 1100:"area_1100sqKm"}
@@ -3115,41 +1786,19 @@ class Conflict_model(Model):
 
 
 
-
         #-------------------------------------------------------------------
-        #Model: UserSettlable parameters
-        #-------------------------------------------------------------------
-        #SIMULATION PARAMETERS:
-        self.temporal_scale = temporal_scale
         self.num_bull_elephants = num_bull_elephants    
-        self.num_herds = num_herds 
-        self.max_time = max_time
-        self.month = month
         self.year = year
+        self.month = month
+        self.max_time = max_time
         self.area_size = area_size
-        self.resolution = resolution  
-        #-------------------------------------------------------------------
-
-
-
-
-
-        #-------------------------------------------------------------------
-        #Environment: UserSettlable parameters
-        #-------------------------------------------------------------------
+        self.spatial_resolution = spatial_resolution  
+        self.temporal_resolution = temporal_resolution
         self.prob_food_forest = prob_food_forest
         self.prob_food_cropland = prob_food_cropland
-        self.prob_water = prob_water
+        self.prob_water_sources = prob_water_sources
         self.max_food_val_forest = max_food_val_forest
         self.max_food_val_cropland = max_food_val_cropland
-        #-------------------------------------------------------------------
-
-
-
-
-        #-------------------------------------------------------------------
-        #Elephant agents: UserSettlable parameters
-        #-------------------------------------------------------------------
         self.prob_drink_water_dry = prob_drink_water_dry
         self.prob_drink_water_wet = prob_drink_water_wet
         self.percent_memory_elephant = percent_memory_elephant
@@ -3163,65 +1812,9 @@ class Conflict_model(Model):
         self.discount = discount
         self.tolerance = tolerance
         self.terrain_radius = terrain_radius
-        self.action_probability = action_probability
-        self.elephant_aggression = elephant_aggression
-        #-------------------------------------------------------------------
-
-
-
-
-        #-------------------------------------------------------------------
-        #Human agents: UserSettlable parameters
-        #-------------------------------------------------------------------
-        #parameters for Cultivators_Agricultural_labourers
-        self.AW_onward_time_start = AW_onward_time_start
-        self.AW_onward_time_end = AW_onward_time_end
-        self.AW_return_time_start = AW_return_time_start
-        self.AW_return_time_end = AW_return_time_end
-
-        #parameters for Other_workers
-        self.OW_onward_time_start = OW_onward_time_start
-        self.OW_onward_time_end = OW_onward_time_end
-        self.OW_return_time_start = OW_return_time_start
-        self.OW_return_time_end = OW_return_time_end
-
-        #parameters for RandomWalkers_homebound
-        self.RW_onward_time_start = RW_onward_time_start
-        self.RW_onward_time_end = RW_onward_time_end
-        self.RW_return_time_start = RW_return_time_start
-        self.RW_return_time_end = RW_return_time_end
-
-        #Human agent commute speed
-        self.speed_walking_start = speed_walking_start
-        self.speed_walking_end =  speed_walking_end
-        self.speed_vehicle_start =  speed_vehicle_start
-        self.speed_vehicle_end = speed_vehicle_end
-        #-------------------------------------------------------------------
-
-
-
-
-        #-------------------------------------------------------------------
-        #Conflict cognition: UserSettlable parameters
-        #-------------------------------------------------------------------
         self.knowledge_from_fringe = knowledge_from_fringe
-        self.human_agent_visibility = human_agent_visibility
-        self.elephant_agent_visibility = elephant_agent_visibility
         self.prob_crop_damage = prob_crop_damage
         self.prob_infrastructure_damage = prob_infrastructure_damage
-        self.fitness_fn_decrement_humans = fitness_fn_decrement_humans
-        self.fitness_fn_decrement_elephants = fitness_fn_decrement_elephants
-        self.aggression_fn_decrement_elephants = aggression_fn_decrement_elephants
-        self.aggression_fn_increment_elephants = aggression_fn_increment_elephants
-        self.escape_radius_humans = escape_radius_humans
-        self.radius_forest_search = radius_forest_search
-        self.aggress_threshold_inflict_damage = aggress_threshold_inflict_damage
-        self.aggress_threshold_enter_cropland = aggress_threshold_enter_cropland
-        self.food_habituation_threshold = food_habituation_threshold
-        self.human_habituation_tolerance = human_habituation_tolerance
-        self.elephant_habituation_tolerance = elephant_habituation_tolerance
-        self.disturbance_tolerance = disturbance_tolerance
-        self.num_guard_agents = num_guard_agents
         #-------------------------------------------------------------------
 
 
@@ -3230,8 +1823,8 @@ class Conflict_model(Model):
         #-------------------------------------------------------------------
         #Geographical extend of the study area
         #-------------------------------------------------------------------
-        latitude_center = 9.3245
-        longitude_center = 76.9974
+        latitude_center = MAP_COORDS[0]
+        longitude_center = MAP_COORDS[1]
         inProj, outProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
         self.center_lon, self.center_lat  = transform(inProj, outProj, longitude_center, latitude_center)
 
@@ -3249,10 +1842,8 @@ class Conflict_model(Model):
         #-------------------------------------------------------------------
         #MULTIPROCESSING
         #-------------------------------------------------------------------
-        self.now = "PID" + str(os.getpid())
-
-        #create a folder name using uuid
-        self.now = str(uuid.uuid4())
+        self.now = "PID" + str(os.getpid())     #creating a unique folder for each process using PID
+        self.now = str(uuid.uuid4())            #creating a unique folder for each process using UUID
 
         if os.path.isdir(os.path.join(folder, self.now)):
             shutil.rmtree(os.path.join(folder, self.now))
@@ -3260,25 +1851,12 @@ class Conflict_model(Model):
         os.mkdir(os.path.join(folder, self.now))
         os.mkdir(os.path.join(folder, self.now, "env"))
         os.mkdir(os.path.join(folder, self.now, "output_files"))
-        #os.mkdir(os.path.join(folder, batch_folder, self.now, "food_change"))
 
 
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/DEM.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/population.tif", os.path.join(folder, self.now, "env"))     
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_forest.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_plantation_builtup_shrubland.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_plantation.tif", os.path.join(folder, self.now, "env"))     
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_from_population.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/prox_water_matrix_" + str(prob_water) + "_.tif", os.path.join(folder, self.now, "env"))
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/proximity_map_4_5_15.tif", os.path.join(folder, self.now, "env"))     
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/slope.tif", os.path.join(folder, self.now, "env"))  
-        shutil.copy(folder  + "/food_and_water_matrix/crop_status.tif", os.path.join(folder, self.now, "env"))  
-        shutil.copy(folder + "/food_and_water_matrix/food_matrix_" + str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif", os.path.join(folder, self.now, "env"))  
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/water_matrix_" + str(prob_water) + "_.tif", os.path.join(folder, self.now, "env"))  
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/osmnx/road_network.pkl", os.path.join(folder, self.now, "env"))  
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/osmnx/nodes_proj.pkl", os.path.join(folder, self.now, "env"))   
-        shutil.copy("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/osmnx/edges_proj.pkl", os.path.join(folder, self.now, "env"))  
+        env_folder_seethathode = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode", "Raster_Files_Seethathode_Derived", self.area[area_size], self.reso[spatial_resolution])
+        shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(folder, self.now, "env"))
+        shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(folder, self.now, "env"))
+        shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(folder, self.now, "env"))
         #-------------------------------------------------------------------
 
 
@@ -4559,67 +3137,31 @@ class Conflict_model(Model):
 
 
 
-def batch_run_model(in_folder, model_params, number_processes, iterations, output_folder, model_id):
+def batch_run_model(model_params, number_processes, iterations, output_folder):
 
     freeze_support()
-
-    global input_folder 
-    input_folder = in_folder
 
     global folder 
     folder = output_folder
 
-    global _model_id_
-    _model_id_ = model_id
-
     path_to_folder = os.path.join(folder)
     os.makedirs(path_to_folder, exist_ok=True)
 
-    path_to_folder = os.path.join(folder, "food_and_water_matrix")
-    os.makedirs(path_to_folder, exist_ok=True)
-
-    env = environment(Prob_food_in_forest = model_params["prob_food_forest"],
-                        Prob_food_in_cropland = model_params["prob_food_cropland"],
-                        Prob_water = model_params["prob_water"], 
+    env = environment(prob_food_in_forest = model_params["prob_food_forest"],
+                        prob_food_in_cropland = model_params["prob_food_cropland"],
+                        prob_water_sources = model_params["prob_water_sources"], 
                         max_food_val_forest = model_params["max_food_val_forest"],
                         max_food_val_cropland = model_params["max_food_val_cropland"],
-                        area_size = 1100, resolution = 30,
-                        folder=folder)
-    env.main()
+                        output_folder=output_folder).main()
 
     code_runner = batch_run(model_cls = Conflict_model, 
                             parameters = model_params, 
                             number_processes = number_processes, 
                             iterations = iterations,
                             max_steps = model_params["max_time"], 
-                            data_collection_period=-1, 
+                            data_collection_period=1, 
                             display_progress=True)
 
     return
 
 
-def server_run_model(in_folder, model_params, output_folder, model_id):
-
-    global input_folder 
-    input_folder = in_folder
-
-    global folder 
-    folder = output_folder
-
-    global _model_id_
-    _model_id_ = model_id
-
-    path_to_folder = os.path.join(folder)
-    os.makedirs(path_to_folder, exist_ok=True)
-
-    path_to_folder = os.path.join(folder, "food_and_water_matrix")
-    os.makedirs(path_to_folder, exist_ok=True)
-
-    env = environment(Prob_food_in_forest = model_params["prob_food_forest"],
-                        Prob_food_in_cropland = model_params["prob_food_cropland"],
-                        Prob_water = model_params["prob_water"], 
-                        max_food_val_forest = model_params["max_food_val_forest"],
-                        max_food_val_cropland = model_params["max_food_val_cropland"],
-                        area_size = 1100, resolution = 30,
-                        folder=folder)
-    env.main()

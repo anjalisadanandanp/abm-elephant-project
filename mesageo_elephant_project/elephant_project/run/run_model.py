@@ -21,8 +21,8 @@ prob_water = 0.01
 thermoregulation_threshold = 28
 year = 2010
 month = "Jan"
-number_processes = 1
-iterations = 1
+number_processes = 8
+iterations = 8
 
 model_init_files = os.path.join(os.getcwd(), "mesageo_elephant_project/elephant_project/data/model_init_files_humans_and_bulls/model_init_values/init_files")
 

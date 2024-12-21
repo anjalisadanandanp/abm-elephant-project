@@ -3,19 +3,14 @@
 import os                               # for file operations
 import sys                              # for system operations 
 import shutil                           # to copy files
-import json                             # to read json files
 import math                             # for mathematical operations
 import numpy as np                      # for numerical operations
 import pandas as pd                     # for data manipulation and analysis
 import pickle                           # to save and load pickle objects
 from osgeo import gdal                  # for raster operations
 import rasterio as rio                  # for raster operations
-import osmnx as ox                      # for street network analysis
-import networkx as nx                   # for network analysis  
-from shapely import geometry, ops       # for manipulation georeferenced data 
 from shapely.geometry import Point      # for creating point geometries
 from multiprocessing import freeze_support      # for multiprocessing
-from math import radians, sin, cos, acos        # for mathematical operations
 from pyproj import Proj, transform              # for coordinate transformations
 import matplotlib.pyplot as plt                 # for plotting
 from mpl_toolkits.basemap import Basemap        # for plotting
@@ -28,6 +23,7 @@ import datetime                         # for date and time operations
 import warnings                         # to ignore warnings
 import geopandas as gpd                 # for geospatial operations
 import uuid                             # for generating unique ids
+from matplotlib.patches import Rectangle # for plotting
 #---------------imports-------------------#
 
 
@@ -205,38 +201,29 @@ class Elephant(GeoAgent):
 
         if self.mode == "RandomWalk":
             next_lon, next_lat = self.correlated_random_walk_without_terrain_factor()   
-            row, col = self.model.get_indices(next_lon, next_lat)
-            if self.model.LANDUSE[row][col] == 10 and self.aggress_factor < self.model.aggress_threshold_enter_cropland:
-                next_lon, next_lat = self.shape.x, self.shape.y     
+
+            next_lon, next_lat = self.shape.x, self.shape.y     
             self.shape = self.move_point(next_lon, next_lat)
 
         elif self.mode == "TargetedMove":
 
             if self.target_present == False:
-
                 filter = self.return_feasible_direction_to_move()
+                self.target_for_foraging(filter)     
+                self.target_name = "food" 
 
-                rand_num = self.model.random.uniform(0,1)  
-                if rand_num <= self.model.prob_drink_water:
-                    self.target_to_drink_water(filter)    
-                    self.radius_water_search = self.model.radius_water_search
-                    self.target_name = "water"    
-
-                else:
-                    self.target_for_foraging(filter)     
-                    self.target_name = "food" 
-                    
-            row, col = self.model.get_indices(self.target_lon, self.target_lat)
+            next_lon, next_lat = self.targeted_walk()
+            self.shape = self.move_point(next_lon, next_lat)
 
         elif self.mode == "Thermoregulation":
             if self.target_present == False:
                 filter = self.return_feasible_direction_to_move()
                 self.target_thermoregulation(filter)
                 self.target_name = "thermoregulation"
+
             next_lon, next_lat = self.targeted_walk()
             self.shape = self.move_point(next_lon, next_lat)
-   
-        #Consume food and water if available
+
         self.eat_food()
         self.drink_water()
 
@@ -660,7 +647,6 @@ class Elephant(GeoAgent):
         self.elephant_cognition()
 
         self.ROW, self.COL = self.update_grid_index()
-        print("elephant agent: ", self.unique_id, "row: ", self.ROW, "col: ", self.COL, "food_consumed: ", self.food_consumed)
     #----------------------------------------------------------------------------------------------------
 
 
@@ -820,7 +806,7 @@ class conflict_model(Model):
 
 
 
-        MAP_COORDS=[9.3245, 76.9974]   
+        self.MAP_COORDS=[9.3245, 76.9974]   
 
 
 
@@ -868,8 +854,8 @@ class conflict_model(Model):
         #-------------------------------------------------------------------
         #Geographical extend of the study area
         #-------------------------------------------------------------------
-        latitude_center = MAP_COORDS[0]
-        longitude_center = MAP_COORDS[1]
+        latitude_center = self.MAP_COORDS[0]
+        longitude_center = self.MAP_COORDS[1]
         inProj, outProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
         self.center_lon, self.center_lat  = transform(inProj, outProj, longitude_center, latitude_center)
 
@@ -1012,11 +998,10 @@ class conflict_model(Model):
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
 
-        coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
+        # coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
 
-        #close to fringe
-        coord_lat = [1048779.5968364885]
-        coord_lon = [8575881.616495656]
+        coord_lat = np.random.uniform(self.center_lat-10000, self.center_lat+10000, self.num_bull_elephants)
+        coord_lon = np.random.uniform(self.center_lon-10000, self.center_lon+10000, self.num_bull_elephants)
 
         for i in range(0, self.num_bull_elephants):    #initializing bull elephants
 
@@ -1054,7 +1039,9 @@ class conflict_model(Model):
                     lat.append(y)
 
         coordinates=pd.DataFrame(np.concatenate((np.array(lat).reshape(-1,1),np.array(lon).reshape(-1,1)),axis=1))
+
         indices = self.random.sample(range(0, len(coordinates)),self.num_bull_elephants)
+
         return coordinates.iloc[indices][0],coordinates.iloc[indices][1]
     #----------------------------------------------------------------------------------------------------- 
     def assign_body_weight_elephants(self,age,sex):
@@ -1318,6 +1305,58 @@ class conflict_model(Model):
         #reurns row, col
         return i, j
     #---------------------------------------------------------------------------------------------------- 
+    def plot_ele_traj_on_LULC(self, longitude, latitude, agent_id):
+
+        ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
+        data = ds.ReadAsArray()
+        data = np.flip(data, axis=0)
+        row_size, col_size = data.shape
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+
+        data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+
+        for i in range(1,10):
+            data[data == data_value_map[i]] = i
+
+        fig_background, ax_background = plt.subplots(figsize = (10,10))
+        ax_background.yaxis.set_inverted(True)
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
+        LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+
+        map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+        #setting cmap
+        levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+        clrs = ["greenyellow","mediumpurple","turquoise", "plum", "black", "blue", "yellow", "mediumseagreen", "forestgreen"] 
+        cmap, norm = colors.from_levels_and_colors(levels, clrs)
+
+        map.imshow(data, cmap = cmap, norm=norm, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX])
+
+        map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+        map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+        
+        cbar = plt.colorbar(ticks=[1,2,3,4,5,6,7,8,9],fraction=0.046, pad=0.04)
+        cbar.ax.set_yticks(ticks=[1.5,2.5,3,4,5,6,7,8,9]) 
+        cbar.ax.set_yticklabels(["Deciduous Broadleaf Forest","Built-up Land","Mixed Forest","Shrubland","Barren Land","Water Bodies","Plantations","Grassland","Broadleaf evergreen forest"])
+        
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        longitude, latitude = transform(inProj, outProj, longitude, latitude)
+        x_new, y_new = map(longitude,latitude)
+        C = np.arange(len(x_new))
+        nz = mcolors.Normalize()
+        nz.autoscale(C)
+
+        ax_background.quiver(x_new[:-1], y_new[:-1], x_new[1:]-x_new[:-1], y_new[1:]-y_new[:-1], 
+                                        scale_units='xy', angles='xy', scale=1, zorder=1, color = cm.jet(nz(C)), width=0.0025)
+        
+        ax_background.scatter(x_new[0], y_new[0], 25, marker='o', color='blue', zorder=2) 
+        ax_background.scatter(x_new[-1], y_new[-1], 25, marker='^', color='red', zorder=2) 
+
+        plt.title("Elephant agent trajectory:" + agent_id)
+        plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_LULC_" + agent_id + "_.png"), dpi = 300, bbox_inches = 'tight')
+    #----------------------------------------------------------------------------------------------------
     def step(self):
 
         print("day:", self.model_day, "hour:", self.model_hour, "minutes:", self.model_minutes)
@@ -1338,7 +1377,17 @@ class conflict_model(Model):
         if self.model_time == self.max_time:
             self.running = False
 
-            
+            data_agents = self.datacollector.get_agent_vars_dataframe()
+
+            #------------------------------------------------------------------------
+            #PLOT ELEPHANT TRAJECTORY
+            #------------------------------------------------------------------------
+            agents = data_agents["AgentID"].unique()
+            for agent in agents:
+                if "herd" in agent or "bull" in agent:
+                    ele_data = data_agents[data_agents["AgentID"] == agent]
+                    self.plot_ele_traj_on_LULC(ele_data["longitude"].values, ele_data["latitude"].values, agent)
+            #------------------------------------------------------------------------
     #----------------------------------------------------------------------------------------------------
 
 
@@ -1379,7 +1428,6 @@ def batch_run_model(model_params, number_processes, iterations, output_folder):
                         max_food_val_cropland = model_params["max_food_val_cropland"],
                         output_folder=output_folder).main()
 
-    print("adefgrg")
     batch_run(model_cls = conflict_model, 
                 parameters = model_params, 
                 number_processes = number_processes, 

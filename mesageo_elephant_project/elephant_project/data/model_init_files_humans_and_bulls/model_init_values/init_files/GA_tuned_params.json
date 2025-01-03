@@ -1,8 +1,0 @@
-{
-    "percent_memory_elephant" : 0.3751343983531148,
-    "radius_food_search" :734.477987351556, 
-    "radius_water_search" : 734.477987351556, 
-    "terrain_radius" : 750,
-    "fitness_threshold" : 0.41537867141795937,
-    "tolerance" : 400
-}

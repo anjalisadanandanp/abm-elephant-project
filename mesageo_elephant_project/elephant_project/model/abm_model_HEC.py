@@ -9,7 +9,7 @@ import pandas as pd                     # for data manipulation and analysis
 import pickle                           # to save and load pickle objects
 from osgeo import gdal                  # for raster operations
 import rasterio as rio                  # for raster operations
-from shapely.geometry import Point      # for creating point geometries
+from shapely.geometry import Point, LineString      # for creating point geometries
 from multiprocessing import freeze_support      # for multiprocessing
 from pyproj import Proj, transform              # for coordinate transformations
 import matplotlib.pyplot as plt                 # for plotting
@@ -24,6 +24,8 @@ import warnings                         # to ignore warnings
 import geopandas as gpd                 # for geospatial operations
 import uuid                             # for generating unique ids
 from matplotlib.patches import Rectangle # for plotting
+import random                           # for random number generation
+import fiona                            # for file operations
 #---------------imports-------------------#
 
 
@@ -204,25 +206,31 @@ class Elephant(GeoAgent):
 
             next_lon, next_lat = self.shape.x, self.shape.y     
             self.shape = self.move_point(next_lon, next_lat)
+            self.target_name = None 
 
-        elif self.mode == "TargetedMove":
+        elif self.mode == "ForagingMode":
+
+            print("Foraging Mode", "target_present: ", self.target_present, "target_name: ", self.target_name, "target_lat: ", self.target_lat, "target_lon: ", self.target_lon)
 
             if self.target_present == False:
                 filter = self.return_feasible_direction_to_move()
                 self.target_for_foraging(filter)     
                 self.target_name = "food" 
-
-            next_lon, next_lat = self.targeted_walk()
-            self.shape = self.move_point(next_lon, next_lat)
+            else:
+                next_lon, next_lat = self.targeted_walk()
+                self.shape = self.move_point(next_lon, next_lat)
 
         elif self.mode == "Thermoregulation":
+
+            print("Thermoregulation", "target_present: ", self.target_present, "target_name: ", self.target_name, "target_lat: ", self.target_lat, "target_lon: ", self.target_lon)
+
             if self.target_present == False:
                 filter = self.return_feasible_direction_to_move()
                 self.target_thermoregulation(filter)
                 self.target_name = "thermoregulation"
-
-            next_lon, next_lat = self.targeted_walk()
-            self.shape = self.move_point(next_lon, next_lat)
+            else:
+                next_lon, next_lat = self.targeted_walk()
+                self.shape = self.move_point(next_lon, next_lat)
 
         self.eat_food()
         self.drink_water()
@@ -251,18 +259,19 @@ class Elephant(GeoAgent):
                 if num <= state1:
                     mode = "RandomWalk"
                 else:
-                    mode = "TargetedMove"
+                    mode = "ForagingMode"
             
-            elif self.mode == "TargetedMove":
+            elif self.mode == "ForagingMode":
 
                 if num <= state2:
-                        mode = "TargetedMove"
+                        mode = "ForagingMode"
                 else:
                     mode = "RandomWalk"
 
             else:
-                mode = self.model.random.choice(["TargetedMove", "RandomWalk"])
+                mode = self.model.random.choice(["ForagingMode", "RandomWalk"])
 
+        print(self.unique_id, "thermoregulation probability: ", self.prob_thermoregulation, "mode: ", mode)
 
         return mode
     #-------------------------------------------------------------------------------------------------
@@ -306,6 +315,8 @@ class Elephant(GeoAgent):
 
         if distance < self.model.xres/2:    #Move to the target
             self.target_present = False
+            self.target_lon = None
+            self.target_lat = None
             self.mode = "RandomWalk"        #switch mode to random walk
             return self.shape.x, self.shape.y
 
@@ -384,7 +395,9 @@ class Elephant(GeoAgent):
     #-----------------------------------------------------------------------------------------------------
     def return_feasible_direction_to_move(self):
 
-        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   #spatial resolution: xres
+        radius = int(self.model.terrain_radius/self.model.xres) + 1   
+
+        print("radius: ", radius)
 
         #create a n*n numpy array to store the data
         data = np.zeros((radius, radius), dtype=object)
@@ -449,6 +462,8 @@ class Elephant(GeoAgent):
 
         cost = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
         direction = [135, 90, 45, 0, 315, 270, 225, 180]
+
+        # print("cost: ", cost, "direction: ", direction)
 
         #Generate steps in those directions with minimum cost of movement. Discard other directions
         theta = []
@@ -517,6 +532,22 @@ class Elephant(GeoAgent):
 
         self.direction = movement_direction
 
+        #plot the slope matrix and the filter matrix to visualize the movement direction
+        fig, ax = plt.subplots(1,2, figsize=(10,5))
+        img1 = ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
+        ax[0].set_title("Slope Matrix")
+        ax[0].set_xticks([])
+        ax[0].set_yticks([])
+        plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+        img2 = ax[1].imshow(filter, cmap='gray')
+        ax[1].set_title("Filter Matrix")
+        ax[0].set_xticks([])
+        ax[0].set_yticks([])
+        plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+        plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_.png"), dpi=300, bbox_inches='tight')
+
         return filter
     #-----------------------------------------------------------------------------------------------------
     def target_for_foraging(self, filter):
@@ -526,7 +557,7 @@ class Elephant(GeoAgent):
 
         coord_list=[]
 
-        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   #spatial resolution: xres
+        radius = int(self.model.terrain_radius/self.model.xres) + 1   #spatial resolution: xres
 
         row_start = self.ROW - radius//2
         col_start = self.COL - radius//2
@@ -547,8 +578,31 @@ class Elephant(GeoAgent):
             self.target_lon, self.target_lat = lon, lat
             self.target_present = True
 
+            #plot the temperature matrix and the filter matrix to visualize the movement direction, highlighting the target
+            fig, ax = plt.subplots(1,2, figsize=(10,5))
+            food_memory = np.array(self.food_memory)[row_start:row_end, col_start:col_end]
+            img1 = ax[0].imshow(food_memory, cmap='gray', vmin=0, vmax=max(self.model.max_food_val_forest, self.model.max_food_val_cropland))
+            ax[0].set_title("Food Memory Matrix: " + str(x - row_start) + " " + str(y - col_start))
+            # ax[0].set_xticks([])
+            # ax[0].set_yticks([])
+            plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+            img2 = ax[1].imshow(filter, cmap='gray')
+            ax[1].set_title("Filter Matrix")
+            # ax[1].set_xticks([])
+            # ax[1].set_yticks([])
+            plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+            #highlight the target cell 
+            ax[0].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
+            ax[1].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
+
+            plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_foraging_target_.png"), dpi=300, bbox_inches='tight')
+
         elif coord_list == []:
             self.target_present = False
+            self.target_lon = None
+            self.target_lat = None
 
         return
     #-----------------------------------------------------------------------------------------------------
@@ -563,7 +617,7 @@ class Elephant(GeoAgent):
 
         coord_list=[]
 
-        radius = int(self.radius_water_search*2/self.model.xres)     #spatial resolution
+        radius = int(self.radius_water_search/self.model.xres)     #spatial resolution
 
         row_start = self.ROW - radius//2
         col_start = self.COL - radius//2
@@ -575,7 +629,7 @@ class Elephant(GeoAgent):
                 if i == self.ROW and j == self.COL:
                     pass
 
-                elif self.model.temp[i,j] <= self.model.temp[self.ROW,self.COL] and filter[i - row_start][j - col_start] == 1:
+                elif self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                     coord_list.append([i, j])
 
         if coord_list != []:
@@ -584,8 +638,31 @@ class Elephant(GeoAgent):
             self.target_lon, self.target_lat = lon, lat
             self.target_present = True
 
+            #plot the temperature matrix and the filter matrix to visualize the movement direction, highlighting the target
+            fig, ax = plt.subplots(1,2, figsize=(10,5))
+            water_matrix = np.array(self.model.WATER)[row_start:row_end, col_start:col_end]
+            img1 = ax[0].imshow(water_matrix, cmap='coolwarm', vmin=0, vmax=1)
+            ax[0].set_title("Water Sources")
+            ax[0].set_xticks([])
+            ax[0].set_yticks([])
+            plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+            img2 = ax[1].imshow(filter, cmap='gray')
+            ax[1].set_title("Filter Matrix")
+            ax[1].set_xticks([])
+            ax[1].set_yticks([])
+            plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+            #highlight the target cell 
+            ax[0].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
+            ax[1].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
+
+            plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_thermoregulation_target_.png"), dpi=300, bbox_inches='tight')
+
         elif coord_list == []:
             self.target_present = False
+            self.target_lon = None
+            self.target_lat = None
 
         return
     #-----------------------------------------------------------------------------------------------------
@@ -596,12 +673,12 @@ class Elephant(GeoAgent):
 
         if "dry" in self.model.season:
 
-            if self.model.WATER[row][col]>0:
+            if self.model.WATER[row][col] > 0:
                 self.visit_water_source = True
 
         else: 
 
-            if self.model.WATER[row][col]>0:
+            if self.model.WATER[row][col] > 0:
                 self.visit_water_source = True
 
         return
@@ -613,12 +690,12 @@ class Elephant(GeoAgent):
         row, col = self.update_grid_index()
 
         if self.model.FOOD[row][col] > 0:
-            food_consumed = self.model.random.uniform(0,self.model.FOOD[row][col])
-            self.food_consumed += food_consumed
-            self.model.FOOD[row][col] -= food_consumed
-            self.food_memory[row][col] -= food_consumed
+            food_consumed = self.model.FOOD[row][col]
+            self.food_consumed += food_consumed     #update the food consumed by the agent
+            self.model.FOOD[row][col] -= food_consumed      #update the food matrix of the model
+            self.food_memory[row][col] -= food_consumed     #update the memory matrix of the agent
 
-            if self.model.FOOD[row][col] < 0:
+            if self.model.FOOD[row][col] < 0:    #if food is less than 0 in the cell
                 self.model.FOOD[row][col] = 0
                 self.food_memory[row][col] = 0
 
@@ -638,15 +715,13 @@ class Elephant(GeoAgent):
         """Function to simulate the cognition of the elephant agent"""
 
         self.next_step_to_move()
-
+        self.ROW, self.COL = self.update_grid_index()
         return
     #----------------------------------------------------------------------------------------------------
     def step(self):     
         """ Function to simulate the movement of the elephant agent"""
 
         self.elephant_cognition()
-
-        self.ROW, self.COL = self.update_grid_index()
     #----------------------------------------------------------------------------------------------------
 
 
@@ -774,34 +849,35 @@ class conflict_model(Model):
 
     #Model Initialization
     def __init__(self,
-        num_bull_elephants, #number of solitary bull elephants in the simulation
         year,
         month,
-        max_time, #maximum simulation time (in ticks)
-        area_size, #simulation area in sq. km
-        spatial_resolution, #spatial resolution of the simulation area
-        temporal_resolution, #temporal resolution of one tick in minutes
-        prob_food_forest, #probability of food in the forest
-        prob_food_cropland, #probability of food in the forest
-        prob_water_sources, #probability of water in the forest
-        max_food_val_forest, #maximum food value in the forest cell
-        max_food_val_cropland,  #maximum food value in the cropland cell
-        prob_drink_water_dry, #probability of the elephant agent drinking water in each tick: dry season
-        prob_drink_water_wet, #probability of the elephant agent drinking water in each tick: wet season
-        percent_memory_elephant, #percentage memory of the landscape cells by the elephant agents at the start of the simulation
-        radius_food_search, #radius within which the elephant agent searches for food
-        radius_water_search, #radius within which the elephant agent searches for water
-        movement_fitness_depreceation, #fitness depreceation in each tick
-        fitness_increment_when_eats_food, #fitness increment when consumes food
-        fitness_increment_when_drinks_water_dry, #fitness increment when drinks water:dry season
-        fitness_increment_when_drinks_water_wet, #fitness increment when drinks water:wet season
-        fitness_threshold, #fitness threshold below which the elephant agent engages only in "TargetedWalk" mode
-        tolerance, #parameter in terrain cost function
-        terrain_radius, #parameter in terrain cost function
-        knowledge_from_fringe,  #distance from the fringe where elephants knows food availability
-        prob_crop_damage, #probability of damaging crop if entered an agricultural field
-        prob_infrastructure_damage, #probability of damaging infrastructure if entered a settlement area
-        thermoregulation_threshold, #threshold temperature for thermoregulation
+        num_bull_elephants,                         #number of solitary bull elephants in the simulation
+        area_size,                                  #simulation area in sq. km
+        spatial_resolution,                         #spatial resolution of the landscape cells
+        max_food_val_cropland,                      #maximum food value in a cropland cell
+        max_food_val_forest,                        #maximum food value in a forest cell
+        prob_food_forest,                           #probability of food in the forest
+        prob_food_cropland,                         #probability of food in the cropland
+        prob_water_sources,                         #probability of water holes in the landscape
+        thermoregulation_threshold,                 #threshold temperature for thermoregulation for the elephant agents
+        prob_drink_water_dry,                       #probability of the elephant agent drinking water in dry season
+        prob_drink_water_wet,                       #probability of the elephant agent drinking water in wet season
+        movement_fitness_depreceation,              #fitness depreceation in each tick
+        fitness_increment_when_eats_food,           #fitness increment when consumes food
+        fitness_increment_when_drinks_water_dry,    #fitness increment when drinks water:dry season
+        fitness_increment_when_drinks_water_wet,    #fitness increment when drinks water:wet season
+        knowledge_from_fringe,                      #distance from the fringe where elephants knows food availability within the crop fields
+        prob_crop_damage,                           #probability of damaging crop if entered an agricultural field
+        prob_infrastructure_damage,                 #probability of damaging infrastructure if entered a settlement area
+        percent_memory_elephant,                    #percentage memory of the landscape cells by the elephant agents at the start of the simulation
+        radius_food_search,                         #radius within which the elephant agent searches for food
+        radius_water_search,                        #radius within which the elephant agent searches for water
+        fitness_threshold,                          #fitness threshold below which the elephant agent engages only in foraging activities
+        terrain_radius,                             #parameter in terrain cost function
+        tolerance,                                  #parameter in terrain cost function
+        num_processes,                              #number of processes to run the simulation
+        iterations,                                 #number of iterations to run the simulation
+        max_time_steps,                             #maximum simulation time (in ticks)
         ):
 
 
@@ -818,34 +894,33 @@ class conflict_model(Model):
 
 
         #-------------------------------------------------------------------
-        self.num_bull_elephants = num_bull_elephants    
         self.year = year
         self.month = month
-        self.max_time = max_time
+        self.num_bull_elephants = num_bull_elephants    
         self.area_size = area_size
         self.spatial_resolution = spatial_resolution  
-        self.temporal_resolution = temporal_resolution
+        self.max_food_val_forest = max_food_val_forest
+        self.max_food_val_cropland = max_food_val_cropland
         self.prob_food_forest = prob_food_forest
         self.prob_food_cropland = prob_food_cropland
         self.prob_water_sources = prob_water_sources
-        self.max_food_val_forest = max_food_val_forest
-        self.max_food_val_cropland = max_food_val_cropland
+        self.thermoregulation_threshold = thermoregulation_threshold
         self.prob_drink_water_dry = prob_drink_water_dry
         self.prob_drink_water_wet = prob_drink_water_wet
-        self.percent_memory_elephant = percent_memory_elephant
-        self.radius_food_search = radius_food_search
-        self.radius_water_search = radius_water_search
         self.movement_fitness_depreceation = movement_fitness_depreceation
         self.fitness_increment_when_eats_food = fitness_increment_when_eats_food
         self.fitness_increment_when_drinks_water_dry = fitness_increment_when_drinks_water_dry
         self.fitness_increment_when_drinks_water_wet = fitness_increment_when_drinks_water_wet
-        self.fitness_threshold = fitness_threshold
-        self.tolerance = tolerance
-        self.terrain_radius = terrain_radius
         self.knowledge_from_fringe = knowledge_from_fringe
         self.prob_crop_damage = prob_crop_damage
         self.prob_infrastructure_damage = prob_infrastructure_damage
-        self.thermoregulation_threshold = thermoregulation_threshold
+        self.percent_memory_elephant = percent_memory_elephant
+        self.radius_food_search = radius_food_search
+        self.radius_water_search = radius_water_search
+        self.fitness_threshold = fitness_threshold
+        self.terrain_radius = terrain_radius
+        self.tolerance = tolerance
+        self.max_time_steps = max_time_steps
         #-------------------------------------------------------------------
 
 
@@ -942,7 +1017,6 @@ class conflict_model(Model):
 
 
         #-------------------------------------------------------------------
-        #Landuse labels used in LULC
         self.landusetypes={"Deciduous Broadleaf Forest":1,"Cropland":2,"Built-up Land":3,"Mixed Forest":4,
                        "Shrubland":5,"Barren Land":6,"Fallow Land":7,"Wasteland":8,"Water Bodies":9,
                        "Plantations":10,"Aquaculture":11,"Mangrove Forest":12,"Salt Pan":13,"Grassland":14,
@@ -954,55 +1028,75 @@ class conflict_model(Model):
 
 
         #-------------------------------------------------------------------
-        #self.schedule = BaseScheduler(self)        #Activation of agents in the order they were added 
         self.schedule = RandomActivation(self)      #Random activation of agents
         self.grid = GeoSpace()
         self.running='True'
         #-------------------------------------------------------------------
 
-
-
-
         #-------------------------------------------------------------------
-        if self.num_bull_elephants >= 1:
-            with open('mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/temperature/hourly_temp_2010_without_juveniles_' + str(self.thermoregulation_threshold) + '.pkl','rb') as f:
-                self.hourly_temp = pickle.load(f)
-
-        else:
-            with open('mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/temperature/hourly_temp_2010_with_juveniles_' + str(self.thermoregulation_threshold) + '.pkl','rb') as f:
-                self.hourly_temp = pickle.load(f)   
+        with open('mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/temperature/hourly_temp_2010_without_juveniles_' + str(self.thermoregulation_threshold) + '.pkl','rb') as f:
+            self.hourly_temp = pickle.load(f)
+  
         self.update_hourly_temp()
         #-------------------------------------------------------------------
 
-
-
-
-
         self.initialize_bull_elephants()
 
-
-
-    
-
+        #-------------------------------------------------------------------
         self.datacollector = DataCollector(model_reporters={},
                                            agent_reporters={
                                                 "longitude": "shape.x", 
                                                 "latitude": "shape.y",
                                                 "mode": "mode",
+                                                "food_consumed": "food_consumed",
+                                                "visit_water_source": "visit_water_source",
+                                                "target_present": "target_present",
+                                                "target_lon": "target_lon",
+                                                "target_lat": "target_lat",
+                                                "target_name": "target_name"
                                                 })
 
-        
-        #Collect data at the start of the simulation
         self.datacollector.collect(self)
     #-------------------------------------------------------------------
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
 
-        # coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
+        coord_lat = [self.center_lat]
+        coord_lon = [self.center_lon]
 
-        coord_lat = np.random.uniform(self.center_lat-10000, self.center_lat+10000, self.num_bull_elephants)
-        coord_lon = np.random.uniform(self.center_lon-10000, self.center_lon+10000, self.num_bull_elephants)
+        ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
+        data = ds.ReadAsArray()
+        data = np.flip(data, axis=0)
+        row_size, col_size = data.shape
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
 
+        data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+
+        for i in range(1,10):
+            data[data == data_value_map[i]] = i
+
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.yaxis.set_inverted(True)
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
+        LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+
+        map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+        levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+        clrs = ["greenyellow","mediumpurple","turquoise", "plum", "black", "blue", "yellow", "mediumseagreen", "forestgreen"] 
+        cmap, norm = colors.from_levels_and_colors(levels, clrs)
+
+        map.imshow(data, cmap = cmap, norm=norm, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.75)
+
+        map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+        map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+        
+        cbar = plt.colorbar(ticks=[1,2,3,4,5,6,7,8,9],fraction=0.046, pad=0.04)
+        cbar.ax.set_yticks(ticks=[1,2,3,4,5,6,7,8,9]) 
+        cbar.ax.set_yticklabels(["Deciduous Broadleaf Forest","Built-up Land","Mixed Forest","Shrubland","Barren Land","Water Bodies","Plantations","Grassland","Broadleaf evergreen forest"])
+        
         for i in range(0, self.num_bull_elephants):    #initializing bull elephants
 
             elephant=AgentCreator(Elephant,{"model":self})  
@@ -1011,7 +1105,7 @@ class conflict_model(Model):
             newagent = elephant.create_agent(Point(this_x,this_y), "bull_"+str(i))
             newagent.Leader = True   #bull elephants are always leaders
             newagent.sex = "Male"
-            newagent.age = self.random.randrange(15,60) 
+            newagent.age = self.random.randrange(15, 60) 
             
             #Assign body weight of the elephant agent depending on the sex and age
             newagent.body_weight = self.assign_body_weight_elephants(newagent.age, newagent.sex)
@@ -1021,6 +1115,15 @@ class conflict_model(Model):
 
             self.grid.add_agents(newagent)
             self.schedule.add(newagent)
+
+            outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+            longitude, latitude = transform(inProj, outProj, this_x, this_y)
+            x_new, y_new = map(longitude,latitude)
+            ax.scatter(x_new, y_new, 30, marker='s', color='red') 
+
+        plt.title("Elephant agent initialisation")
+        plt.savefig(os.path.join(folder, self.now, "output_files", "elephant_agent_init_coords.png"), dpi = 300, bbox_inches = 'tight')
+        plt.close()
     #-------------------------------------------------------------------
     def elephant_distribution_random_init_forest(self):
         """ Function to return the distribution of elephants within the study area"""
@@ -1067,44 +1170,6 @@ class conflict_model(Model):
         daily_dry_matter_intake = np.random.uniform(1.5,1.9)*body_weight/100
 
         return daily_dry_matter_intake
-
-        lat=[]
-        lon=[]
-
-        path = os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","proximity_map_4_5_15.tif")
-        proximity_map = gdal.Open(path).ReadAsArray()
-
-        path = os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","LULC.tif")
-        LULC = gdal.Open(path).ReadAsArray()
-
-        dist_coords = np.zeros_like(LULC)
-        row_size, col_size = LULC.shape
-
-        for i in range(0, row_size):
-            for j in range(0, col_size):
-                if LULC[i,j] == 10 and proximity_map[i,j]<3:
-                    dist_coords[i,j] = 1
-
-        lat = []
-        lon = []
-
-        raster = rio.open(os.path.join("mesageo_elephant_project/elephant_project", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived","area_1100sqKm","reso_30x30","proximity_map_4_5_15.tif"))
-
-        for i in range(0,row_size):
-            for j in range(0,col_size):
-                if dist_coords[i,j] == 1:  #LULC code 15: Evergreen forests
-                    x, y = raster.xy(i,j)
-                    lon.append(x)
-                    lat.append(y)
-
-        #print(len(lon), len(lat))
-
-        lat = np.array(lat).reshape(-1,1)
-        lon = np.array(lon).reshape(-1,1)
-        coords = np.concatenate((lat,lon),axis=1)
-        coords = pd.DataFrame(coords, columns = ["lat", "lon"])
-        coords = coords[coords["lon"] > 8566000]
-        return coords
     #-----------------------------------------------------------------------------------------------------
     def DEM_study_area(self):
         """ Returns the digital elevation model of the study area"""
@@ -1112,7 +1177,7 @@ class conflict_model(Model):
         fid = os.path.join(self.folder_root, "env", "DEM.tif")
 
         DEM = gdal.Open(fid).ReadAsArray()  
-        return DEM.tolist()  #Conversion to list so that the object becomes json serializable
+        return DEM.tolist() 
     #-----------------------------------------------------------------------------------------------------
     def SLOPE_study_area(self):
         """ Returns the slope model of the study area"""
@@ -1133,7 +1198,7 @@ class conflict_model(Model):
             dst.write(slope, 1)
 
 
-        return slope.tolist()  #Conversion to list so that the object becomes json serializable
+        return slope.tolist()  
     #-----------------------------------------------------------------------------------------------------
     def LANDUSE_study_area(self):
         """ Returns the landuse model of the study area"""
@@ -1141,7 +1206,7 @@ class conflict_model(Model):
         fid = os.path.join(self.folder_root, "env", "LULC.tif")
 
         LULC = gdal.Open(fid).ReadAsArray()  
-        return LULC.tolist()  #Conversion to list so that the object becomes json serializable
+        return LULC.tolist() 
     #-----------------------------------------------------------------------------------------------------
     def FOOD_MATRIX(self):
         """ Returns the food matrix model of the study area"""
@@ -1161,7 +1226,7 @@ class conflict_model(Model):
         fid = os.path.join(self.folder_root, "env", "landscape_cell_status.tif")
 
         slope = gdal.Open(fid).ReadAsArray()  
-        return slope.tolist()  #Conversion to list so that the object becomes json serializable
+        return slope.tolist() 
     #-----------------------------------------------------------------------------------------------------
     def PROPERTY_MATRIX(self):
         """ Returns the infrastructure and crop matrix of the study area"""
@@ -1218,7 +1283,6 @@ class conflict_model(Model):
         elif j < 0:
             j = 0
             
-        #reurns row, col
         return i, j
     #-----------------------------------------------------------------------------------------------------
     def pixel2coord(self, row, col):
@@ -1302,7 +1366,6 @@ class conflict_model(Model):
         elif j < 0:
             j = 0
             
-        #reurns row, col
         return i, j
     #---------------------------------------------------------------------------------------------------- 
     def plot_ele_traj_on_LULC(self, longitude, latitude, agent_id):
@@ -1318,8 +1381,8 @@ class conflict_model(Model):
         for i in range(1,10):
             data[data == data_value_map[i]] = i
 
-        fig_background, ax_background = plt.subplots(figsize = (10,10))
-        ax_background.yaxis.set_inverted(True)
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.yaxis.set_inverted(True)
 
         outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
         LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
@@ -1327,18 +1390,17 @@ class conflict_model(Model):
 
         map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
 
-        #setting cmap
         levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
         clrs = ["greenyellow","mediumpurple","turquoise", "plum", "black", "blue", "yellow", "mediumseagreen", "forestgreen"] 
         cmap, norm = colors.from_levels_and_colors(levels, clrs)
 
-        map.imshow(data, cmap = cmap, norm=norm, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX])
+        map.imshow(data, cmap = cmap, norm=norm, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.75)
 
         map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
         map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
         
         cbar = plt.colorbar(ticks=[1,2,3,4,5,6,7,8,9],fraction=0.046, pad=0.04)
-        cbar.ax.set_yticks(ticks=[1.5,2.5,3,4,5,6,7,8,9]) 
+        cbar.ax.set_yticks(ticks=[1,2,3,4,5,6,7,8,9]) 
         cbar.ax.set_yticklabels(["Deciduous Broadleaf Forest","Built-up Land","Mixed Forest","Shrubland","Barren Land","Water Bodies","Plantations","Grassland","Broadleaf evergreen forest"])
         
         outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
@@ -1348,14 +1410,85 @@ class conflict_model(Model):
         nz = mcolors.Normalize()
         nz.autoscale(C)
 
-        ax_background.quiver(x_new[:-1], y_new[:-1], x_new[1:]-x_new[:-1], y_new[1:]-y_new[:-1], 
-                                        scale_units='xy', angles='xy', scale=1, zorder=1, color = cm.jet(nz(C)), width=0.0025)
+        ax.quiver(x_new[:-1], y_new[:-1], 
+                  x_new[1:]-x_new[:-1], y_new[1:]-y_new[:-1], 
+                  scale_units='xy', angles='xy', 
+                  scale=1, zorder=1, color = cm.jet(nz(C)), 
+                  width=0.0025)
         
-        ax_background.scatter(x_new[0], y_new[0], 25, marker='o', color='blue', zorder=2) 
-        ax_background.scatter(x_new[-1], y_new[-1], 25, marker='^', color='red', zorder=2) 
+        ax.scatter(x_new[0], y_new[0], 25, marker='o', color='blue', zorder=2) 
+        ax.scatter(x_new[-1], y_new[-1], 25, marker='^', color='red', zorder=2) 
 
-        plt.title("Elephant agent trajectory:" + agent_id)
-        plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_LULC_" + agent_id + "_.png"), dpi = 300, bbox_inches = 'tight')
+        plt.title("Elephant agent trajectory: " + agent_id)
+        plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_LULC_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
+        
+        plt.close()
+    #----------------------------------------------------------------------------------------------------
+    def plot_ele_traj_on_slope(self, longitude, latitude, agent_id):
+        
+        ds = gdal.Open(os.path.join(self.folder_root, "env", "slope_matrix.tif"))
+        data = ds.ReadAsArray()
+        data = np.flip(data, axis=0)
+        row_size, col_size = data.shape
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.yaxis.set_inverted(True)
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
+        LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+
+        map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+        map.imshow(data, cmap = "coolwarm", extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.75, vmin = 0, vmax = 60)
+
+        map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+        map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        longitude, latitude = transform(inProj, outProj, longitude, latitude)
+        x_new, y_new = map(longitude,latitude)
+        C = np.arange(len(x_new))
+        nz = mcolors.Normalize()
+        nz.autoscale(C)
+
+        ax.quiver(x_new[:-1], y_new[:-1],
+                    x_new[1:]-x_new[:-1], y_new[1:]-y_new[:-1], 
+                    scale_units='xy', angles='xy', 
+                    scale=1, zorder=1, color = cm.jet(nz(C)), 
+                    width=0.0025)
+        
+        ax.scatter(x_new[0], y_new[0], 25, marker='o', color='blue', zorder=2)
+        ax.scatter(x_new[-1], y_new[-1], 25, marker='^', color='red', zorder=2)
+
+        plt.title("Elephant agent trajectory: " + agent_id)
+        plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_slope_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
+
+        plt.close()
+    #----------------------------------------------------------------------------------------------------
+    def create_trajectory_shapefile(self, agent_id, longitude, latitude):
+
+        longitude = [float(x) for x in longitude]
+        latitude = [float(x) for x in latitude]
+
+        coords = list(zip(longitude, latitude))
+        
+        # Create LineString geometry from coordinates
+        line = LineString(coords)
+        
+        # Create GeoDataFrame
+        gdf = gpd.GeoDataFrame(
+            {
+                'agent_id': [agent_id],
+                'num_points': [len(coords)],
+                'geometry': [line]
+            },
+            crs="EPSG:3857"  # WGS84 coordinate system
+        )
+        
+        gdf.to_file(os.path.join(folder, self.now, "output_files", "trajectory_" + agent_id + "_.shp"), driver='ESRI Shapefile')
+        return  
     #----------------------------------------------------------------------------------------------------
     def step(self):
 
@@ -1374,7 +1507,7 @@ class conflict_model(Model):
         self.model_day = int(self.model_hour/24)
         self.hour_in_day =  self.model_hour - self.model_day*24
 
-        if self.model_time == self.max_time:
+        if self.model_time == self.max_time_steps:
             self.running = False
 
             data_agents = self.datacollector.get_agent_vars_dataframe()
@@ -1386,8 +1519,14 @@ class conflict_model(Model):
             for agent in agents:
                 if "herd" in agent or "bull" in agent:
                     ele_data = data_agents[data_agents["AgentID"] == agent]
+                    self.create_trajectory_shapefile(agent, ele_data["longitude"].values, ele_data["latitude"].values)
                     self.plot_ele_traj_on_LULC(ele_data["longitude"].values, ele_data["latitude"].values, agent)
+                    self.plot_ele_traj_on_slope(ele_data["longitude"].values, ele_data["latitude"].values, agent)
             #------------------------------------------------------------------------
+
+            data_agents.to_csv(os.path.join(folder, self.now, "output_files", "agent_data.csv"), index = False)
+
+        return
     #----------------------------------------------------------------------------------------------------
 
 
@@ -1411,15 +1550,12 @@ class conflict_model(Model):
 
 
 
-def batch_run_model(model_params, number_processes, iterations, output_folder):
+def batch_run_model(model_params, output_folder):
 
     freeze_support()
 
     global folder 
     folder = output_folder
-
-    path_to_folder = os.path.join(folder)
-    os.makedirs(path_to_folder, exist_ok=True)
 
     environment(prob_food_in_forest = model_params["prob_food_forest"],
                         prob_food_in_cropland = model_params["prob_food_cropland"],
@@ -1430,9 +1566,9 @@ def batch_run_model(model_params, number_processes, iterations, output_folder):
 
     batch_run(model_cls = conflict_model, 
                 parameters = model_params, 
-                number_processes = number_processes, 
-                iterations = iterations,
-                max_steps = model_params["max_time"], 
+                number_processes = model_params["num_processes"], 
+                iterations = model_params["iterations"],
+                max_steps = model_params["max_time_steps"], 
                 data_collection_period=1, 
                 display_progress=True)
 

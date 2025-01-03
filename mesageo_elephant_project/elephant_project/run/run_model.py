@@ -63,7 +63,7 @@ def run_model(year, month, mon_len, prob_food_forest, prob_food_cropland, prob_w
     variable_params =  { 
         "year": year,
         "month": month,    
-        "max_time": mon_len*288,                
+        "max_time": 100,                
         "prob_food_forest": prob_food_forest,  
         "prob_food_cropland": prob_food_cropland,  
         "prob_water_sources": prob_water,  
@@ -78,7 +78,7 @@ def run_model(year, month, mon_len, prob_food_forest, prob_food_cropland, prob_w
     expt_name = "mitigation_measures"
     elephant_category = "solitary_bulls"
     
-    output_folder = os.path.join( os.getcwd(), "model_runs/", expt_name, elephant_category, month)
+    output_folder = os.path.join(os.getcwd(), "model_runs/", expt_name, elephant_category, month)
 
     #delete the folder if it already exists
     if os.path.exists(output_folder):

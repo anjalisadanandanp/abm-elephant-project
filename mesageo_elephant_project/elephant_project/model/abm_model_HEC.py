@@ -73,7 +73,8 @@ class Elephant(GeoAgent):
 
 
         #-------------------------------------------------------------------
-        self.initialize_memory_matrix_with_knowledge_from_fringe()
+        # self.initialize_memory_matrix_with_knowledge_from_fringe()
+        self.initialize_memory_matrix_random()
         self.mode = self.model.random.choice(["RandomWalk", "TargetedWalk"])  
         self.food_consumed = 0                      
         self.visit_water_source = True            
@@ -111,15 +112,15 @@ class Elephant(GeoAgent):
         self.food_memory = food_memory.tolist() 
         self.water_memory = water_memory.tolist()
 
-        source = os.path.join(self.model.folder_root, "LULC.tif")
+        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
         with rio.open(source) as src:
             ras_meta = src.profile
 
-        memory_loc = os.path.join(self.model.folder_root, "food_memory_" + str(self.unique_id) + ".tif")
+        memory_loc = os.path.join(self.model.folder_root, "env", "food_memory_" + str(self.unique_id) + ".tif")
         with rio.open(memory_loc, 'w', **ras_meta) as dst:
             dst.write(food_memory.astype('float32'), 1)
 
-        memory_loc = os.path.join(self.model.folder_root, "water_memory_" + str(self.unique_id) + ".tif")
+        memory_loc = os.path.join(self.model.folder_root, "env", "water_memory_" + str(self.unique_id) + ".tif")
         with rio.open(memory_loc, 'w', **ras_meta) as dst:
             dst.write(water_memory.astype('float32'), 1)
 
@@ -600,9 +601,27 @@ class Elephant(GeoAgent):
             plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_foraging_target_.png"), dpi=300, bbox_inches='tight')
 
         elif coord_list == []:
+
             self.target_present = False
             self.target_lon = None
             self.target_lat = None
+
+            #plot the temperature matrix and the filter matrix to visualize the movement direction, highlighting the target
+            fig, ax = plt.subplots(1,2, figsize=(10,5))
+            food_memory = np.array(self.food_memory)[row_start:row_end, col_start:col_end]
+            img1 = ax[0].imshow(food_memory, cmap='gray', vmin=0, vmax=max(self.model.max_food_val_forest, self.model.max_food_val_cropland))
+            ax[0].set_title("Food Memory Matrix")
+            # ax[0].set_xticks([])
+            # ax[0].set_yticks([])
+            plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+            img2 = ax[1].imshow(filter, cmap='gray')
+            ax[1].set_title("Filter Matrix")
+            # ax[1].set_xticks([])
+            # ax[1].set_yticks([])
+            plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+            plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_foraging_target_.png"), dpi=300, bbox_inches='tight')
 
         return
     #-----------------------------------------------------------------------------------------------------
@@ -663,6 +682,23 @@ class Elephant(GeoAgent):
             self.target_present = False
             self.target_lon = None
             self.target_lat = None
+
+            #plot the temperature matrix and the filter matrix to visualize the movement direction, highlighting the target
+            fig, ax = plt.subplots(1,2, figsize=(10,5))
+            water_matrix = np.array(self.model.WATER)[row_start:row_end, col_start:col_end]
+            img1 = ax[0].imshow(water_matrix, cmap='coolwarm', vmin=0, vmax=1)
+            ax[0].set_title("Water Sources")
+            ax[0].set_xticks([])
+            ax[0].set_yticks([])
+            plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+            img2 = ax[1].imshow(filter, cmap='gray')
+            ax[1].set_title("Filter Matrix")
+            ax[1].set_xticks([])
+            ax[1].set_yticks([])
+            plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+            plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_thermoregulation_target_.png"), dpi=300, bbox_inches='tight')
 
         return
     #-----------------------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ month: Jan
 movement_fitness_depreceation: -0.000347222
 num_bull_elephants: 1
 num_processes: 8
+number_of_feasible_movement_directions: 1
 percent_memory_elephant: 0.375
 plot_stepwise_target_selection: false
 prob_crop_damage: 0.05

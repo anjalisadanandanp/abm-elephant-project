@@ -642,7 +642,7 @@ class Elephant(GeoAgent):
         direction = [135, 90, 45, 0, 315, 270, 225, 180]
 
         idx = np.argsort(cost)
-        theta = [direction[i] for i in idx[0:3]]
+        theta = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
 
         #choose a direction to move
         movement_direction = np.random.choice(theta)
@@ -1303,7 +1303,8 @@ class conflict_model(Model):
         elephant_agent_visibility_radius,           
         plot_stepwise_target_selection,
         threshold_days_of_food_deprivation,
-        threshold_days_of_water_deprivation
+        threshold_days_of_water_deprivation,
+        number_of_feasible_movement_directions
         ):
 
 
@@ -1348,6 +1349,7 @@ class conflict_model(Model):
         self.plot_stepwise_target_selection = plot_stepwise_target_selection
         self.threshold_days_of_food_deprivation = threshold_days_of_food_deprivation
         self.threshold_days_of_water_deprivation = threshold_days_of_water_deprivation
+        self.number_of_feasible_movement_directions = number_of_feasible_movement_directions
         #-------------------------------------------------------------------
 
 

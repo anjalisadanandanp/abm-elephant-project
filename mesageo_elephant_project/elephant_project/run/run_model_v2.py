@@ -37,12 +37,13 @@ model_params = {
     "slope_tolerance": 32,   
     "num_processes": 8,
     "iterations": 8,
-    "max_time_steps": 288*30,
+    "max_time_steps": 288*5,
     "aggression_threshold_enter_cropland": 0.5,
     "elephant_agent_visibility_radius": 750,
     "plot_stepwise_target_selection": False,
     "threshold_days_of_food_deprivation": 3,
-    "threshold_days_of_water_deprivation": 3
+    "threshold_days_of_water_deprivation": 3,
+    "number_of_feasible_movement_directions": 1
     }
 
 

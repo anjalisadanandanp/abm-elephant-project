@@ -6,7 +6,7 @@ iterations: 8
 knowledge_from_fringe: 1500
 max_food_val_cropland: 60
 max_food_val_forest: 30
-max_time_steps: 8640
+max_time_steps: 1440
 month: Jan
 movement_fitness_depreceation: -0.000347222
 num_bull_elephants: 1

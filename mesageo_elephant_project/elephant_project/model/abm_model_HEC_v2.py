@@ -23,9 +23,6 @@ import datetime                         # for date and time operations
 import warnings                         # to ignore warnings
 import geopandas as gpd                 # for geospatial operations
 import uuid                             # for generating unique ids
-from matplotlib.patches import Rectangle # for plotting
-import random                           # for random number generation
-import fiona                            # for file operations
 from scipy.ndimage import distance_transform_edt   # for distance transformations
 #---------------imports-------------------#
 

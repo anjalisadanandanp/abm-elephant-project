@@ -1497,8 +1497,8 @@ class conflict_model(Model):
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
 
-        coord_lon = [8572578]
-        coord_lat = [1045846]
+        coord_lon = [8576607]
+        coord_lat = [1048215]
 
         # coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
 

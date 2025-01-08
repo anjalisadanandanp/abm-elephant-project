@@ -94,6 +94,7 @@ def run_model():
 
     
     elephant_category = "solitary_bulls"
+    starting_location = "latitude-" + str(1045831) + "-longitude-" + str(8577680)
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
     water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
     memory_matrix_type = "random-memory-matrix-model"
@@ -102,7 +103,7 @@ def run_model():
     threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
     threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
 
-    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, elephant_category, landscape_food_probability, water_holes_probability, memory_matrix_type, maximum_food_in_a_forest_cell, elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, str(model_params["year"]), str(model_params["month"]))
+    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, water_holes_probability, memory_matrix_type, maximum_food_in_a_forest_cell, elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, str(model_params["year"]), str(model_params["month"]))
 
     # if os.path.exists(output_folder):
     #     os.system("rm -r " + output_folder)
@@ -121,7 +122,7 @@ def run_model():
 
 if __name__ == "__main__":
 
-    experiment_name = "exploratory-search-landscape-food-probability-elephant-initialisation-coord-01"
+    experiment_name = "exploratory-search"
     mlflow.create_experiment(experiment_name)
 
     param_dicts = generate_parameter_combinations(model_params_all)

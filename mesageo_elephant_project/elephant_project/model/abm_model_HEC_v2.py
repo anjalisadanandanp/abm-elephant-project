@@ -759,8 +759,18 @@ class Elephant(GeoAgent):
 
                 for i in range(row_start,row_end):
                     for j in range(col_start,col_end):
-                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1 and self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
-                            coord_list.append([i,j]) 
+                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                            if self.food_memory[i][j] > 0:
+                                coord_list.append([i,j])     
+
+                if coord_list == []:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j]) 
 
             else:
 
@@ -774,6 +784,15 @@ class Elephant(GeoAgent):
                         elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                             coord_list.append([i,j])
 
+                if coord_list == []:
+                    
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j]) 
+
+                        
         else:
 
             print("step:0------target for foraging:not a food food deprecated agent or crop habituated agent------")
@@ -865,6 +884,9 @@ class Elephant(GeoAgent):
                     if self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j]) 
 
+                    elif self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                        coord_list.append([i,j]) 
+
         else:
             print("step:0------target for thermoregulation:not a water deprecated agent, move to a random cell------")
             for i in range(row_start,row_end):
@@ -873,14 +895,7 @@ class Elephant(GeoAgent):
                         coord_list.append([i,j]) 
 
         if coord_list == []:
-            print("step:1------target not available within search radius:move to a cell closer to a water source------")
-            for i in range(row_start,row_end):
-                for j in range(col_start,col_end):
-                    if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                        coord_list.append([i,j]) 
-
-        if coord_list == []:
-            print("step:2------target not available within search radius:move to a random cell------")
+            print("step:1------target not available within search radius:move to a random cell------")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if filter[i - row_start][j - col_start] == 1:

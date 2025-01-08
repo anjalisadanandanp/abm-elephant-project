@@ -1,0 +1,15 @@
+artifact_uri: file:///home2/anjali/GitHub/abm-elephant-project/mlruns/1/483631289b8b414d86e05378d8976d86/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+name: ''
+run_id: 483631289b8b414d86e05378d8976d86
+run_uuid: 483631289b8b414d86e05378d8976d86
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1736326246279
+status: 1
+tags: []
+user_id: anjalip

@@ -55,7 +55,8 @@ from mesa_geo.geoagent import AgentCreator          #Default implementation
 from mesageo_elephant_project.elephant_project.experiment_setup_files.datacollector_codes.Mesa_Datacollector_v1_0 import DataCollector       #all agent data collected
 #from experiment_setup_files.Mesa_Datacollector_v1_1 import DataCollector        #ONLY ELEPHANT AGENT DATA COLLECTED
 
-from mesageo_elephant_project.elephant_project.experiment_setup_files.batch_runner_codes.Mesa_BatchRunner_class_v1_1 import batch_run      #runnning multiple simulations
+# from mesageo_elephant_project.elephant_project.experiment_setup_files.batch_runner_codes.Mesa_BatchRunner_class_v1_1 import batch_run      #runnning multiple simulations
+from mesa.batchrunner import batch_run
 #-------------------------------------------------#
 
 
@@ -1123,6 +1124,12 @@ class Elephant(GeoAgent):
             self.update_fitness_thermoregulation(self.num_thermoregulation_steps, self.num_steps_thermoregulated)
             self.update_fitness_foraging(self.num_thermoregulation_steps, self.food_consumed)
 
+            if self.model.track_in_mlflow == True:
+                mlflow.log_metric("fitness of the agent", self.fitness, self.model.model_day)
+                mlflow.log_metric("daily food consumption", self.food_consumed, self.model.model_day)
+                mlflow.log_metric("number of days of food deprivation", self.num_days_food_depreceation, self.model.model_day)
+                mlflow.log_metric("number of days since water source visit", self.num_days_water_source_visit, self.model.model_day)
+
             if self.visit_water_source == False:    
                 self.num_days_water_source_visit += 1     
    
@@ -1142,7 +1149,7 @@ class Elephant(GeoAgent):
         self.next_step_to_move_v1()
         self.ROW, self.COL = self.update_grid_index()
 
-        print("Fitness of the elephant agent:", self.fitness, "mode:", self.mode, "num_days_food_depreceation:", self.num_days_food_depreceation, "num_days_water_source_visit:", self.num_days_water_source_visit)
+        # print("Fitness of the elephant agent:", self.fitness, "mode:", self.mode, "num_days_food_depreceation:", self.num_days_food_depreceation, "num_days_water_source_visit:", self.num_days_water_source_visit)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1413,16 +1420,20 @@ class conflict_model(Model):
         os.mkdir(os.path.join(folder, self.now, "env"))
         os.mkdir(os.path.join(folder, self.now, "output_files"))
         
-
+        environment(prob_food_in_forest = self.prob_food_forest,
+                            prob_food_in_cropland = self.prob_food_cropland,
+                            prob_water_sources = self.prob_water_sources,
+                            max_food_val_forest = self.max_food_val_forest,
+                            max_food_val_cropland = self.max_food_val_cropland,
+                            output_folder=os.path.join(self.folder_root, "env")).main()
+        
         env_folder_seethathode = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode", "Raster_Files_Seethathode_Derived", self.area[area_size], self.reso[spatial_resolution])
         shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(self.folder_root, "env"))
-        shutil.copy(os.path.join(folder, "food_matrix_" + str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif"), os.path.join(self.folder_root, "env"))
-        shutil.copy(os.path.join(folder, "water_matrix_" + str(self.prob_water_sources) + "_.tif"), os.path.join(self.folder_root, "env"))
-        shutil.copy(os.path.join(folder, "landscape_cell_status.tif"), os.path.join(self.folder_root, "env"))
-
-
+        # shutil.copy(os.path.join(folder, "food_matrix_" + str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif"), os.path.join(self.folder_root, "env"))
+        # shutil.copy(os.path.join(folder, "water_matrix_" + str(self.prob_water_sources) + "_.tif"), os.path.join(self.folder_root, "env"))
+        # shutil.copy(os.path.join(folder, "landscape_cell_status.tif"), os.path.join(self.folder_root, "env"))
 
         self.DEM = self.DEM_study_area()
         self.SLOPE = self.SLOPE_study_area()
@@ -1486,37 +1497,6 @@ class conflict_model(Model):
         self.running='True'
         #-------------------------------------------------------------------
 
-        #-------------------------------------------------------------------
-        with open('mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/temperature/hourly_temp_2010_without_juveniles_' + str(self.thermoregulation_threshold) + '.pkl','rb') as f:
-            self.hourly_temp = pickle.load(f)
-  
-        self.update_hourly_temp()
-        #-------------------------------------------------------------------
-
-        self.initialize_bull_elephants()
-
-        #-------------------------------------------------------------------
-        self.datacollector = DataCollector(model_reporters={},
-                                           agent_reporters={
-                                                "longitude": "shape.x", 
-                                                "latitude": "shape.y",
-                                                "mode": "mode",
-                                                "fitness": "fitness",
-                                                "daily_dry_matter_intake": "daily_dry_matter_intake",
-                                                "food_consumed": "food_consumed",
-                                                "visit_water_source": "visit_water_source",
-                                                "target_present": "target_present",
-                                                "target_lon": "target_lon",
-                                                "target_lat": "target_lat",
-                                                "distance_to_target": "distance_to_target",
-                                                "target_name": "target_name",
-                                                "num_days_water_source_visit": "num_days_water_source_visit",
-                                                "num_days_food_depreceation": "num_days_food_depreceation",
-                                                "num_thermoregulation_steps": "num_thermoregulation_steps",
-                                                "num_steps_thermoregulated": "num_steps_thermoregulated",
-                                                })
-
-        self.datacollector.collect(self)
 
         if track_in_mlflow == True:
             mlflow.start_run()
@@ -1550,13 +1530,49 @@ class conflict_model(Model):
                             "threshold_days_of_water_deprivation": self.threshold_days_of_water_deprivation,
                             "number_of_feasible_movement_directions": self.number_of_feasible_movement_directions
                             })
+            
 
+        #-------------------------------------------------------------------
+        with open('mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/temperature/hourly_temp_2010_without_juveniles_' + str(self.thermoregulation_threshold) + '.pkl','rb') as f:
+            self.hourly_temp = pickle.load(f)
+  
+        self.update_hourly_temp()
+        #-------------------------------------------------------------------
+
+        self.initialize_bull_elephants()
+
+        #-------------------------------------------------------------------
+        self.datacollector = DataCollector(model_reporters={},
+                                           agent_reporters={
+                                                "longitude": "shape.x", 
+                                                "latitude": "shape.y",
+                                                "mode": "mode",
+                                                "fitness": "fitness",
+                                                "daily_dry_matter_intake": "daily_dry_matter_intake",
+                                                "food_consumed": "food_consumed",
+                                                "visit_water_source": "visit_water_source",
+                                                "target_present": "target_present",
+                                                "target_lon": "target_lon",
+                                                "target_lat": "target_lat",
+                                                "distance_to_target": "distance_to_target",
+                                                "target_name": "target_name",
+                                                "num_days_water_source_visit": "num_days_water_source_visit",
+                                                "num_days_food_depreceation": "num_days_food_depreceation",
+                                                "num_thermoregulation_steps": "num_thermoregulation_steps",
+                                                "num_steps_thermoregulated": "num_steps_thermoregulated",
+                                                })
+
+        self.datacollector.collect(self)
     #-------------------------------------------------------------------
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
 
         coord_lon = [8577680]
         coord_lat = [1045831]
+
+        if self.track_in_mlflow == True:
+            mlflow.log_params({"starting longitude": coord_lon[0],
+                               "starting latitude": coord_lat[0]})
 
         # coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
 
@@ -1619,6 +1635,10 @@ class conflict_model(Model):
 
         plt.title("Elephant agent initialisation")
         plt.savefig(os.path.join(folder, self.now, "output_files", "elephant_agent_init_coords.png"), dpi = 300, bbox_inches = 'tight')
+        
+        if self.track_in_mlflow == True:
+            mlflow.log_figure(fig, "elephant_agent_init_coords.png")
+
         plt.close()
     #-------------------------------------------------------------------
     def elephant_distribution_random_init_forest(self):
@@ -1944,7 +1964,8 @@ class conflict_model(Model):
         plt.title("Elephant agent trajectory: " + agent_id)
         plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_LULC_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
         
-        mlflow.log_figure(fig, "trajectory_on_LULC_" + agent_id + "_v1.png")
+        if self.track_in_mlflow == True:
+            mlflow.log_figure(fig, "trajectory_on_LULC_" + agent_id + "_v1.png")
 
         plt.close()
     #----------------------------------------------------------------------------------------------------
@@ -1989,7 +2010,8 @@ class conflict_model(Model):
         plt.title("Elephant agent trajectory: " + agent_id)
         plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_slope_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
 
-        mlflow.log_figure(fig, "trajectory_on_slope_" + agent_id + "_v1.png")
+        if self.track_in_mlflow == True:
+            mlflow.log_figure(fig, "trajectory_on_slope_" + agent_id + "_v1.png")
 
         plt.close()
     #----------------------------------------------------------------------------------------------------
@@ -2099,15 +2121,7 @@ def batch_run_model(model_params, experiment_name, output_folder):
     global folder 
     folder = output_folder
 
-    mlflow.create_experiment(experiment_name=experiment_name)
-    mlflow.set_experiment(experiment_name=experiment_name)
-
-    environment(prob_food_in_forest = model_params["prob_food_forest"],
-                        prob_food_in_cropland = model_params["prob_food_cropland"],
-                        prob_water_sources = model_params["prob_water_sources"], 
-                        max_food_val_forest = model_params["max_food_val_forest"],
-                        max_food_val_cropland = model_params["max_food_val_cropland"],
-                        output_folder=output_folder).main()
+    mlflow.set_experiment(experiment_name)
 
     batch_run(model_cls = conflict_model, 
                 parameters = model_params, 

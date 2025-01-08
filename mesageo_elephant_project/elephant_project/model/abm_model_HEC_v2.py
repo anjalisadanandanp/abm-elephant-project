@@ -1060,7 +1060,7 @@ class Elephant(GeoAgent):
         # print("UPDATE FITNESS: THERMOREGULATION")
 
         try:
-            fitness_increment = (1/self.num_days_agent_survives_in_deprivation)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
+            fitness_increment = (1/self.model.num_days_agent_survives_in_deprivation)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
             self.update_fitness_value(fitness_increment)
         except:
             pass
@@ -1074,7 +1074,7 @@ class Elephant(GeoAgent):
 
         # print("UPDATE FITNESS: FORAGING")
 
-        fitness_increment = (1/self.num_days_agent_survives_in_deprivation)*((288-num_thermoregulation_steps)/288)*(min(food_consumed, self.daily_dry_matter_intake)/self.daily_dry_matter_intake)
+        fitness_increment = (1/self.model.num_days_agent_survives_in_deprivation)*((288-num_thermoregulation_steps)/288)*(min(food_consumed, self.daily_dry_matter_intake)/self.daily_dry_matter_intake)
         self.update_fitness_value(fitness_increment)
 
         if food_consumed > self.daily_dry_matter_intake and self.fitness < self.model.fitness_threshold:

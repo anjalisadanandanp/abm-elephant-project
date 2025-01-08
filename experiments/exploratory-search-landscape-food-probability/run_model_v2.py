@@ -27,7 +27,7 @@ model_params_all = {
     "prob_food_cropland": [0.10, 0.05, 0.01, 0.005],
     "prob_water_sources": [0.00, 0.05, 0.01, 0.005, 0.001],
     "thermoregulation_threshold": [28, 32],
-    "num_days_agent_survives_in_deprivation": 15,        
+    "num_days_agent_survives_in_deprivation": 20,        
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
     "prob_infrastructure_damage": 0.01,
@@ -98,12 +98,13 @@ def run_model():
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
     water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
     memory_matrix_type = "random-memory-matrix-model"
+    num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
     maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
     elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
     threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
     threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
 
-    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, water_holes_probability, memory_matrix_type, maximum_food_in_a_forest_cell, elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, str(model_params["year"]), str(model_params["month"]))
+    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, str(model_params["year"]), str(model_params["month"]))
 
     # if os.path.exists(output_folder):
     #     os.system("rm -r " + output_folder)
@@ -123,7 +124,11 @@ def run_model():
 if __name__ == "__main__":
 
     experiment_name = "exploratory-search"
-    mlflow.create_experiment(experiment_name)
+
+    try:
+        mlflow.create_experiment(experiment_name)
+    except:
+        print("experiment already exists")
 
     param_dicts = generate_parameter_combinations(model_params_all)
 

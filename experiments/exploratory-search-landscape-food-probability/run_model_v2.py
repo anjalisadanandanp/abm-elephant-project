@@ -27,7 +27,7 @@ model_params_all = {
     "prob_food_cropland": [0.10, 0.05, 0.01, 0.005],
     "prob_water_sources": [0.00, 0.05, 0.01, 0.005, 0.001],
     "thermoregulation_threshold": [28, 32],
-    "num_days_agent_survives_in_deprivation": 20,        
+    "num_days_agent_survives_in_deprivation": 15,        
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
     "prob_infrastructure_damage": 0.01,

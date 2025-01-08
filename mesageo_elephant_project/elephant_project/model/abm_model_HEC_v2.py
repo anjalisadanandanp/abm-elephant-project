@@ -251,27 +251,28 @@ class Elephant(GeoAgent):
         elif self.mode == "ForagingMode":
 
             if self.target_present == False:
-                print("foraging mode: target not present, choosing a food target")
+                print("step:0------foraging mode: target not present, choosing a food target------")
                 filter = self.return_feasible_direction_to_move_v1()
                 self.target_for_foraging_v1(filter)     
                 self.target_name = "food:foraging" 
 
             else:
-
+                print("step:0------foraging mode: target is present, moving towards the food target------")
                 row, col = self.model.get_indices(self.target_lon, self.target_lat)
 
                 if self.aggression < self.model.aggression_threshold_enter_cropland:
-                    print("the aggression level is low, checking for the type of landuse")
+                    print("step:1------foraging mode: the aggression level is low, checking for the type of landuse------")
 
                     if self.model.LANDUSE[self.ROW][self.COL] == 10 or self.model.LANDUSE[row][col] == 10: 
-                        print("foraging mode: target present is in cropland, check for the disturbance")
+                        print("step:2------foraging mode: target present is in cropland, check for the disturbance------")
+
                         if self.model.human_disturbance < self.disturbance_tolerance:   
-                            print("foraging mode: target present is in cropland, night time")
+                            print("step:3------foraging mode: target present is in cropland, night time, move towards target------")
                             next_lon, next_lat = self.targeted_walk_v0()
                             self.shape = self.move_point(next_lon, next_lat)
                             self.target_name = "cropland:foraging"
                         else:
-                            print("foraging mode: target present is in cropland, day time")
+                            print("step:3------foraging mode: target present is in cropland, day time, escape to forest------")
                             filter = self.return_feasible_direction_to_move_v1()
                             self.target_for_escape_v1(filter)    #move to the forest
                             self.target_name = "forest:escaping"
@@ -279,30 +280,31 @@ class Elephant(GeoAgent):
                             self.shape = self.move_point(next_lon, next_lat)
 
                     else:
-                        print("foraging mode: target present is in forest")
+                        print("step:2------foraging mode: target present is in forest, move towards target------")
                         next_lon, next_lat = self.targeted_walk_v0()
                         self.shape = self.move_point(next_lon, next_lat)
                         self.target_name = "forest:foraging"
 
                 else:
-                    print("foraging mode: aggression level is high, moving to the target")
+                    print("step:1------foraging mode: aggression level is high, move towards target------")
                     next_lon, next_lat = self.targeted_walk_v0()
                     self.shape = self.move_point(next_lon, next_lat)
                     self.target_name = "food:foraging"
+            
+            print("food source proximity (number of cells):", self.proximity_to_food_sources[self.ROW][self.COL])
 
         elif self.mode == "Thermoregulation":
 
             if self.target_present == False:
-                print("thermoregulation mode: target not present")
+                print("step:0------thermoregulation mode: target not present, choosing a water source------")
                 filter = self.return_feasible_direction_to_move_v1()
                 self.target_thermoregulation_v1(filter)
                 self.target_name = "thermoregulation"
-
-            next_lon, next_lat = self.targeted_walk_v0()
-            self.shape = self.move_point(next_lon, next_lat)
-
-            if self.proximity_to_water_sources[self.ROW][self.COL]*33.33 < self.model.radius_water_search:
-                self.num_steps_thermoregulated += 1
+            
+            else:
+                print("step:0------thermoregulation mode: target is present, moving towards the target------")
+                next_lon, next_lat = self.targeted_walk_v0()
+                self.shape = self.move_point(next_lon, next_lat)
 
         elif self.mode == "EscapeMode":      
             self.target_for_escape_v1()  
@@ -319,6 +321,11 @@ class Elephant(GeoAgent):
         self.crop_and_infrastructure_damage() 
 
         self.update_fitness_value(self.model.movement_fitness_depreceation)
+
+        if  self.prob_thermoregulation > 0.5:
+            print("water source proximity (number of cells):", self.proximity_to_water_sources[self.ROW][self.COL])
+            if self.proximity_to_water_sources[self.ROW][self.COL]*33.33 < self.model.radius_water_search:
+                self.num_steps_thermoregulated += 1
 
         return 
     #--------------------------------------------------------------------------------------------------
@@ -353,8 +360,9 @@ class Elephant(GeoAgent):
 
         ROW, COL = self.model.return_indices_temperature_matrix(self.shape.y, self.shape.x)
         self.prob_thermoregulation = self.model.temp[ROW,COL]
-    
-
+        if  self.prob_thermoregulation > 0.5:
+            self.num_thermoregulation_steps += 1
+        
         if self.model.elephant_agent_visibility_radius != None:
             for agent in self.model.schedule.agents:
                 conflict_neighbors = []
@@ -377,12 +385,11 @@ class Elephant(GeoAgent):
             #Supercedes all other requirements --> This state is encountered when in conflict with Human agents
             mode="InflictDamage"
 
-        elif  self.prob_thermoregulation > 0.5:
-            mode = "Thermoregulation"
-            self.num_thermoregulation_steps += 1
-
         elif self.fitness < self.model.fitness_threshold:
             mode = "ForagingMode"
+
+        elif  self.prob_thermoregulation > 0.5:
+            mode = "Thermoregulation"
 
         else:
 
@@ -442,9 +449,10 @@ class Elephant(GeoAgent):
         """" Function to simulate the targeted movement of agents """
 
         self.distance_to_target = self.distance_calculator_epsg3857(self.shape.y, self.target_lat, self.shape.x, self.target_lon)
+        print("distance to target:", self.distance_to_target)
 
         if self.distance_to_target < self.model.xres:    #Move to the target
-            # print("---Reached the target----", self.target_name)
+            print("----REACHED TARGET!----:", self.target_name)
             self.target_name = None
             self.target_present = False
             self.target_lon = None
@@ -489,9 +497,10 @@ class Elephant(GeoAgent):
         #moving one cell at a time
 
         self.distance_to_target = self.distance_calculator_epsg3857(self.shape.y, self.target_lat, self.shape.x, self.target_lon)
+        print("distance to target:", self.distance_to_target)
 
         if self.distance_to_target < self.model.xres:    #Move to the target
-            # print("---Reached the target----", self.target_name)
+            print("---Reached the target----", self.target_name)
             self.target_name = None
             self.target_present = False
             self.target_lon = None
@@ -689,7 +698,7 @@ class Elephant(GeoAgent):
 
         self.direction = movement_direction
 
-        print("choosen direction to move:", self.direction)
+        # print("choosen direction to move:", self.direction)
 
         if self.model.plot_stepwise_target_selection == True:
 
@@ -740,20 +749,20 @@ class Elephant(GeoAgent):
 
         if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation or self.crop_habituated == True:
 
-            print("food deprecated agent or crop habituated agent")
+            print("step:0------target for foraging:food deprecated agent or crop habituated agent------")
 
             if np.random.uniform(0,1) < self.aggression:
 
-                print("move closer to plantations")
+                print("step:1------target for foraging:move closer to plantations")
 
                 for i in range(row_start,row_end):
                     for j in range(col_start,col_end):
-                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1 and self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
                             coord_list.append([i,j]) 
 
             else:
 
-                print("choose food target from memory")
+                print("step:1------target for foraging:choose food target from memory")
 
                 for i in range(row_start,row_end):
                     for j in range(col_start,col_end):
@@ -765,6 +774,8 @@ class Elephant(GeoAgent):
 
         else:
 
+            print("step:0------target for foraging:not a food food deprecated agent or crop habituated agent------")
+            print("step:1------target for foraging:choose food target from memory")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if i == self.ROW and j == self.COL:
@@ -774,17 +785,12 @@ class Elephant(GeoAgent):
                         coord_list.append([i,j])
 
         if coord_list == []:
+            print("step:2------target not available within search radius:move to a random cell------")
 
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
-                    if i == self.ROW and j == self.COL:
-                        pass
-
-                    elif self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                        coord_list.append([i,j])
-
-                    else:
-                        pass
+                    if filter[i - row_start][j - col_start] == 1:
+                        coord_list.append([i,j]) 
 
         if coord_list != []:
 
@@ -850,23 +856,29 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         if self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation:
+            print("step:0------target for thermoregulation:water deprecated agent, check for water sources------")
+            for i in range(row_start,row_end):
+                for j in range(col_start,col_end):
 
+                    if self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                        coord_list.append([i,j]) 
+
+        else:
+            print("step:0------target for thermoregulation:not a water deprecated agent, move to a random cell------")
+            for i in range(row_start,row_end):
+                for j in range(col_start,col_end):
+                    if filter[i - row_start][j - col_start] == 1:
+                        coord_list.append([i,j]) 
+
+        if coord_list == []:
+            print("step:1------target not available within search radius:move to a cell closer to a water source------")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j]) 
 
-        else:
-
-            for i in range(row_start,row_end):
-                for j in range(col_start,col_end):
-                    if i == self.ROW and j == self.COL:
-                        pass
-
-                    elif self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
-                        coord_list.append([i, j])
-
         if coord_list == []:
+            print("step:2------target not available within search radius:move to a random cell------")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if filter[i - row_start][j - col_start] == 1:
@@ -901,7 +913,7 @@ class Elephant(GeoAgent):
                 ax[1].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
 
                 plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_thermoregulation_target_.png"), dpi=300, bbox_inches='tight')
-
+    
         return
     #-----------------------------------------------------------------------------------------------------
     def target_for_escape_v1(self, filter):
@@ -910,8 +922,7 @@ class Elephant(GeoAgent):
         if self.target_present == True:     #If target already exists
             return
         
-        radius = int(self.radius_forest_search*2/self.model.xres)     #spatial resolution
-
+        radius = int(self.radius_forest_search*2/self.model.xres)     
         row_start = self.ROW - radius//2
         col_start = self.COL - radius//2
         row_end = self.ROW + radius//2 + 1
@@ -940,23 +951,22 @@ class Elephant(GeoAgent):
                 elif self.model.LANDUSE[i][j] == 15:
                     coord_list.append([i, j])
 
-        #model: move closer to the forest
         if coord_list==[]:
             coord_list.append([self.ROW,self.COL])
             for _ in range(25):
-                i = self.model.random.randint(row_start, row_end)
-                j = self.model.random.randint(col_start, col_end)
 
-                radius = int(self.terrain_radius*2/self.model.xres)     #spatial resolution
+                radius = int(self.terrain_radius*2/self.model.xres)   
 
                 row_start = self.ROW - radius//2
                 col_start = self.COL - radius//2
                 row_end = self.ROW + radius//2 + 1
                 col_end = self.COL + radius//2 + 1
 
+                i = self.model.random.randint(row_start, row_end)
+                j = self.model.random.randint(col_start, col_end)
+
                 if self.proximity_to_forests[i][j] <= self.proximity_to_forests[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                     coord_list.append([i,j])
-
 
         x, y = self.model.random.choice(coord_list)
         lon = self.model.xres * 0.5  + self.model.xmin + y * self.model.xres
@@ -976,10 +986,13 @@ class Elephant(GeoAgent):
             if self.model.WATER[row][col] > 0:
                 self.visit_water_source = True
 
-        else: 
+        elif "wet" in self.model.season:
 
             if self.model.WATER[row][col] > 0:
                 self.visit_water_source = True
+
+        else:
+            pass
 
         return
     #---------------------------------------------------------------------------------------------------
@@ -1027,7 +1040,7 @@ class Elephant(GeoAgent):
         #num_thermoregulation_steps: number of steps the agent has to thermoregulate
         #num_steps_thermoregulated: number of steps the agent has thermoregulated
 
-        print("UPDATE FITNESS: THERMOREGULATION")
+        # print("UPDATE FITNESS: THERMOREGULATION")
 
         fitness_increment = (1/10)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
         self.update_fitness_value(fitness_increment)
@@ -1039,7 +1052,7 @@ class Elephant(GeoAgent):
         #num_thermoregulation_steps: number of steps the agent has to thermoregulate
         #food_consumed: amount of food consumed by the agent
 
-        print("UPDATE FITNESS: FORAGING")
+        # print("UPDATE FITNESS: FORAGING")
 
         fitness_increment = (1/10)*((288-num_thermoregulation_steps)/288)*(min(food_consumed, self.daily_dry_matter_intake)/self.daily_dry_matter_intake)
         self.update_fitness_value(fitness_increment)
@@ -1119,6 +1132,9 @@ class Elephant(GeoAgent):
 
         self.next_step_to_move_v1()
         self.ROW, self.COL = self.update_grid_index()
+
+        print("Fitness of the elephant agent:", self.fitness, "mode:", self.mode, "num_days_food_depreceation:", self.num_days_food_depreceation, "num_days_water_source_visit:", self.num_days_water_source_visit)
+
         return
     #----------------------------------------------------------------------------------------------------
     def step(self):     
@@ -1494,8 +1510,8 @@ class conflict_model(Model):
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
 
-        coord_lon = [8576607]
-        coord_lat = [1048215]
+        coord_lon = [8577680]
+        coord_lat = [1045831]
 
         # coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
 

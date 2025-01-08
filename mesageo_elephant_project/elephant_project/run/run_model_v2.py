@@ -20,9 +20,9 @@ model_params = {
     "spatial_resolution": 30, 
     "max_food_val_cropland": 60,
     "max_food_val_forest": 30,
-    "prob_food_forest": 0.10,
-    "prob_food_cropland": 0.10,
-    "prob_water_sources": 0.001,
+    "prob_food_forest": 0.01,
+    "prob_food_cropland": 0.01,
+    "prob_water_sources": 0.0,
     "thermoregulation_threshold": 28,
     "movement_fitness_depreceation": -0.000347222,        
     "knowledge_from_fringe": 1500,   
@@ -35,15 +35,15 @@ model_params = {
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
     "slope_tolerance": 32,   
-    "num_processes": 8,
-    "iterations": 8,
-    "max_time_steps": 288*10,
+    "num_processes": 1,
+    "iterations": 1,
+    "max_time_steps": 288*30,
     "aggression_threshold_enter_cropland": 0.5,
     "elephant_agent_visibility_radius": 750,
     "plot_stepwise_target_selection": False,
-    "threshold_days_of_food_deprivation": 3,
-    "threshold_days_of_water_deprivation": 3,
-    "number_of_feasible_movement_directions": 2
+    "threshold_days_of_food_deprivation": 1,
+    "threshold_days_of_water_deprivation": 1,
+    "number_of_feasible_movement_directions": 3
     }
 
 

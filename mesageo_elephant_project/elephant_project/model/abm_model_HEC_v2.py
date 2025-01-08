@@ -23,7 +23,8 @@ import datetime                         # for date and time operations
 import warnings                         # to ignore warnings
 import geopandas as gpd                 # for geospatial operations
 import uuid                             # for generating unique ids
-from scipy.ndimage import distance_transform_edt   # for distance transformations
+from scipy.ndimage import distance_transform_edt   # for distance transformations     
+import mlflow     
 #---------------imports-------------------#
 
 
@@ -1042,8 +1043,11 @@ class Elephant(GeoAgent):
 
         # print("UPDATE FITNESS: THERMOREGULATION")
 
-        fitness_increment = (1/10)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
-        self.update_fitness_value(fitness_increment)
+        try:
+            fitness_increment = (1/10)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
+            self.update_fitness_value(fitness_increment)
+        except:
+            pass
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1084,24 +1088,29 @@ class Elephant(GeoAgent):
         if self.model.INFRASTRUCTURE_MATRIX[row][col] != 0:
             if np.random.uniform(0,1) < self.model.prob_infrastructure_damage:
                 self.infrastructure_damage_matrix[row][col] = 1
-                
+
+                source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+
+                with rio.open(source) as src:
+                    ras_meta = src.profile
+
+                infrastructure_loc = os.path.join(self.model.folder_root, "env", "infrastructure_damage_" + str(self.unique_id) + "_.tif")
+                with rio.open(infrastructure_loc, 'w', **ras_meta) as dst:
+                    dst.write(np.array(self.infrastructure_damage_matrix).astype('float32'), 1)
+
         if self.model.AGRICULTURAL_PLOTS[row][col] != 0 and self.model.FOOD[row][col] > 0:
             if np.random.uniform(0,1) < self.model.prob_crop_damage: 
                 self.crop_damage_matrix[row][col] = 1
 
-        #save the infrastructure and crop damage matrix
-        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+                #save the infrastructure and crop damage matrix
+                source = os.path.join(self.model.folder_root, "env", "LULC.tif")
 
-        with rio.open(source) as src:
-            ras_meta = src.profile
+                with rio.open(source) as src:
+                    ras_meta = src.profile
 
-        infrastructure_loc = os.path.join(self.model.folder_root, "env", "infrastructure_damage_" + str(self.unique_id) + "_.tif")
-        with rio.open(infrastructure_loc, 'w', **ras_meta) as dst:
-            dst.write(np.array(self.infrastructure_damage_matrix).astype('float32'), 1)
-
-        crop_loc = os.path.join(self.model.folder_root, "env", "crop_damage_" + str(self.unique_id) + "_.tif")
-        with rio.open(crop_loc, 'w', **ras_meta) as dst:
-            dst.write(np.array(self.crop_damage_matrix).astype('float32'), 1)
+                crop_loc = os.path.join(self.model.folder_root, "env", "crop_damage_" + str(self.unique_id) + "_.tif")
+                with rio.open(crop_loc, 'w', **ras_meta) as dst:
+                    dst.write(np.array(self.crop_damage_matrix).astype('float32'), 1)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1317,7 +1326,8 @@ class conflict_model(Model):
         plot_stepwise_target_selection,
         threshold_days_of_food_deprivation,
         threshold_days_of_water_deprivation,
-        number_of_feasible_movement_directions
+        number_of_feasible_movement_directions,
+        track_in_mlflow
         ):
 
 
@@ -1363,6 +1373,7 @@ class conflict_model(Model):
         self.threshold_days_of_food_deprivation = threshold_days_of_food_deprivation
         self.threshold_days_of_water_deprivation = threshold_days_of_water_deprivation
         self.number_of_feasible_movement_directions = number_of_feasible_movement_directions
+        self.track_in_mlflow = track_in_mlflow
         #-------------------------------------------------------------------
 
 
@@ -1506,6 +1517,40 @@ class conflict_model(Model):
                                                 })
 
         self.datacollector.collect(self)
+
+        if track_in_mlflow == True:
+            mlflow.start_run()
+            mlflow.log_params(
+                            {"year": self.year,
+                            "month": self.month,
+                            "num_bull_elephants": self.num_bull_elephants, 
+                            "area_size": self.area_size,              
+                            "spatial_resolution": self.spatial_resolution, 
+                            "max_food_val_cropland": self.max_food_val_cropland,
+                            "max_food_val_forest": self.max_food_val_forest,
+                            "prob_food_forest": self.prob_food_forest,
+                            "prob_food_cropland": self.prob_food_cropland,
+                            "prob_water_sources": self.prob_water_sources,
+                            "thermoregulation_threshold": self.thermoregulation_threshold,
+                            "movement_fitness_depreceation": self.movement_fitness_depreceation,        
+                            "knowledge_from_fringe": self.knowledge_from_fringe,   
+                            "prob_crop_damage": self.prob_crop_damage,           
+                            "prob_infrastructure_damage": self.prob_infrastructure_damage,
+                            "percent_memory_elephant": self.percent_memory_elephant,   
+                            "radius_food_search": self.radius_food_search,     
+                            "radius_water_search": self.radius_water_search, 
+                            "radius_forest_search": self.radius_forest_search,
+                            "fitness_threshold": self.fitness_threshold,   
+                            "terrain_radius": self.terrain_radius,       
+                            "slope_tolerance": self.slope_tolerance,   
+                            "max_time_steps": self.max_time_steps,
+                            "aggression_threshold_enter_cropland": self.aggression_threshold_enter_cropland,
+                            "elephant_agent_visibility_radius": self.elephant_agent_visibility_radius,
+                            "threshold_days_of_food_deprivation": self.threshold_days_of_food_deprivation,
+                            "threshold_days_of_water_deprivation": self.threshold_days_of_water_deprivation,
+                            "number_of_feasible_movement_directions": self.number_of_feasible_movement_directions
+                            })
+
     #-------------------------------------------------------------------
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
@@ -1899,6 +1944,8 @@ class conflict_model(Model):
         plt.title("Elephant agent trajectory: " + agent_id)
         plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_LULC_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
         
+        mlflow.log_figure(fig, "trajectory_on_LULC_" + agent_id + "_v1.png")
+
         plt.close()
     #----------------------------------------------------------------------------------------------------
     def plot_ele_traj_on_slope(self, longitude, latitude, agent_id):
@@ -1941,6 +1988,8 @@ class conflict_model(Model):
 
         plt.title("Elephant agent trajectory: " + agent_id)
         plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_slope_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
+
+        mlflow.log_figure(fig, "trajectory_on_slope_" + agent_id + "_v1.png")
 
         plt.close()
     #----------------------------------------------------------------------------------------------------
@@ -1985,7 +2034,7 @@ class conflict_model(Model):
         self.model_hour = int(self.model_minutes/60)
         self.model_day = int(self.model_hour/24)
         self.hour_in_day =  self.model_hour - self.model_day*24
-
+            
         for agent in self.schedule.agents:
             if isinstance(agent , Elephant):
                 if agent.fitness <= 0:
@@ -2014,6 +2063,11 @@ class conflict_model(Model):
 
             data_agents.to_csv(os.path.join(folder, self.now, "output_files", "agent_data.csv"), index = False)
 
+            if self.track_in_mlflow == True:
+                mlflow.log_metric("maximum time step", self.model_time)
+                mlflow.log_artifact(os.path.join(folder, self.now, "output_files", "agent_data.csv"), "agent_data.csv")
+                mlflow.end_run()
+
         return
     #----------------------------------------------------------------------------------------------------
 
@@ -2038,12 +2092,15 @@ class conflict_model(Model):
 
 
 
-def batch_run_model(model_params, output_folder):
+def batch_run_model(model_params, experiment_name, output_folder):
 
     freeze_support()
 
     global folder 
     folder = output_folder
+
+    mlflow.create_experiment(experiment_name=experiment_name)
+    mlflow.set_experiment(experiment_name=experiment_name)
 
     environment(prob_food_in_forest = model_params["prob_food_forest"],
                         prob_food_in_cropland = model_params["prob_food_cropland"],

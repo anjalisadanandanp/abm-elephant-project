@@ -322,7 +322,7 @@ class Elephant(GeoAgent):
 
         self.crop_and_infrastructure_damage() 
 
-        self.update_fitness_value(1/(288*self.model.num_days_agent_survives_in_deprivation))
+        self.update_fitness_value(-1/(288*self.model.num_days_agent_survives_in_deprivation))
 
         if  self.prob_thermoregulation > 0.5:
             print("water source proximity (number of cells):", self.proximity_to_water_sources[self.ROW][self.COL])

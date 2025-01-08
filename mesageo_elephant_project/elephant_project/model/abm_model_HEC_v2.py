@@ -322,7 +322,7 @@ class Elephant(GeoAgent):
 
         self.crop_and_infrastructure_damage() 
 
-        self.update_fitness_value(self.model.movement_fitness_depreceation)
+        self.update_fitness_value(1/(288*self.model.num_days_agent_survives_in_deprivation))
 
         if  self.prob_thermoregulation > 0.5:
             print("water source proximity (number of cells):", self.proximity_to_water_sources[self.ROW][self.COL])
@@ -1060,7 +1060,7 @@ class Elephant(GeoAgent):
         # print("UPDATE FITNESS: THERMOREGULATION")
 
         try:
-            fitness_increment = (1/10)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
+            fitness_increment = (1/self.num_days_agent_survives_in_deprivation)*(num_thermoregulation_steps/288)*(num_steps_thermoregulated/num_thermoregulation_steps)
             self.update_fitness_value(fitness_increment)
         except:
             pass
@@ -1074,7 +1074,7 @@ class Elephant(GeoAgent):
 
         # print("UPDATE FITNESS: FORAGING")
 
-        fitness_increment = (1/10)*((288-num_thermoregulation_steps)/288)*(min(food_consumed, self.daily_dry_matter_intake)/self.daily_dry_matter_intake)
+        fitness_increment = (1/self.num_days_agent_survives_in_deprivation)*((288-num_thermoregulation_steps)/288)*(min(food_consumed, self.daily_dry_matter_intake)/self.daily_dry_matter_intake)
         self.update_fitness_value(fitness_increment)
 
         if food_consumed > self.daily_dry_matter_intake and self.fitness < self.model.fitness_threshold:
@@ -1329,7 +1329,7 @@ class conflict_model(Model):
         prob_food_cropland,                         #probability of food in the cropland
         prob_water_sources,                         #probability of water holes in the landscape
         thermoregulation_threshold,                 #threshold temperature for thermoregulation for the elephant agents
-        movement_fitness_depreceation,              #fitness depreceation in each tick
+        num_days_agent_survives_in_deprivation,          
         knowledge_from_fringe,                      #distance from the fringe where elephants knows food availability within the crop fields
         prob_crop_damage,                           #probability of damaging crop if entered an agricultural field
         prob_infrastructure_damage,                 #probability of damaging infrastructure if entered a settlement area
@@ -1377,7 +1377,7 @@ class conflict_model(Model):
         self.prob_food_cropland = prob_food_cropland
         self.prob_water_sources = prob_water_sources
         self.thermoregulation_threshold = thermoregulation_threshold
-        self.movement_fitness_depreceation = movement_fitness_depreceation
+        self.num_days_agent_survives_in_deprivation = num_days_agent_survives_in_deprivation
         self.knowledge_from_fringe = knowledge_from_fringe
         self.prob_crop_damage = prob_crop_damage
         self.prob_infrastructure_damage = prob_infrastructure_damage
@@ -1527,7 +1527,7 @@ class conflict_model(Model):
                             "prob_food_cropland": self.prob_food_cropland,
                             "prob_water_sources": self.prob_water_sources,
                             "thermoregulation_threshold": self.thermoregulation_threshold,
-                            "movement_fitness_depreceation": self.movement_fitness_depreceation,        
+                            "num_days_agent_survives_in_deprivation": self.num_days_agent_survives_in_deprivation,        
                             "knowledge_from_fringe": self.knowledge_from_fringe,   
                             "prob_crop_damage": self.prob_crop_damage,           
                             "prob_infrastructure_damage": self.prob_infrastructure_damage,

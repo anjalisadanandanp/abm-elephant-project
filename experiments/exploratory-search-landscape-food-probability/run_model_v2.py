@@ -60,6 +60,7 @@ def generate_parameter_combinations(model_params_all):
     thermoregulation_threshold = model_params_all["thermoregulation_threshold"]
     threshold_days_food = model_params_all["threshold_days_of_food_deprivation"]
     threshold_days_water = model_params_all["threshold_days_of_water_deprivation"]
+    prob_water_sources = model_params_all["prob_water_sources"]
 
     combinations = list(itertools.product(
         month,
@@ -68,7 +69,8 @@ def generate_parameter_combinations(model_params_all):
         prob_food_cropland,
         thermoregulation_threshold,
         threshold_days_food,
-        threshold_days_water
+        threshold_days_water,
+        prob_water_sources
     ))
 
     all_param_dicts = []
@@ -82,7 +84,8 @@ def generate_parameter_combinations(model_params_all):
             "prob_food_cropland": combo[3],
             "thermoregulation_threshold": combo[4],
             "threshold_days_of_food_deprivation": combo[5],
-            "threshold_days_of_water_deprivation": combo[6]
+            "threshold_days_of_water_deprivation": combo[6],
+            "prob_water_sources": combo[7]
         })
         
         all_param_dicts.append(params_dict)

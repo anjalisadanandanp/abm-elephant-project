@@ -22,12 +22,12 @@ model_params_all = {
     "area_size": 1100,              
     "spatial_resolution": 30, 
     "max_food_val_cropland": 100,
-    "max_food_val_forest": [5, 10, 15, 20, 25],
-    "prob_food_forest": [0.10, 0.05, 0.01, 0.005],
-    "prob_food_cropland": [0.10, 0.05, 0.01, 0.005],
-    "prob_water_sources": [0.00, 0.05, 0.01, 0.005, 0.001],
+    "max_food_val_forest": [25],
+    "prob_food_forest": [0.10],
+    "prob_food_cropland": [0.10],
+    "prob_water_sources": [0.00, 0.05],
     "thermoregulation_threshold": [28, 32],
-    "num_days_agent_survives_in_deprivation": 15,        
+    "num_days_agent_survives_in_deprivation": [10, 15, 20, 25],     
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
     "prob_infrastructure_damage": 0.01,
@@ -37,7 +37,7 @@ model_params_all = {
     "radius_forest_search": 1500,
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
-    "slope_tolerance": 32,   
+    "slope_tolerance": [30, 35, 40, 45, 50],
     "num_processes": 8,
     "iterations": 8,
     "max_time_steps": 288*30,
@@ -61,6 +61,8 @@ def generate_parameter_combinations(model_params_all):
     threshold_days_food = model_params_all["threshold_days_of_food_deprivation"]
     threshold_days_water = model_params_all["threshold_days_of_water_deprivation"]
     prob_water_sources = model_params_all["prob_water_sources"]
+    num_days_agent_survives_in_deprivation = model_params_all["num_days_agent_survives_in_deprivation"]
+    slope_tolerance = model_params_all["slope_tolerance"]
 
     combinations = list(itertools.product(
         month,
@@ -70,7 +72,9 @@ def generate_parameter_combinations(model_params_all):
         thermoregulation_threshold,
         threshold_days_food,
         threshold_days_water,
-        prob_water_sources
+        prob_water_sources,
+        num_days_agent_survives_in_deprivation,
+        slope_tolerance
     ))
 
     all_param_dicts = []
@@ -85,7 +89,9 @@ def generate_parameter_combinations(model_params_all):
             "thermoregulation_threshold": combo[4],
             "threshold_days_of_food_deprivation": combo[5],
             "threshold_days_of_water_deprivation": combo[6],
-            "prob_water_sources": combo[7]
+            "prob_water_sources": combo[7],
+            "num_days_agent_survives_in_deprivation": combo[8],
+            "slope_tolerance": combo[9]
         })
         
         all_param_dicts.append(params_dict)
@@ -106,8 +112,14 @@ def run_model():
     elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
     threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
     threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
+    slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
+    num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
 
-    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, str(model_params["year"]), str(model_params["month"]))
+    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+                                 water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
+                                 elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
+                                 slope_tolerance, num_days_agent_survives_in_deprivation,
+                                 str(model_params["year"]), str(model_params["month"]))
 
     # if os.path.exists(output_folder):
     #     os.system("rm -r " + output_folder)

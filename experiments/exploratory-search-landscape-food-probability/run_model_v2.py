@@ -94,7 +94,7 @@ def run_model():
 
     
     elephant_category = "solitary_bulls"
-    starting_location = "latitude-" + str(1045831) + "-longitude-" + str(8577680)
+    starting_location = "latitude-" + str(1046330) + "-longitude-" + str(8574425)
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
     water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
     memory_matrix_type = "random-memory-matrix-model"

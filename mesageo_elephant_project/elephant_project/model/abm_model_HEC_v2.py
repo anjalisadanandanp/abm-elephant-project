@@ -1582,8 +1582,8 @@ class conflict_model(Model):
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
 
-        coord_lon = [8577680]
-        coord_lat = [1045831]
+        coord_lon = [8574425]
+        coord_lat = [1046330]
 
         if self.track_in_mlflow == True:
             mlflow.log_params({"starting longitude": coord_lon[0],

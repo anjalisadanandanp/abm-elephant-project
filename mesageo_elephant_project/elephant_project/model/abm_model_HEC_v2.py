@@ -344,7 +344,7 @@ class Elephant(GeoAgent):
         self.update_fitness_value(-1/(288*self.model.num_days_agent_survives_in_deprivation))
 
         if  self.prob_thermoregulation > 0.5:
-            print("water source proximity (number of cells):", self.proximity_to_water_sources[self.ROW][self.COL])
+            # print("water source proximity (number of cells):", self.proximity_to_water_sources[self.ROW][self.COL])
             if self.proximity_to_water_sources[self.ROW][self.COL]*33.33 < self.model.radius_water_search:
                 self.num_steps_thermoregulated += 1
 

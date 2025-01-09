@@ -2001,7 +2001,7 @@ class conflict_model(Model):
 
         map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
 
-        map.imshow(data, cmap = "coolwarm", extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.75, vmin = 0, vmax = 60)
+        map.imshow(data, cmap = "coolwarm", extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.75, vmin = 0, vmax = 2*self.slope_tolerance)
 
         map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
         map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
@@ -2062,7 +2062,11 @@ class conflict_model(Model):
         self.update_season()
         self.update_human_disturbance_explict()
 
-        self.schedule.step()
+        try:
+            self.schedule.step()
+        except:
+            self.running = False
+
         self.datacollector.collect(self)
 
         #UPDATE TIME

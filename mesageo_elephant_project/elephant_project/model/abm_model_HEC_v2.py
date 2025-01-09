@@ -76,8 +76,8 @@ class Elephant(GeoAgent):
         #-------------------------------------------------------------------
         self.mode = self.model.random.choice(["RandomWalk", "TargetedWalk"])  
         self.fitness = 1
-        self.aggression = 1
-        self.crop_habituated = True
+        self.aggression = self.model.elephant_aggression_value
+        self.crop_habituated = self.model.elephant_crop_habituation
 
         self.disturbance_tolerance = 0.5
         self.food_consumed = 0                      
@@ -470,10 +470,10 @@ class Elephant(GeoAgent):
         """" Function to simulate the targeted movement of agents """
 
         self.distance_to_target = self.distance_calculator_epsg3857(self.shape.y, self.target_lat, self.shape.x, self.target_lon)
-        print("distance to target:", self.distance_to_target)
+        # print("distance to target:", self.distance_to_target)
 
         if self.distance_to_target < self.model.xres:    #Move to the target
-            print("----REACHED TARGET!----:", self.target_name)
+            # print("----REACHED TARGET!----:", self.target_name)
             self.target_name = None
             self.target_present = False
             self.target_lon = None
@@ -518,10 +518,10 @@ class Elephant(GeoAgent):
         #moving one cell at a time
 
         self.distance_to_target = self.distance_calculator_epsg3857(self.shape.y, self.target_lat, self.shape.x, self.target_lon)
-        print("distance to target:", self.distance_to_target)
+        # print("distance to target:", self.distance_to_target)
 
         if self.distance_to_target < self.model.xres:    #Move to the target
-            print("---Reached the target----", self.target_name)
+            # print("---Reached the target----", self.target_name)
             self.target_name = None
             self.target_present = False
             self.target_lon = None
@@ -915,7 +915,7 @@ class Elephant(GeoAgent):
         elif self.COL > self.model.col_size-radius-1:
             col_end = self.model.col_size-1
 
-        if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation:
+        if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation and self.num_days_water_source_visit < self.model.threshold_days_of_water_deprivation:
 
             if np.random.uniform(0,1) < self.aggression:
 
@@ -953,8 +953,45 @@ class Elephant(GeoAgent):
                             if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                                     coord_list.append([i,j])
 
-        elif self.crop_habituated == True:
+        elif self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation and self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation:
 
+            if np.random.uniform(0,1) < self.aggression:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                            if self.food_memory[i][j] > 0:
+                                coord_list.append([i,j])     
+
+                if coord_list == []:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
+                                        coord_list.append([i,j]) 
+
+            else:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if i == self.ROW and j == self.COL:
+                            pass
+
+                        elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                            coord_list.append([i,j])
+
+                if coord_list == []:
+                    
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j])
+
+        elif self.crop_habituated == True:
 
             if np.random.uniform(0,1) < self.aggression:
 
@@ -1079,7 +1116,7 @@ class Elephant(GeoAgent):
         elif self.COL > self.model.col_size-radius-1:
             col_end = self.model.col_size-1
 
-        if self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation:
+        if self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation and self.num_days_food_depreceation < self.model.threshold_days_of_food_deprivation:
 
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
@@ -1092,6 +1129,21 @@ class Elephant(GeoAgent):
                 for i in range(row_start,row_end):
                     for j in range(col_start,col_end):
                         if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                            coord_list.append([i,j]) 
+
+        elif self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation and self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation:
+
+            for i in range(row_start,row_end):
+                for j in range(col_start,col_end):
+
+                    if self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                        coord_list.append([i,j]) 
+
+            if coord_list == []:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                             coord_list.append([i,j]) 
 
         else:
@@ -1558,7 +1610,9 @@ class conflict_model(Model):
         track_in_mlflow,
         elephant_starting_location,
         elephant_starting_latitude,
-        elephant_starting_longitude
+        elephant_starting_longitude,
+        elephant_aggression_value,
+        elephant_crop_habituation
         ):
 
 
@@ -1608,6 +1662,8 @@ class conflict_model(Model):
         self.elephant_starting_location = elephant_starting_location
         self.elephant_starting_latitude = elephant_starting_latitude
         self.elephant_starting_longitude = elephant_starting_longitude
+        self.elephant_aggression_value = elephant_aggression_value
+        self.elephant_crop_habituation = elephant_crop_habituation
         #-------------------------------------------------------------------
 
 
@@ -2367,7 +2423,6 @@ class conflict_model(Model):
     #----------------------------------------------------------------------------------------------------
     def step(self):
 
-        print("\n")
         print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
 
         self.update_hourly_temp()

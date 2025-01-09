@@ -2431,12 +2431,10 @@ class conflict_model(Model):
         self.update_season()
         self.update_human_disturbance_explict()
 
-        # try:
-        #     self.schedule.step()
-        # except:
-        #     self.running = False
-
-        self.schedule.step()
+        try:
+            self.schedule.step()
+        except:
+            self.running = False
 
         self.datacollector.collect(self)
 

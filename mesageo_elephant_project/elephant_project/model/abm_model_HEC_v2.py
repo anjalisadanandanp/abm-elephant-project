@@ -262,7 +262,7 @@ class Elephant(GeoAgent):
                         self.target_name = None 
 
                     else:
-                        self.target_for_escape_v1()  
+                        self.target_for_escape_v1(filter)  
                         next_lon, next_lat = self.targeted_walk_v0()
                         self.shape = self.move_point(next_lon, next_lat)
                         self.target_name = "forest:escaping"
@@ -328,7 +328,7 @@ class Elephant(GeoAgent):
                 self.shape = self.move_point(next_lon, next_lat)
 
         elif self.mode == "EscapeMode":      
-            self.target_for_escape_v1()  
+            self.target_for_escape_v1(filter)  
             next_lon, next_lat = self.targeted_walk_v0()
             self.shape = self.move_point(next_lon, next_lat)
             self.target_name = "forest:escaping"

@@ -1198,7 +1198,7 @@ class Elephant(GeoAgent):
         if self.target_present == True:     #If target already exists
             return
         
-        radius = int(self.radius_forest_search*2/self.model.xres)     
+        radius = int(self.model.radius_forest_search*2/self.model.xres)     
         row_start = self.ROW - radius//2
         col_start = self.COL - radius//2
         row_end = self.ROW + radius//2 + 1
@@ -1231,7 +1231,7 @@ class Elephant(GeoAgent):
             coord_list.append([self.ROW,self.COL])
             for _ in range(25):
 
-                radius = int(self.terrain_radius*2/self.model.xres)   
+                radius = int(self.model.terrain_radius*2/self.model.xres)   
 
                 row_start = self.ROW - radius//2
                 col_start = self.COL - radius//2

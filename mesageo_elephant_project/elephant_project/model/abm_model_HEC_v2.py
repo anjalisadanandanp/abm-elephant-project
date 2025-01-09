@@ -25,6 +25,7 @@ import geopandas as gpd                 # for geospatial operations
 import uuid                             # for generating unique ids
 from scipy.ndimage import distance_transform_edt   # for distance transformations     
 import mlflow     
+import random
 #---------------imports-------------------#
 
 
@@ -76,8 +77,9 @@ class Elephant(GeoAgent):
         self.mode = self.model.random.choice(["RandomWalk", "TargetedWalk"])  
         self.fitness = 1
         self.aggression = 1
-        self.disturbance_tolerance = 0.5
         self.crop_habituated = True
+
+        self.disturbance_tolerance = 0.5
         self.food_consumed = 0                      
         self.visit_water_source = False            
         self.heading = self.model.random.uniform(0,360)
@@ -110,6 +112,9 @@ class Elephant(GeoAgent):
 
         self.crop_damage_matrix = np.zeros_like(self.model.LANDUSE)
         self.infrastructure_damage_matrix = np.zeros_like(self.model.LANDUSE)
+
+        self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
+        self.current_proximity_to_water_sources = self.proximity_to_plantations[self.ROW][self.COL]
     #-------------------------------------------------------------------
     def move_point(self,xnew,ynew): 
         """
@@ -243,68 +248,82 @@ class Elephant(GeoAgent):
         self.mode = self.current_mode_of_the_agent()   
 
         if self.mode == "RandomWalk":
-            next_lon, next_lat = self.correlated_random_walk_without_terrain_factor()   
+            next_lon, next_lat = self.correlated_random_walk_without_terrain_factor()
+
             row, col = self.model.get_indices(next_lon, next_lat)
-            if self.model.LANDUSE[row][col] == 10 and self.aggression > self.model.aggression_threshold_enter_cropland:
-                next_lon, next_lat = self.shape.x, self.shape.y     
-            self.shape = self.move_point(next_lon, next_lat)
-            self.target_name = None 
+
+            if self.aggression < self.model.aggression_threshold_enter_cropland:
+
+                if self.model.LANDUSE[self.ROW][self.COL] == 10 or self.model.LANDUSE[row][col] == 10: 
+
+                    if self.model.human_disturbance < self.disturbance_tolerance:
+
+                        self.shape = self.move_point(next_lon, next_lat)
+                        self.target_name = None 
+
+                    else:
+                        self.target_for_escape_v1()  
+                        next_lon, next_lat = self.targeted_walk_v0()
+                        self.shape = self.move_point(next_lon, next_lat)
+                        self.target_name = "forest:escaping"
+                        self.mode = "ForagingMode"
+
+                else:
+                    self.shape = self.move_point(next_lon, next_lat)
+                    self.target_name = None
+
+            else:
+                self.shape = self.move_point(next_lon, next_lat)
+                self.target_name = None       
 
         elif self.mode == "ForagingMode":
 
             if self.target_present == False:
-                print("step:0------foraging mode: target not present, choosing a food target------")
-                filter = self.return_feasible_direction_to_move_v1()
+                filter = self.return_feasible_direction_to_move_v2()
                 self.target_for_foraging_v1(filter)     
                 self.target_name = "food:foraging" 
 
             else:
-                print("step:0------foraging mode: target is present, moving towards the food target------")
+
                 row, col = self.model.get_indices(self.target_lon, self.target_lat)
 
                 if self.aggression < self.model.aggression_threshold_enter_cropland:
-                    print("step:1------foraging mode: the aggression level is low, checking for the type of landuse------")
 
                     if self.model.LANDUSE[self.ROW][self.COL] == 10 or self.model.LANDUSE[row][col] == 10: 
-                        print("step:2------foraging mode: target present is in cropland, check for the disturbance------")
 
                         if self.model.human_disturbance < self.disturbance_tolerance:   
-                            print("step:3------foraging mode: target present is in cropland, night time, move towards target------")
+
                             next_lon, next_lat = self.targeted_walk_v0()
                             self.shape = self.move_point(next_lon, next_lat)
                             self.target_name = "cropland:foraging"
+
                         else:
-                            print("step:3------foraging mode: target present is in cropland, day time, escape to forest------")
-                            filter = self.return_feasible_direction_to_move_v1()
-                            self.target_for_escape_v1(filter)    #move to the forest
+                            filter = self.return_feasible_direction_to_move_v2()
+                            self.target_for_escape_v1(filter)    
                             self.target_name = "forest:escaping"
                             next_lon, next_lat = self.targeted_walk_v0()
                             self.shape = self.move_point(next_lon, next_lat)
 
                     else:
-                        print("step:2------foraging mode: target present is in forest, move towards target------")
+
                         next_lon, next_lat = self.targeted_walk_v0()
                         self.shape = self.move_point(next_lon, next_lat)
                         self.target_name = "forest:foraging"
 
                 else:
-                    print("step:1------foraging mode: aggression level is high, move towards target------")
+
                     next_lon, next_lat = self.targeted_walk_v0()
                     self.shape = self.move_point(next_lon, next_lat)
                     self.target_name = "food:foraging"
-            
-            print("food source proximity (number of cells):", self.proximity_to_food_sources[self.ROW][self.COL])
 
         elif self.mode == "Thermoregulation":
 
             if self.target_present == False:
-                print("step:0------thermoregulation mode: target not present, choosing a water source------")
-                filter = self.return_feasible_direction_to_move_v1()
+                filter = self.return_feasible_direction_to_move_v2()
                 self.target_thermoregulation_v1(filter)
                 self.target_name = "thermoregulation"
             
             else:
-                print("step:0------thermoregulation mode: target is present, moving towards the target------")
                 next_lon, next_lat = self.targeted_walk_v0()
                 self.shape = self.move_point(next_lon, next_lat)
 
@@ -722,6 +741,153 @@ class Elephant(GeoAgent):
 
         return filter
     #-----------------------------------------------------------------------------------------------------
+    def return_feasible_direction_to_move_v2(self):
+
+        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   
+
+        #create a n*n numpy array to store the data
+        data = np.zeros((radius, radius), dtype=object)
+
+        #fill the array with theta values calculated on the basis of row and column index with respect to the center of the array
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = np.arctan2(((i-(radius//2))*np.pi),((j-(radius//2))*np.pi))
+
+        #convert the array to degrees from radians
+        data = np.rad2deg(data.astype(float))
+
+        #find min and max of the array
+        min_val = np.amin(data)
+        max_val = np.amax(data)
+
+        #set center value to -1
+        data[radius//2][radius//2] = -500
+
+        #discretize the array into 8 bins
+        data = np.digitize(data, np.linspace(min_val, max_val, 17))
+
+        #map values in array based on the following mapping
+        map = {0:0, 1:8, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:5, 11:5, 12:6, 13:6, 14:7, 15:7, 16:8, 17:8}
+
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = map[data[i][j]]
+
+        data[radius//2][radius//2] = 9
+        slope = np.array(self.model.SLOPE)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
+
+        #sum the values in each direction based on the data array
+        direction_0 = slope[data == 1]
+        direction_1 = slope[data == 2]
+        direction_2 = slope[data == 3]
+        direction_3 = slope[data == 4]
+        direction_4 = slope[data == 5]
+        direction_5 = slope[data == 6]
+        direction_6 = slope[data == 7]
+        direction_7 = slope[data == 8]
+
+        #find cells greater than 30 degrees in each direction
+        direction_0 = [1 for x in direction_0.flatten() if x > self.model.slope_tolerance]
+        direction_1 = [1 for x in direction_1.flatten() if x > self.model.slope_tolerance]
+        direction_2 = [1 for x in direction_2.flatten() if x > self.model.slope_tolerance]
+        direction_3 = [1 for x in direction_3.flatten() if x > self.model.slope_tolerance]
+        direction_4 = [1 for x in direction_4.flatten() if x > self.model.slope_tolerance]
+        direction_5 = [1 for x in direction_5.flatten() if x > self.model.slope_tolerance]
+        direction_6 = [1 for x in direction_6.flatten() if x > self.model.slope_tolerance]
+        direction_7 = [1 for x in direction_7.flatten() if x > self.model.slope_tolerance]
+
+        #calculate the cost of movement in each direction as sum of the direction cells
+        cost_0 = sum(x for x in direction_0)
+        cost_1 = sum(x for x in direction_1)
+        cost_2 = sum(x for x in direction_2)
+        cost_3 = sum(x for x in direction_3)
+        cost_4 = sum(x for x in direction_4)
+        cost_5 = sum(x for x in direction_5)
+        cost_6 = sum(x for x in direction_6)
+        cost_7 = sum(x for x in direction_7)
+
+        cost = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
+        direction = [135, 90, 45, 0, 315, 270, 225, 180]
+
+        lists_to_shuffle = list(zip(direction, cost))
+
+        random.shuffle(lists_to_shuffle)
+
+        direction, cost = zip(*lists_to_shuffle)
+
+        idx = np.argsort(cost)
+        theta = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
+
+        #choose a direction to move
+        movement_direction = np.random.choice(theta)
+
+        if movement_direction == 135:
+            #create an array with 0 when data array != 1
+            filter = np.zeros_like(data)
+            filter[data == 1] = 1
+
+        elif movement_direction == 90:
+            #create an array with 0 when data array != 2
+            filter = np.zeros_like(data)
+            filter[data == 2] = 1
+
+        elif movement_direction == 45:
+            #create an array with 0 when data array != 3
+            filter = np.zeros_like(data)
+            filter[data == 3] = 1
+
+        elif movement_direction == 0:
+            #create an array with 0 when data array != 4
+            filter = np.zeros_like(data)
+            filter[data == 4] = 1
+
+        elif movement_direction == 315:
+            #create an array with 0 when data array != 5
+            filter = np.zeros_like(data)
+            filter[data == 5] = 1
+
+        elif movement_direction == 270:
+            #create an array with 0 when data array != 6
+            filter = np.zeros_like(data)
+            filter[data == 6] = 1
+
+        elif movement_direction == 225:
+            #create an array with 0 when data array != 7
+            filter = np.zeros_like(data)
+            filter[data == 7] = 1
+
+        elif movement_direction == 180:
+            #create an array with 0 when data array != 8
+            filter = np.zeros_like(data)
+            filter[data == 8] = 1
+
+        #center value is set to -1
+        filter[radius//2][radius//2] = 2
+
+        self.direction = movement_direction
+
+        # print("choosen direction to move:", self.direction)
+
+        if self.model.plot_stepwise_target_selection == True:
+
+            #plot the slope matrix and the filter matrix to visualize the movement direction
+            fig, ax = plt.subplots(1,2, figsize=(10,5))
+            img1 = ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
+            ax[0].set_title("Slope Matrix")
+            ax[0].set_xticks([])
+            ax[0].set_yticks([])
+            plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+            img2 = ax[1].imshow(filter, cmap='gray')
+            ax[1].set_title("Filter Matrix")
+            ax[0].set_xticks([])
+            ax[0].set_yticks([])
+            plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+            plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_feasible_move_direction_.png"), dpi=300, bbox_inches='tight')
+
+        return filter
+    #-----------------------------------------------------------------------------------------------------
     def target_for_foraging_v1(self, filter):
 
         if self.target_present == True:  
@@ -749,13 +915,9 @@ class Elephant(GeoAgent):
         elif self.COL > self.model.col_size-radius-1:
             col_end = self.model.col_size-1
 
-        if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation or self.crop_habituated == True:
-
-            print("step:0------target for foraging:food deprecated agent or crop habituated agent------")
+        if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation:
 
             if np.random.uniform(0,1) < self.aggression:
-
-                print("step:1------target for foraging:move closer to plantations")
 
                 for i in range(row_start,row_end):
                     for j in range(col_start,col_end):
@@ -768,13 +930,12 @@ class Elephant(GeoAgent):
 
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
+                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
 
-                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                                    coord_list.append([i,j]) 
+                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
+                                        coord_list.append([i,j]) 
 
             else:
-
-                print("step:1------target for foraging:choose food target from memory")
 
                 for i in range(row_start,row_end):
                     for j in range(col_start,col_end):
@@ -790,13 +951,49 @@ class Elephant(GeoAgent):
                         for j in range(col_start,col_end):
 
                             if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                                    coord_list.append([i,j]) 
+                                    coord_list.append([i,j])
 
+        elif self.crop_habituated == True:
+
+
+            if np.random.uniform(0,1) < self.aggression:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                            if self.food_memory[i][j] > 0:
+                                coord_list.append([i,j])     
+
+                if coord_list == []:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
+                                        coord_list.append([i,j]) 
+
+            else:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if i == self.ROW and j == self.COL:
+                            pass
+
+                        elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                            coord_list.append([i,j])
+
+                if coord_list == []:
+                    
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j])
                         
         else:
 
-            print("step:0------target for foraging:not a food food deprecated agent or crop habituated agent------")
-            print("step:1------target for foraging:choose food target from memory")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if i == self.ROW and j == self.COL:
@@ -805,8 +1002,15 @@ class Elephant(GeoAgent):
                     elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j])
 
+            if coord_list == []:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+
+                        if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                coord_list.append([i,j]) 
+
         if coord_list == []:
-            print("step:2------target not available within search radius:move to a random cell------")
 
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
@@ -822,7 +1026,6 @@ class Elephant(GeoAgent):
 
             if self.model.plot_stepwise_target_selection == True:
 
-                #plot the temperature matrix and the filter matrix to visualize the movement direction, highlighting the target
                 fig, ax = plt.subplots(1,2, figsize=(10,5))
                 food_memory = np.array(self.food_memory)[row_start:row_end, col_start:col_end]
                 img1 = ax[0].imshow(food_memory, cmap='gray', vmin=0, vmax=max(self.model.max_food_val_forest, self.model.max_food_val_cropland))
@@ -877,25 +1080,29 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         if self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation:
-            print("step:0------target for thermoregulation:water deprecated agent, check for water sources------")
+
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
 
                     if self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j]) 
 
-                    elif self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                        coord_list.append([i,j]) 
+            if coord_list == []:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                            coord_list.append([i,j]) 
 
         else:
-            print("step:0------target for thermoregulation:not a water deprecated agent, move to a random cell------")
+
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j]) 
 
         if coord_list == []:
-            print("step:1------target not available within search radius:move to a random cell------")
+
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if filter[i - row_start][j - col_start] == 1:
@@ -910,7 +1117,6 @@ class Elephant(GeoAgent):
 
             if self.model.plot_stepwise_target_selection == True:
 
-                #plot the temperature matrix and the filter matrix to visualize the movement direction, highlighting the target
                 fig, ax = plt.subplots(1,2, figsize=(10,5))
                 water_matrix = np.array(self.model.WATER)[row_start:row_end, col_start:col_end]
                 img1 = ax[0].imshow(water_matrix, cmap='coolwarm', vmin=0, vmax=1)
@@ -925,7 +1131,6 @@ class Elephant(GeoAgent):
                 ax[1].set_yticks([])
                 plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
 
-                #highlight the target cell 
                 ax[0].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
                 ax[1].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
 
@@ -1164,7 +1369,8 @@ class Elephant(GeoAgent):
         self.next_step_to_move_v1()
         self.ROW, self.COL = self.update_grid_index()
 
-        # print("Fitness of the elephant agent:", self.fitness, "mode:", self.mode, "num_days_food_depreceation:", self.num_days_food_depreceation, "num_days_water_source_visit:", self.num_days_water_source_visit)
+        self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
+        self.current_proximity_to_water_sources = self.proximity_to_plantations[self.ROW][self.COL]
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1349,7 +1555,10 @@ class conflict_model(Model):
         threshold_days_of_food_deprivation,
         threshold_days_of_water_deprivation,
         number_of_feasible_movement_directions,
-        track_in_mlflow
+        track_in_mlflow,
+        elephant_starting_location,
+        elephant_starting_latitude,
+        elephant_starting_longitude
         ):
 
 
@@ -1396,6 +1605,9 @@ class conflict_model(Model):
         self.threshold_days_of_water_deprivation = threshold_days_of_water_deprivation
         self.number_of_feasible_movement_directions = number_of_feasible_movement_directions
         self.track_in_mlflow = track_in_mlflow
+        self.elephant_starting_location = elephant_starting_location
+        self.elephant_starting_latitude = elephant_starting_latitude
+        self.elephant_starting_longitude = elephant_starting_longitude
         #-------------------------------------------------------------------
 
 
@@ -1575,6 +1787,9 @@ class conflict_model(Model):
                                                 "num_days_food_depreceation": "num_days_food_depreceation",
                                                 "num_thermoregulation_steps": "num_thermoregulation_steps",
                                                 "num_steps_thermoregulated": "num_steps_thermoregulated",
+                                                "current_proximity_to_plantations": "current_proximity_to_plantations",
+                                                "current_proximity_to_water_sources": "current_proximity_to_water_sources"
+
                                                 })
 
         self.datacollector.collect(self)
@@ -1582,15 +1797,20 @@ class conflict_model(Model):
     def initialize_bull_elephants(self, **kwargs):
         """Initialize the elephant agents"""
 
-        coord_lon = [8574425]
-        coord_lat = [1046330]
+
+        if self.elephant_starting_location == "user_input":
+            coord_lon = [self.elephant_starting_longitude]
+            coord_lat = [self.elephant_starting_latitude]
+
+        else:
+            coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
 
         if self.track_in_mlflow == True:
-            mlflow.log_params({"starting longitude": coord_lon[0],
-                               "starting latitude": coord_lat[0]})
 
-        # coord_lat, coord_lon = self.elephant_distribution_random_init_forest()
-
+            for i,j in zip(coord_lon, coord_lat):
+                mlflow.log_metrics({"starting longitude": i, 
+                                    "starting latitude": j})
+            
         ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
         data = ds.ReadAsArray()
         data = np.flip(data, axis=0)
@@ -2030,6 +2250,98 @@ class conflict_model(Model):
 
         plt.close()
     #----------------------------------------------------------------------------------------------------
+    def plot_ele_traj_on_proximity_to_water_sources(self, longitude, latitude, agent_id):
+        
+        ds = gdal.Open(os.path.join(self.folder_root , "env", "water_matrix_"+ str(self.prob_water_sources) + "_.tif"))
+        data = self.calculate_proximity_map(landscape_matrix=self.WATER, target_class=1, name="water_sources")
+        data = np.flip(data, axis=0)
+        row_size, col_size = data.shape
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.yaxis.set_inverted(True)
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
+        LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+
+        map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+        map.imshow(data, cmap = "coolwarm", extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.75, vmin = 0, vmax = np.max(data))
+
+        map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+        map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        longitude, latitude = transform(inProj, outProj, longitude, latitude)
+        x_new, y_new = map(longitude,latitude)
+        C = np.arange(len(x_new))
+        nz = mcolors.Normalize()
+        nz.autoscale(C)
+
+        ax.quiver(x_new[:-1], y_new[:-1],
+                    x_new[1:]-x_new[:-1], y_new[1:]-y_new[:-1], 
+                    scale_units='xy', angles='xy', 
+                    scale=1, zorder=1, color = cm.jet(nz(C)), 
+                    width=0.0025)
+        
+        ax.scatter(x_new[0], y_new[0], 25, marker='o', color='blue', zorder=2)
+        ax.scatter(x_new[-1], y_new[-1], 25, marker='^', color='red', zorder=2)
+
+        plt.title("Elephant agent trajectory: " + agent_id)
+        plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_water_proximity_map_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
+
+        if self.track_in_mlflow == True:
+            mlflow.log_figure(fig, "trajectory_on_water_proximity_map_" + agent_id + "_v1.png")
+
+        plt.close()
+    #----------------------------------------------------------------------------------------------------
+    def plot_ele_traj_on_proximity_to_plantations(self, longitude, latitude, agent_id):
+        
+        ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
+        data = self.calculate_proximity_map(landscape_matrix=self.LANDUSE, target_class=10, name="plantations")
+        data = np.flip(data, axis=0)
+        row_size, col_size = data.shape
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.yaxis.set_inverted(True)
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
+        LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+
+        map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+        map.imshow(data, cmap = "coolwarm", extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.75, vmin = 0, vmax = np.max(data))
+
+        map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+        map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   #projection to the CRS on which mesa runs
+        longitude, latitude = transform(inProj, outProj, longitude, latitude)
+        x_new, y_new = map(longitude,latitude)
+        C = np.arange(len(x_new))
+        nz = mcolors.Normalize()
+        nz.autoscale(C)
+
+        ax.quiver(x_new[:-1], y_new[:-1],
+                    x_new[1:]-x_new[:-1], y_new[1:]-y_new[:-1], 
+                    scale_units='xy', angles='xy', 
+                    scale=1, zorder=1, color = cm.jet(nz(C)), 
+                    width=0.0025)
+        
+        ax.scatter(x_new[0], y_new[0], 25, marker='o', color='blue', zorder=2)
+        ax.scatter(x_new[-1], y_new[-1], 25, marker='^', color='red', zorder=2)
+
+        plt.title("Elephant agent trajectory: " + agent_id)
+        plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_plantation_proximity_map_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')
+
+        if self.track_in_mlflow == True:
+            mlflow.log_figure(fig, "trajectory_on_plantation_proximity_map_" + agent_id + "_v1.png")
+
+        plt.close()
+    #----------------------------------------------------------------------------------------------------
     def create_trajectory_shapefile(self, agent_id, longitude, latitude):
 
         longitude = [float(x) for x in longitude]
@@ -2100,6 +2412,8 @@ class conflict_model(Model):
                     self.create_trajectory_shapefile(agent, ele_data["longitude"].values, ele_data["latitude"].values)
                     self.plot_ele_traj_on_LULC(ele_data["longitude"].values, ele_data["latitude"].values, agent)
                     self.plot_ele_traj_on_slope(ele_data["longitude"].values, ele_data["latitude"].values, agent)
+                    self.plot_ele_traj_on_proximity_to_water_sources(ele_data["longitude"].values, ele_data["latitude"].values, agent)
+                    self.plot_ele_traj_on_proximity_to_plantations(ele_data["longitude"].values, ele_data["latitude"].values, agent)
             #------------------------------------------------------------------------
 
             data_agents.to_csv(os.path.join(folder, self.now, "output_files", "agent_data.csv"), index = False)
@@ -2140,7 +2454,8 @@ def batch_run_model(model_params, experiment_name, output_folder):
     global folder 
     folder = output_folder
 
-    mlflow.set_experiment(experiment_name)
+    if model_params["track_in_mlflow"] == True:
+        mlflow.set_experiment(experiment_name)
 
     batch_run(model_cls = conflict_model, 
                 parameters = model_params, 

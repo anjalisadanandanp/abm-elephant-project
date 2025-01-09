@@ -17,17 +17,17 @@ from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v2 import bat
 
 model_params_all = {
     "year": 2010,
-    "month": ["Jan", "Mar", "Jun", "Aug", "Oct", "Dec"],
+    "month": ["Mar"],
     "num_bull_elephants": 1, 
     "area_size": 1100,              
     "spatial_resolution": 30, 
     "max_food_val_cropland": 100,
-    "max_food_val_forest": [25],
+    "max_food_val_forest": [10],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [0.00, 0.05],
+    "prob_water_sources": [0.00],
     "thermoregulation_threshold": [28, 32],
-    "num_days_agent_survives_in_deprivation": [10, 15, 20, 25],     
+    "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
     "prob_infrastructure_damage": 0.01,
@@ -37,17 +37,20 @@ model_params_all = {
     "radius_forest_search": 1500,
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
-    "slope_tolerance": [30, 35, 40, 45, 50],
+    "slope_tolerance": [30],
     "num_processes": 8,
     "iterations": 8,
     "max_time_steps": 288*30,
     "aggression_threshold_enter_cropland": 0.5,
     "elephant_agent_visibility_radius": 500,
     "plot_stepwise_target_selection": False,
-    "threshold_days_of_food_deprivation": [0, 1, 2, 3],
-    "threshold_days_of_water_deprivation": [0, 1, 2, 3],
-    "number_of_feasible_movement_directions": 3,
-    "track_in_mlflow": True
+    "threshold_days_of_food_deprivation": [0],
+    "threshold_days_of_water_deprivation": [0],
+    "number_of_feasible_movement_directions": 4,
+    "track_in_mlflow": False,
+    "elephant_starting_location": "user_input",
+    "elephant_starting_latitude": 1043411,
+    "elephant_starting_longitude": 8573830
     }
 
 
@@ -103,7 +106,7 @@ def run_model():
 
     
     elephant_category = "solitary_bulls"
-    starting_location = "latitude-" + str(1046330) + "-longitude-" + str(8574425)
+    starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
     water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
     memory_matrix_type = "random-memory-matrix-model"
@@ -140,10 +143,11 @@ if __name__ == "__main__":
 
     experiment_name = "exploratory-search"
 
-    try:
-        mlflow.create_experiment(experiment_name)
-    except:
-        print("experiment already exists")
+    if model_params_all["track_in_mlflow"] == True:
+        try:
+            mlflow.create_experiment(experiment_name)
+        except:
+            print("experiment already exists")
 
     param_dicts = generate_parameter_combinations(model_params_all)
 

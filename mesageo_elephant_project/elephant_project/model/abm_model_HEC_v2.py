@@ -262,6 +262,7 @@ class Elephant(GeoAgent):
                         self.target_name = None 
 
                     else:
+                        filter = self.return_feasible_direction_to_move_v2()
                         self.target_for_escape_v1(filter)  
                         next_lon, next_lat = self.targeted_walk_v0()
                         self.shape = self.move_point(next_lon, next_lat)
@@ -327,7 +328,8 @@ class Elephant(GeoAgent):
                 next_lon, next_lat = self.targeted_walk_v0()
                 self.shape = self.move_point(next_lon, next_lat)
 
-        elif self.mode == "EscapeMode":      
+        elif self.mode == "EscapeMode":   
+            filter = self.return_feasible_direction_to_move_v2()   
             self.target_for_escape_v1(filter)  
             next_lon, next_lat = self.targeted_walk_v0()
             self.shape = self.move_point(next_lon, next_lat)
@@ -2429,10 +2431,12 @@ class conflict_model(Model):
         self.update_season()
         self.update_human_disturbance_explict()
 
-        try:
-            self.schedule.step()
-        except:
-            self.running = False
+        # try:
+        #     self.schedule.step()
+        # except:
+        #     self.running = False
+
+        self.schedule.step()
 
         self.datacollector.collect(self)
 

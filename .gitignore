@@ -1,2 +1,5 @@
+experiments/exploratory-search-landscape-food-probability/run_model_v2.py
 model_runs/*
 mlruns/*
+
+

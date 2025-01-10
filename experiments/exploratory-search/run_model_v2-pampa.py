@@ -48,7 +48,7 @@ model_params_all = {
     "elephant_agent_visibility_radius": 500,
     "plot_stepwise_target_selection": False,
     "threshold_days_of_food_deprivation": [0],
-    "threshold_days_of_water_deprivation": [0],
+    "threshold_days_of_water_deprivation": [3],
     "number_of_feasible_movement_directions": 3,
     "track_in_mlflow": True,
     "elephant_starting_location": "user_input",
@@ -195,5 +195,5 @@ class Experiment:
 
 if __name__ == "__main__":
     experiment = Experiment("anjalisadanandan96@gmail.com", "fqdceolumrwtnmxo")
-    experiment.run_experiment(send_notification=False)
+    experiment.run_experiment(send_notification=True)
     

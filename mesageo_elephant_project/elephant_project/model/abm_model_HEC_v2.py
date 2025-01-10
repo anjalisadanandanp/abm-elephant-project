@@ -1493,7 +1493,7 @@ class environment():
         cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
 
         food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
-        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[cropland_mask]
+        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
 
         #saving the food matrix
         fid = os.path.join(folder_path, "LULC.tif")

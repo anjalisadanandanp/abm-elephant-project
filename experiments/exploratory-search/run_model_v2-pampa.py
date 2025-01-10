@@ -157,7 +157,7 @@ class Experiment:
 
         start = time.time()
 
-        experiment_name = "exploratory-search"
+        experiment_name = "exploratory-search-ID-01"
 
         if model_params_all["track_in_mlflow"] == True:
             try:

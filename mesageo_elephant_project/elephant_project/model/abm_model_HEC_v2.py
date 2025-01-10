@@ -1424,7 +1424,7 @@ class Elephant(GeoAgent):
         self.ROW, self.COL = self.update_grid_index()
 
         self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
-        self.current_proximity_to_water_sources = self.current_proximity_to_water_sources[self.ROW][self.COL]
+        self.current_proximity_to_water_sources = self.proximity_to_water_sources[self.ROW][self.COL]
 
         return
     #----------------------------------------------------------------------------------------------------

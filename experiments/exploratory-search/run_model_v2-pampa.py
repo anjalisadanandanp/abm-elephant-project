@@ -43,7 +43,7 @@ model_params_all = {
     "slope_tolerance": [30],
     "num_processes": 8,
     "iterations": 8,
-    "max_time_steps": 288*1,
+    "max_time_steps": 288*2,
     "aggression_threshold_enter_cropland": 1.0,
     "elephant_agent_visibility_radius": 500,
     "plot_stepwise_target_selection": False,
@@ -149,7 +149,7 @@ class Experiment:
         self.email_address = email_address
         self.email_password = email_password
 
-    def run_experiment(self):
+    def run_experiment(self, send_notification):
 
         print("Running experiment...!")
 
@@ -174,7 +174,8 @@ class Experiment:
 
         print("Total time taken:", (end-start), "seconds")
 
-        self.send_notification_email()
+        if send_notification == True:
+            self.send_notification_email()
 
     def send_notification_email(self):
         msg = MIMEText("elephant-abm-project: Your experiment has finished running!")
@@ -194,5 +195,5 @@ class Experiment:
 
 if __name__ == "__main__":
     experiment = Experiment("anjalisadanandan96@gmail.com", "fqdceolumrwtnmxo")
-    experiment.run_experiment()
+    experiment.run_experiment(send_notification=False)
     

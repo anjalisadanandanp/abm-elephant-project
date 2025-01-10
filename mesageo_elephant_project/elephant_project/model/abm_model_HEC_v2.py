@@ -1424,7 +1424,7 @@ class Elephant(GeoAgent):
         self.ROW, self.COL = self.update_grid_index()
 
         self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
-        self.current_proximity_to_water_sources = self.proximity_to_plantations[self.ROW][self.COL]
+        self.current_proximity_to_water_sources = self.current_proximity_to_water_sources[self.ROW][self.COL]
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -2407,20 +2407,25 @@ class conflict_model(Model):
 
         coords = list(zip(longitude, latitude))
         
-        # Create LineString geometry from coordinates
-        line = LineString(coords)
+        try:
+            # Create LineString geometry from coordinates
+            line = LineString(coords)
+            
+            # Create GeoDataFrame
+            gdf = gpd.GeoDataFrame(
+                {
+                    'agent_id': [agent_id],
+                    'num_points': [len(coords)],
+                    'geometry': [line]
+                },
+                crs="EPSG:3857"  # WGS84 coordinate system
+            )
+            
+            gdf.to_file(os.path.join(folder, self.now, "output_files", "trajectory_" + agent_id + "_.shp"), driver='ESRI Shapefile')
         
-        # Create GeoDataFrame
-        gdf = gpd.GeoDataFrame(
-            {
-                'agent_id': [agent_id],
-                'num_points': [len(coords)],
-                'geometry': [line]
-            },
-            crs="EPSG:3857"  # WGS84 coordinate system
-        )
-        
-        gdf.to_file(os.path.join(folder, self.now, "output_files", "trajectory_" + agent_id + "_.shp"), driver='ESRI Shapefile')
+        except:
+            print("trajectory shapefile could not be created")
+
         return  
     #----------------------------------------------------------------------------------------------------
     def step(self):

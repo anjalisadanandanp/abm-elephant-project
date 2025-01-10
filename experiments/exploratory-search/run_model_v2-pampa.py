@@ -6,9 +6,12 @@ sys.path.append(os.getcwd())
 
 import pathlib
 import yaml
-
 import itertools
 import mlflow
+import smtplib
+from email.mime.text import MIMEText
+import time
+from multiprocessing import freeze_support
 
 from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v2 import batch_run_model
 #------------importing libraries----------------#
@@ -17,16 +20,16 @@ from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v2 import bat
 
 model_params_all = {
     "year": 2010,
-    "month": ["Mar", "Jun"],
+    "month": ["Mar"],
     "num_bull_elephants": 1, 
     "area_size": 1100,              
     "spatial_resolution": 30, 
     "max_food_val_cropland": 100,
-    "max_food_val_forest": [5, 10, 15, 20, 25],
+    "max_food_val_forest": [5],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [0.000, 0.001, 0.005],
-    "thermoregulation_threshold": [28, 32],
+    "prob_water_sources": [0.000],
+    "thermoregulation_threshold": [28],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
@@ -40,18 +43,18 @@ model_params_all = {
     "slope_tolerance": [30],
     "num_processes": 8,
     "iterations": 8,
-    "max_time_steps": 288*30,
+    "max_time_steps": 288*1,
     "aggression_threshold_enter_cropland": 1.0,
     "elephant_agent_visibility_radius": 500,
     "plot_stepwise_target_selection": False,
-    "threshold_days_of_food_deprivation": [0, 1, 2, 3, 4],
-    "threshold_days_of_water_deprivation": [0, 1, 2, 3, 4],
+    "threshold_days_of_food_deprivation": [0],
+    "threshold_days_of_water_deprivation": [0],
     "number_of_feasible_movement_directions": 3,
     "track_in_mlflow": True,
     "elephant_starting_location": "user_input",
-    "elephant_starting_latitude": 1043411,
-    "elephant_starting_longitude": 8573830,
-    "elephant_aggression_value": 0.8,
+    "elephant_starting_latitude": 1044400,
+    "elephant_starting_longitude": 8572992,
+    "elephant_aggression_value": [0.8],
     "elephant_crop_habituation": False
     }
 
@@ -68,6 +71,7 @@ def generate_parameter_combinations(model_params_all):
     prob_water_sources = model_params_all["prob_water_sources"]
     num_days_agent_survives_in_deprivation = model_params_all["num_days_agent_survives_in_deprivation"]
     slope_tolerance = model_params_all["slope_tolerance"]
+    elephant_aggression_value = model_params_all["elephant_aggression_value"]
 
     combinations = list(itertools.product(
         month,
@@ -79,7 +83,8 @@ def generate_parameter_combinations(model_params_all):
         threshold_days_water,
         prob_water_sources,
         num_days_agent_survives_in_deprivation,
-        slope_tolerance
+        slope_tolerance,
+        elephant_aggression_value
     ))
 
     all_param_dicts = []
@@ -96,7 +101,8 @@ def generate_parameter_combinations(model_params_all):
             "threshold_days_of_water_deprivation": combo[6],
             "prob_water_sources": combo[7],
             "num_days_agent_survives_in_deprivation": combo[8],
-            "slope_tolerance": combo[9]
+            "slope_tolerance": combo[9],
+            "elephant_aggression_value": combo[10]
         })
         
         all_param_dicts.append(params_dict)
@@ -104,9 +110,8 @@ def generate_parameter_combinations(model_params_all):
     return all_param_dicts
 
 
-def run_model():
+def run_model(experiment_name, model_params):
 
-    
     elephant_category = "solitary_bulls"
     starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
@@ -119,15 +124,13 @@ def run_model():
     threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
     slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
     num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
+    elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
     output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
                                  water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                  elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
-                                 slope_tolerance, num_days_agent_survives_in_deprivation,
+                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
                                  str(model_params["year"]), str(model_params["month"]))
-
-    # if os.path.exists(output_folder):
-    #     os.system("rm -r " + output_folder)
     
     path = pathlib.Path(output_folder)
     path.mkdir(parents=True, exist_ok=True)
@@ -140,18 +143,56 @@ def run_model():
     return
 
 
+class Experiment:
+
+    def __init__(self, email_address, email_password):
+        self.email_address = email_address
+        self.email_password = email_password
+
+    def run_experiment(self):
+
+        print("Running experiment...!")
+
+        freeze_support()
+
+        start = time.time()
+
+        experiment_name = "exploratory-search"
+
+        if model_params_all["track_in_mlflow"] == True:
+            try:
+                mlflow.create_experiment(experiment_name)
+            except:
+                print("experiment already exists")
+
+        param_dicts = generate_parameter_combinations(model_params_all)
+
+        for model_params in param_dicts:
+            run_model(experiment_name, model_params)
+
+        end = time.time()
+
+        print("Total time taken:", (end-start), "seconds")
+
+        self.send_notification_email()
+
+    def send_notification_email(self):
+        msg = MIMEText("elephant-abm-project: Your experiment has finished running!")
+        msg['Subject'] = "Experiment Notification: PAMPA"
+        msg['To'] = self.email_address
+
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(self.email_address, self.email_password)
+            server.sendmail(self.email_address, self.email_address, msg.as_string())
+            server.quit()
+            print("Notification email sent successfully.")
+
+        except Exception as e:
+            print("Error sending email:", e)
 
 if __name__ == "__main__":
-
-    experiment_name = "exploratory-search"
-
-    if model_params_all["track_in_mlflow"] == True:
-        try:
-            mlflow.create_experiment(experiment_name)
-        except:
-            print("experiment already exists")
-
-    param_dicts = generate_parameter_combinations(model_params_all)
-
-    for model_params in param_dicts:
-        run_model()
+    experiment = Experiment("anjalisadanandan96@gmail.com", "fqdceolumrwtnmxo")
+    experiment.run_experiment()
+    

@@ -54,7 +54,7 @@ model_params_all = {
     "elephant_starting_location": "user_input",
     "elephant_starting_latitude": 1043411,
     "elephant_starting_longitude": 8573830,
-    "elephant_aggression_value": 0.8,
+    "elephant_aggression_value": [0.8],
     "elephant_crop_habituation": False
     }
 
@@ -158,7 +158,7 @@ class Experiment:
 
         start = time.time()
 
-        experiment_name = "exploratory-search"
+        experiment_name = "exploratory-search-ID-01"
 
         if model_params_all["track_in_mlflow"] == True:
             try:

@@ -522,7 +522,7 @@ class Elephant(GeoAgent):
         self.distance_to_target = self.distance_calculator_epsg3857(self.shape.y, self.target_lat, self.shape.x, self.target_lon)
         # print("distance to target:", self.distance_to_target)
 
-        if self.distance_to_target < self.model.xres:    #Move to the target
+        if self.distance_to_target < self.model.xres/2:    #Move to the target
             # print("---Reached the target----", self.target_name)
             self.target_name = None
             self.target_present = False
@@ -670,147 +670,6 @@ class Elephant(GeoAgent):
         cost = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
         direction = [135, 90, 45, 0, 315, 270, 225, 180]
 
-        idx = np.argsort(cost)
-        theta = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
-
-        #choose a direction to move
-        movement_direction = np.random.choice(theta)
-
-        if movement_direction == 135:
-            #create an array with 0 when data array != 1
-            filter = np.zeros_like(data)
-            filter[data == 1] = 1
-
-        elif movement_direction == 90:
-            #create an array with 0 when data array != 2
-            filter = np.zeros_like(data)
-            filter[data == 2] = 1
-
-        elif movement_direction == 45:
-            #create an array with 0 when data array != 3
-            filter = np.zeros_like(data)
-            filter[data == 3] = 1
-
-        elif movement_direction == 0:
-            #create an array with 0 when data array != 4
-            filter = np.zeros_like(data)
-            filter[data == 4] = 1
-
-        elif movement_direction == 315:
-            #create an array with 0 when data array != 5
-            filter = np.zeros_like(data)
-            filter[data == 5] = 1
-
-        elif movement_direction == 270:
-            #create an array with 0 when data array != 6
-            filter = np.zeros_like(data)
-            filter[data == 6] = 1
-
-        elif movement_direction == 225:
-            #create an array with 0 when data array != 7
-            filter = np.zeros_like(data)
-            filter[data == 7] = 1
-
-        elif movement_direction == 180:
-            #create an array with 0 when data array != 8
-            filter = np.zeros_like(data)
-            filter[data == 8] = 1
-
-        #center value is set to -1
-        filter[radius//2][radius//2] = 2
-
-        self.direction = movement_direction
-
-        # print("choosen direction to move:", self.direction)
-
-        if self.model.plot_stepwise_target_selection == True:
-
-            #plot the slope matrix and the filter matrix to visualize the movement direction
-            fig, ax = plt.subplots(1,2, figsize=(10,5))
-            img1 = ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
-            ax[0].set_title("Slope Matrix")
-            ax[0].set_xticks([])
-            ax[0].set_yticks([])
-            plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
-
-            img2 = ax[1].imshow(filter, cmap='gray')
-            ax[1].set_title("Filter Matrix")
-            ax[0].set_xticks([])
-            ax[0].set_yticks([])
-            plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
-
-            plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_feasible_move_direction_.png"), dpi=300, bbox_inches='tight')
-
-        return filter
-    #-----------------------------------------------------------------------------------------------------
-    def return_feasible_direction_to_move_v2(self):
-
-        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   
-
-        #create a n*n numpy array to store the data
-        data = np.zeros((radius, radius), dtype=object)
-
-        #fill the array with theta values calculated on the basis of row and column index with respect to the center of the array
-        for i in range(0, radius):
-            for j in range(0, radius):
-                data[i][j] = np.arctan2(((i-(radius//2))*np.pi),((j-(radius//2))*np.pi))
-
-        #convert the array to degrees from radians
-        data = np.rad2deg(data.astype(float))
-
-        #find min and max of the array
-        min_val = np.amin(data)
-        max_val = np.amax(data)
-
-        #set center value to -1
-        data[radius//2][radius//2] = -500
-
-        #discretize the array into 8 bins
-        data = np.digitize(data, np.linspace(min_val, max_val, 17))
-
-        #map values in array based on the following mapping
-        map = {0:0, 1:8, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:5, 11:5, 12:6, 13:6, 14:7, 15:7, 16:8, 17:8}
-
-        for i in range(0, radius):
-            for j in range(0, radius):
-                data[i][j] = map[data[i][j]]
-
-        data[radius//2][radius//2] = 9
-        slope = np.array(self.model.SLOPE)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
-
-        #sum the values in each direction based on the data array
-        direction_0 = slope[data == 1]
-        direction_1 = slope[data == 2]
-        direction_2 = slope[data == 3]
-        direction_3 = slope[data == 4]
-        direction_4 = slope[data == 5]
-        direction_5 = slope[data == 6]
-        direction_6 = slope[data == 7]
-        direction_7 = slope[data == 8]
-
-        #find cells greater than 30 degrees in each direction
-        direction_0 = [1 for x in direction_0.flatten() if x > self.model.slope_tolerance]
-        direction_1 = [1 for x in direction_1.flatten() if x > self.model.slope_tolerance]
-        direction_2 = [1 for x in direction_2.flatten() if x > self.model.slope_tolerance]
-        direction_3 = [1 for x in direction_3.flatten() if x > self.model.slope_tolerance]
-        direction_4 = [1 for x in direction_4.flatten() if x > self.model.slope_tolerance]
-        direction_5 = [1 for x in direction_5.flatten() if x > self.model.slope_tolerance]
-        direction_6 = [1 for x in direction_6.flatten() if x > self.model.slope_tolerance]
-        direction_7 = [1 for x in direction_7.flatten() if x > self.model.slope_tolerance]
-
-        #calculate the cost of movement in each direction as sum of the direction cells
-        cost_0 = sum(x for x in direction_0)
-        cost_1 = sum(x for x in direction_1)
-        cost_2 = sum(x for x in direction_2)
-        cost_3 = sum(x for x in direction_3)
-        cost_4 = sum(x for x in direction_4)
-        cost_5 = sum(x for x in direction_5)
-        cost_6 = sum(x for x in direction_6)
-        cost_7 = sum(x for x in direction_7)
-
-        cost = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
-        direction = [135, 90, 45, 0, 315, 270, 225, 180]
-
         lists_to_shuffle = list(zip(direction, cost))
 
         random.shuffle(lists_to_shuffle)
@@ -870,23 +729,199 @@ class Elephant(GeoAgent):
 
         # print("choosen direction to move:", self.direction)
 
-        if self.model.plot_stepwise_target_selection == True:
+        # if self.model.plot_stepwise_target_selection == True:
 
-            #plot the slope matrix and the filter matrix to visualize the movement direction
-            fig, ax = plt.subplots(1,2, figsize=(10,5))
-            img1 = ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
-            ax[0].set_title("Slope Matrix")
-            ax[0].set_xticks([])
-            ax[0].set_yticks([])
-            plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+        #     #plot the slope matrix and the filter matrix to visualize the movement direction
+        #     fig, ax = plt.subplots(1,2, figsize=(10,5))
+        #     img1 = ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
+        #     ax[0].set_title("Slope Matrix")
+        #     ax[0].set_xticks([])
+        #     ax[0].set_yticks([])
+        #     plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
 
-            img2 = ax[1].imshow(filter, cmap='gray')
-            ax[1].set_title("Filter Matrix")
-            ax[0].set_xticks([])
-            ax[0].set_yticks([])
-            plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+        #     img2 = ax[1].imshow(filter, cmap='gray')
+        #     ax[1].set_title("Filter Matrix")
+        #     ax[0].set_xticks([])
+        #     ax[0].set_yticks([])
+        #     plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
 
-            plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_feasible_move_direction_.png"), dpi=300, bbox_inches='tight')
+        #     plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_feasible_move_direction_.png"), dpi=300, bbox_inches='tight')
+
+        return filter
+    #-----------------------------------------------------------------------------------------------------
+    def return_feasible_direction_to_move_v2(self):
+
+        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   
+
+        #create a n*n numpy array to store the data
+        data = np.zeros((radius, radius), dtype=object)
+
+        #fill the array with theta values calculated on the basis of row and column index with respect to the center of the array
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = np.arctan2(((i-(radius//2))*np.pi),((j-(radius//2))*np.pi))
+
+        #convert the array to degrees from radians
+        data = np.rad2deg(data.astype(float))
+
+        #find min and max of the array
+        min_val = np.amin(data)
+        max_val = np.amax(data)
+
+        #set center value to -1
+        data[radius//2][radius//2] = -500
+
+        #discretize the array into 8 bins
+        data = np.digitize(data, np.linspace(min_val, max_val, 17))
+
+        #map values in array based on the following mapping
+        map = {0:0, 1:8, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:5, 11:5, 12:6, 13:6, 14:7, 15:7, 16:8, 17:8}
+
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = map[data[i][j]]
+
+        data[radius//2][radius//2] = 9
+        slope = np.array(self.model.SLOPE)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
+
+        #sum the values in each direction based on the data array
+        direction_0 = slope[data == 1]
+        direction_1 = slope[data == 2]
+        direction_2 = slope[data == 3]
+        direction_3 = slope[data == 4]
+        direction_4 = slope[data == 5]
+        direction_5 = slope[data == 6]
+        direction_6 = slope[data == 7]
+        direction_7 = slope[data == 8]
+
+        #find cells less than 30 degrees in each direction
+        direction_0_low = [1 for x in direction_0.flatten() if x <= self.model.slope_tolerance]
+        direction_1_low = [1 for x in direction_1.flatten() if x <= self.model.slope_tolerance]
+        direction_2_low = [1 for x in direction_2.flatten() if x <= self.model.slope_tolerance]
+        direction_3_low = [1 for x in direction_3.flatten() if x <= self.model.slope_tolerance]
+        direction_4_low = [1 for x in direction_4.flatten() if x <= self.model.slope_tolerance]
+        direction_5_low = [1 for x in direction_5.flatten() if x <= self.model.slope_tolerance]
+        direction_6_low = [1 for x in direction_6.flatten() if x <= self.model.slope_tolerance]
+        direction_7_low = [1 for x in direction_7.flatten() if x <= self.model.slope_tolerance]
+
+        #calculate the cost of movement in each direction as sum of the direction cells
+        cost_0_low = sum(x for x in direction_0_low)
+        cost_1_low = sum(x for x in direction_1_low)
+        cost_2_low = sum(x for x in direction_2_low)
+        cost_3_low = sum(x for x in direction_3_low)
+        cost_4_low = sum(x for x in direction_4_low)
+        cost_5_low = sum(x for x in direction_5_low)
+        cost_6_low = sum(x for x in direction_6_low)
+        cost_7_low = sum(x for x in direction_7_low)
+
+        cost_low = [cost_0_low, cost_1_low, cost_2_low, cost_3_low, cost_4_low, cost_5_low, cost_6_low, cost_7_low]
+
+        #find cells less than 30 degrees in each direction
+        direction_0_high = [1 for x in direction_0.flatten() if x > self.model.slope_tolerance]
+        direction_1_high = [1 for x in direction_1.flatten() if x > self.model.slope_tolerance]
+        direction_2_high = [1 for x in direction_2.flatten() if x > self.model.slope_tolerance]
+        direction_3_high = [1 for x in direction_3.flatten() if x > self.model.slope_tolerance]
+        direction_4_high = [1 for x in direction_4.flatten() if x > self.model.slope_tolerance]
+        direction_5_high = [1 for x in direction_5.flatten() if x > self.model.slope_tolerance]
+        direction_6_high = [1 for x in direction_6.flatten() if x > self.model.slope_tolerance]
+        direction_7_high = [1 for x in direction_7.flatten() if x > self.model.slope_tolerance]
+
+        #calculate the cost of movement in each direction as sum of the direction cells
+        cost_0_high = sum(x for x in direction_0_high)
+        cost_1_high = sum(x for x in direction_1_high)
+        cost_2_high = sum(x for x in direction_2_high)
+        cost_3_high = sum(x for x in direction_3_high)
+        cost_4_high = sum(x for x in direction_4_high)
+        cost_5_high = sum(x for x in direction_5_high)
+        cost_6_high = sum(x for x in direction_6_high)
+        cost_7_high = sum(x for x in direction_7_high)
+
+        cost_high = [cost_0_high, cost_1_high, cost_2_high, cost_3_high, cost_4_high, cost_5_high, cost_6_high, cost_7_high]
+
+        direction = [135, 90, 45, 0, 315, 270, 225, 180]
+
+        lists_to_shuffle = list(zip(direction, cost_low, cost_high))
+
+        random.shuffle(lists_to_shuffle)
+
+        direction, cost_low, cost_high = zip(*lists_to_shuffle)
+
+        movement_direction = None
+        scores = []
+        
+        for angle, low, high in zip(direction, cost_low, cost_high):
+            score = low - high
+            scores.append(score)
+     
+        idx = np.argsort(scores)[::-1]
+
+        theta = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
+
+        #choose a direction to move
+        movement_direction = np.random.choice(theta)
+
+        if movement_direction == 135:
+            #create an array with 0 when data array != 1
+            filter = np.zeros_like(data)
+            filter[data == 1] = 1
+
+        elif movement_direction == 90:
+            #create an array with 0 when data array != 2
+            filter = np.zeros_like(data)
+            filter[data == 2] = 1
+
+        elif movement_direction == 45:
+            #create an array with 0 when data array != 3
+            filter = np.zeros_like(data)
+            filter[data == 3] = 1
+
+        elif movement_direction == 0:
+            #create an array with 0 when data array != 4
+            filter = np.zeros_like(data)
+            filter[data == 4] = 1
+
+        elif movement_direction == 315:
+            #create an array with 0 when data array != 5
+            filter = np.zeros_like(data)
+            filter[data == 5] = 1
+
+        elif movement_direction == 270:
+            #create an array with 0 when data array != 6
+            filter = np.zeros_like(data)
+            filter[data == 6] = 1
+
+        elif movement_direction == 225:
+            #create an array with 0 when data array != 7
+            filter = np.zeros_like(data)
+            filter[data == 7] = 1
+
+        elif movement_direction == 180:
+            #create an array with 0 when data array != 8
+            filter = np.zeros_like(data)
+            filter[data == 8] = 1
+
+        #center value is set to -1
+        filter[radius//2][radius//2] = 2
+
+        self.direction = movement_direction
+
+        # if self.model.plot_stepwise_target_selection == True:
+
+        #     #plot the slope matrix and the filter matrix to visualize the movement direction
+        #     fig, ax = plt.subplots(1,2, figsize=(10,5))
+        #     img1 = ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
+        #     ax[0].set_title("Slope Matrix")
+        #     ax[0].set_xticks([])
+        #     ax[0].set_yticks([])
+        #     plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+        #     img2 = ax[1].imshow(filter, cmap='gray')
+        #     ax[1].set_title("Filter Matrix")
+        #     ax[0].set_xticks([])
+        #     ax[0].set_yticks([])
+        #     plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+        #     plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_feasible_move_direction_.png"), dpi=300, bbox_inches='tight')
 
         return filter
     #-----------------------------------------------------------------------------------------------------
@@ -917,7 +952,12 @@ class Elephant(GeoAgent):
         elif self.COL > self.model.col_size-radius-1:
             col_end = self.model.col_size-1
 
-        if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation and self.num_days_water_source_visit < self.model.threshold_days_of_water_deprivation:
+        # print("-----choosing food target-----", str(self.model.schedule.steps))
+        # print("number of days of food deprivation:", self.num_days_food_depreceation, "number of days of water deprivation:", self.num_days_water_source_visit, "crop habituated:", self.crop_habituated)
+
+        if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation:
+
+            # print("trying condition 01")
 
             if np.random.uniform(0,1) < self.aggression:
 
@@ -926,7 +966,8 @@ class Elephant(GeoAgent):
                         if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
 
                             if self.food_memory[i][j] > 0:
-                                coord_list.append([i,j])     
+                                coord_list.append([i,j])
+                                # print("target is a food cell closer to plantations")     
 
                 if coord_list == []:
 
@@ -936,6 +977,7 @@ class Elephant(GeoAgent):
 
                                 if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
                                         coord_list.append([i,j]) 
+                                        # print("target is a food proximity cell closer to plantations")  
 
             else:
 
@@ -946,6 +988,7 @@ class Elephant(GeoAgent):
 
                         elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                             coord_list.append([i,j])
+                            # print("target is a food cell")  
 
                 if coord_list == []:
                     
@@ -953,48 +996,13 @@ class Elephant(GeoAgent):
                         for j in range(col_start,col_end):
 
                             if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                                    coord_list.append([i,j])
-
-        elif self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation and self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation:
-
-            if np.random.uniform(0,1) < self.aggression:
-
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                            if self.food_memory[i][j] > 0:
-                                coord_list.append([i,j])     
-
-                if coord_list == []:
-
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
-                                        coord_list.append([i,j]) 
-
-            else:
-
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if i == self.ROW and j == self.COL:
-                            pass
-
-                        elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
-                            coord_list.append([i,j])
-
-                if coord_list == []:
-                    
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-
-                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                                    coord_list.append([i,j])
+                                coord_list.append([i,j])
+                                # print("target is a food proximity cell")
 
         elif self.crop_habituated == True:
 
+            # print("trying condition 02")
+
             if np.random.uniform(0,1) < self.aggression:
 
                 for i in range(row_start,row_end):
@@ -1002,7 +1010,8 @@ class Elephant(GeoAgent):
                         if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
 
                             if self.food_memory[i][j] > 0:
-                                coord_list.append([i,j])     
+                                coord_list.append([i,j])   
+                                # print("target is a food cell closer to plantations")   
 
                 if coord_list == []:
 
@@ -1011,7 +1020,8 @@ class Elephant(GeoAgent):
                             if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
 
                                 if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
-                                        coord_list.append([i,j]) 
+                                    coord_list.append([i,j]) 
+                                    # print("target is a food proximity cell closer to plantations") 
 
             else:
 
@@ -1022,16 +1032,20 @@ class Elephant(GeoAgent):
 
                         elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                             coord_list.append([i,j])
+                            # print("target is a food cell")
 
-                if coord_list == []:
+                if coord_list == []: 
                     
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
 
                             if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                                     coord_list.append([i,j])
+                                    # print("target is a food proximity cell")
                         
         else:
+
+            # print("trying condition 03")
 
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
@@ -1040,6 +1054,7 @@ class Elephant(GeoAgent):
 
                     elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j])
+                        # print("target is a food cell")
 
             if coord_list == []:
 
@@ -1047,10 +1062,11 @@ class Elephant(GeoAgent):
                     for j in range(col_start,col_end):
 
                         if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                                coord_list.append([i,j]) 
+                                coord_list.append([i,j])
+                                # print("target is a food proximity cell") 
 
         if coord_list == []:
-
+            # print("empty targets, move to a random cell")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if filter[i - row_start][j - col_start] == 1:
@@ -1064,26 +1080,7 @@ class Elephant(GeoAgent):
             self.target_present = True
 
             if self.model.plot_stepwise_target_selection == True:
-
-                fig, ax = plt.subplots(1,2, figsize=(10,5))
-                food_memory = np.array(self.food_memory)[row_start:row_end, col_start:col_end]
-                img1 = ax[0].imshow(food_memory, cmap='gray', vmin=0, vmax=max(self.model.max_food_val_forest, self.model.max_food_val_cropland))
-                ax[0].set_title("Food Memory Matrix: " + str(x - row_start) + " " + str(y - col_start))
-                ax[0].set_xticks([])
-                ax[0].set_yticks([])
-                plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
-
-                img2 = ax[1].imshow(filter, cmap='gray')
-                ax[1].set_title("Filter Matrix")
-                ax[1].set_xticks([])
-                ax[1].set_yticks([])
-                plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
-
-                #highlight the target cell 
-                ax[0].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
-                ax[1].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
-
-                plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_foraging_target_.png"), dpi=300, bbox_inches='tight')
+                self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "foraging_target", filter, x, y)
 
         return
     #-----------------------------------------------------------------------------------------------------
@@ -1118,13 +1115,17 @@ class Elephant(GeoAgent):
         elif self.COL > self.model.col_size-radius-1:
             col_end = self.model.col_size-1
 
-        if self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation and self.num_days_food_depreceation < self.model.threshold_days_of_food_deprivation:
+        # print("-----choosing water target-----", str(self.model.schedule.steps))
+        # print("number of days of food deprivation:", self.num_days_food_depreceation, "number of days of water deprivation:", self.num_days_water_source_visit, "crop habituated:", self.crop_habituated)
 
+        if self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation:
+            # print("trying condition 01")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
 
                     if self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j]) 
+                        # print("target is a water cell") 
 
             if coord_list == []:
 
@@ -1132,31 +1133,17 @@ class Elephant(GeoAgent):
                     for j in range(col_start,col_end):
                         if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                             coord_list.append([i,j]) 
-
-        elif self.num_days_water_source_visit >= self.model.threshold_days_of_water_deprivation and self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation:
-
-            for i in range(row_start,row_end):
-                for j in range(col_start,col_end):
-
-                    if self.model.WATER[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
-                        coord_list.append([i,j]) 
-
-            if coord_list == []:
-
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-                            coord_list.append([i,j]) 
+                            # print("target is a water proximity cell")
 
         else:
-
+            # print("trying condition 02, move closer to water sources")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
-                    if filter[i - row_start][j - col_start] == 1:
+                    if self.proximity_to_water_sources[i][j] < self.proximity_to_water_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                         coord_list.append([i,j]) 
 
         if coord_list == []:
-
+            # print("empty targets, move to a random cell")
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
                     if filter[i - row_start][j - col_start] == 1:
@@ -1170,33 +1157,82 @@ class Elephant(GeoAgent):
             self.target_present = True
 
             if self.model.plot_stepwise_target_selection == True:
+                self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "thermoregulation_target", filter, x, y)
 
-                fig, ax = plt.subplots(1,2, figsize=(10,5))
-                water_matrix = np.array(self.model.WATER)[row_start:row_end, col_start:col_end]
-                img1 = ax[0].imshow(water_matrix, cmap='coolwarm', vmin=0, vmax=1)
-                ax[0].set_title("Water Sources")
-                ax[0].set_xticks([])
-                ax[0].set_yticks([])
-                plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
-
-                img2 = ax[1].imshow(filter, cmap='gray')
-                ax[1].set_title("Filter Matrix")
-                ax[1].set_xticks([])
-                ax[1].set_yticks([])
-                plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
-
-                ax[0].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
-                ax[1].scatter(y - col_start, x - row_start, color='red', s=100, marker='x', label='Target')
-
-                plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_thermoregulation_target_.png"), dpi=300, bbox_inches='tight')
-    
         return
+    #-----------------------------------------------------------------------------------------------------
+    def plot_stepwise_neighborhood_matrices(self, row_start, row_end, col_start, col_end, target_name, filter, target_x, target_y):
+
+        x = self.ROW
+        y = self.COL
+
+        fig, ax = plt.subplots(1,6, figsize=(30,5))
+
+        food_memory = np.array(self.food_memory)[row_start:row_end, col_start:col_end]
+        img1 = ax[0].imshow(food_memory, cmap='gray', vmin=0, vmax=np.max(food_memory))
+        ax[0].set_title("Food Memory Matrix")
+        ax[0].set_xticks([])
+        ax[0].set_yticks([])
+        plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+        water_matrix = np.array(self.model.WATER)[row_start:row_end, col_start:col_end]
+        img2 = ax[1].imshow(water_matrix, cmap='gray', vmin=0, vmax=1)
+        ax[1].set_title("Water Matrix")
+        ax[1].set_xticks([])
+        ax[1].set_yticks([])
+        plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+        proximity_to_plantations = np.array(self.proximity_to_plantations)[row_start:row_end, col_start:col_end]
+        img3 = ax[2].imshow(proximity_to_plantations, cmap='coolwarm', vmin=0, vmax=np.max(proximity_to_plantations))
+        ax[2].set_title("Plantation Proximity")
+        ax[2].set_xticks([])
+        ax[2].set_yticks([])
+        plt.colorbar(img3, ax=ax[2], orientation='vertical', shrink=0.5)
+
+        proximity_to_water_sources = np.array(self.proximity_to_water_sources)[row_start:row_end, col_start:col_end]
+        img4 = ax[3].imshow(proximity_to_water_sources, cmap='coolwarm', vmin=0, vmax=np.max(proximity_to_water_sources))
+        ax[3].set_title("Water Source Proximity")
+        ax[3].set_xticks([])
+        ax[3].set_yticks([])
+        plt.colorbar(img4, ax=ax[3], orientation='vertical', shrink=0.5)
+
+        img5 = ax[4].imshow(filter, cmap='gray')
+        ax[4].set_title("Filter Matrix")
+        ax[4].set_xticks([])
+        ax[4].set_yticks([])
+        plt.colorbar(img5, ax=ax[4], orientation='vertical', shrink=0.5)
+
+        slope = np.array(self.model.SLOPE)[row_start:row_end, col_start:col_end]
+        img6 = ax[5].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
+        ax[5].set_title("Slope Matrix")
+        ax[5].set_xticks([])
+        ax[5].set_yticks([])
+        plt.colorbar(img6, ax=ax[5], orientation='vertical', shrink=0.5)
+
+        ax[0].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
+        ax[1].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
+        ax[2].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
+        ax[3].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
+        ax[4].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
+        ax[5].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
+
+        ax[0].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
+        ax[1].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
+        ax[2].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
+        ax[3].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
+        ax[4].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
+        ax[5].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
+
+        plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_" + target_name + "_.png"), dpi=300, bbox_inches='tight')
     #-----------------------------------------------------------------------------------------------------
     def target_for_escape_v1(self, filter):
         """ Function returns the target for the elephant agent to move in case of danger to life. """
 
-        if self.target_present == True:     #If target already exists
-            return
+        try:
+            if self.target_present == True and "escaping" in self.target_name:   
+                return
+        except:
+            pass
         
         radius = int(self.model.radius_forest_search*2/self.model.xres)     
         row_start = self.ROW - radius//2
@@ -2151,17 +2187,28 @@ class conflict_model(Model):
     def update_hourly_temp(self):
 
         if self.model_hour == 0:
-            self.temp = self.hourly_temp[self.model_hour + self.num_days_elapsed*24]
+            temp = self.hourly_temp[self.model_hour + self.num_days_elapsed*24]
 
         elif self.model_time%12 == 0:
-            self.temp = self.hourly_temp[self.model_hour + self.num_days_elapsed*24]
+            temp = self.hourly_temp[self.model_hour + self.num_days_elapsed*24]
+
+        else:
+            return
 
         new_dims = []
         for original_length, new_length in zip((7,7), (self.row_size, self.col_size)):
             new_dims.append(np.linspace(0, original_length-1, new_length))
 
         coords = np.meshgrid(*new_dims, indexing='ij')
-        self.temp = map_coordinates(self.temp, coords)
+        self.temp = map_coordinates(temp, coords)
+
+        # fig, ax = plt.subplots(figsize = (10,10))
+        # img = ax.imshow(self.temp, cmap='coolwarm', vmin=0, vmax=1)
+        # ax.set_title("Temperature Matrix")
+        # ax.set_xticks([])
+        # ax.set_yticks([])
+        # plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
+        # plt.savefig(os.path.join(folder, self.now, "output_files", "temperature_matrix_" + str(self.model_hour) + "_.png"), dpi=300, bbox_inches='tight')
 
         return
     #----------------------------------------------------------------------------------------------------

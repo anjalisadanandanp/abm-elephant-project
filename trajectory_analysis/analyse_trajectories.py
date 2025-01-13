@@ -7,7 +7,7 @@ from trajectory_analysis.rank_ordering.rank_order_trajectories import analyse_tr
 
 model_params = {
     "year": 2010,
-    "month": "Mar",
+    "month": "Jul",
     "num_bull_elephants": 1, 
     "area_size": 1100,              
     "spatial_resolution": 30, 
@@ -15,7 +15,7 @@ model_params = {
     "max_food_val_forest": 10,
     "prob_food_forest": 0.10,
     "prob_food_cropland": 0.10,
-    "prob_water_sources": 0.0,
+    "prob_water_sources": 0.0001,
     "thermoregulation_threshold": 28,
     "num_days_agent_survives_in_deprivation": 10,     
     "knowledge_from_fringe": 1500,   
@@ -27,7 +27,7 @@ model_params = {
     "radius_forest_search": 1500,
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
-    "slope_tolerance": 30,
+    "slope_tolerance": 40,
     "num_processes": 8,
     "iterations": 8,
     "max_time_steps": 288*10,

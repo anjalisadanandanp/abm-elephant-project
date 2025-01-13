@@ -50,7 +50,7 @@ model_params_all = {
     "threshold_days_of_food_deprivation": [0],
     "threshold_days_of_water_deprivation": [3],
     "number_of_feasible_movement_directions": 3,
-    "track_in_mlflow": True,
+    "track_in_mlflow": False,
     "elephant_starting_location": "user_input",
     "elephant_starting_latitude": 1043411,
     "elephant_starting_longitude": 8573830,
@@ -127,14 +127,14 @@ def run_model(experiment_name, model_params):
     num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
     elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
-    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+    output_folder = os.path.join("/home/anjali/qdata/game-model-runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
                                  water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                  elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                  slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
                                  str(model_params["year"]), str(model_params["month"]))
     
     path = pathlib.Path(output_folder)
-    path.mkdir(parents=True, exist_ok=True)
+    path.mkdir(parents=True, exist_ok=True, mode=0o777)
 
     with open(os.path.join(output_folder, 'model_parameters.yaml'), 'w') as configfile:
         yaml.dump(model_params, configfile, default_flow_style=False)

@@ -29,7 +29,7 @@ model_params_all = {
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
     "prob_water_sources": [0.00],
-    "thermoregulation_threshold": [32],
+    "thermoregulation_threshold": [28],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           

@@ -3,8 +3,15 @@ import os
 import sys
 sys.path.append(os.getcwd())
 
-from trajectory_analysis.rank_ordering.rank_order_trajectories import analyse_trajectories
-from trajectory_analysis.probability_maps.create_distribution_plots import create_distribution_maps
+import movingpandas as mpd
+import pandas as pd
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
+from geopandas import GeoDataFrame
+from datetime import datetime
+
+import warnings
+warnings.filterwarnings("ignore")
 
 model_params = {
     "year": 2010,
@@ -66,16 +73,21 @@ output_folder = os.path.join(experiment_name, starting_location, elephant_catego
                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
                                 str(model_params["year"]), str(model_params["month"]))
 
-if __name__ == "__main__":
+sorted_df = pd.read_csv(os.path.join("/home2/anjali/GitHub/abm-elephant-project/trajectory_analysis/outputs", output_folder, "ordered_experiments.csv"))
 
-    random_analysis = analyse_trajectories(output_folder)
-    random_analysis.main()
+path = sorted_df["file_path"][0]
 
-    create_plots = create_distribution_maps(
-                            num_best_trajs = 50,
-                            expt_folder = output_folder)
-    create_plots.filter_daily_trajectory_data()
-    create_plots.plot_daily_hotspots_kde_95(save_plots=True)
-    create_plots.identify_hotspots_DBSCAN()
-    create_plots.plot_hotspots_DBSCAN()
+traj_df = pd.read_csv(path)
+traj_df["geometry"] = traj_df.apply(lambda row: Point(row["longitude"], row["latitude"]), axis=1)
+
+start_date = '2010-01-01 00:00:00' 
+timestamps = pd.date_range(start=start_date, periods=len(traj_df), freq='5min')
+traj_df['timestamp'] = timestamps
+
+trajectory = mpd.Trajectory(traj_df, traj_id="AgentID", x="longitude", y="latitude", crs=3857, t="timestamp")
+loc = GeoDataFrame([trajectory.get_row_at(datetime(2010, 1, 1, 0, 0))])
+trajectory.add_speed(units=('km', 'h'))
+trajectory.hvplot(line_width=2.5, c="fitness", cmap="coolwarm", colorbar="True", width=500, height=500)
+loc.hvplot(size=100, color="red")*trajectory.hvplot(line_width=2.5, c="fitness", cmap="coolwarm", colorbar="True", width=500, height=500)
+
 

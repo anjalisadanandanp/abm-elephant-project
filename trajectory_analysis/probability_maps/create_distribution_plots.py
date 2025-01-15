@@ -17,15 +17,13 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-class optimize_guard_deployment():
+class create_distribution_maps():
 
     """
     Algorithm for optimal guard deployment:
     """
 
-    def __init__(self, num_guards, guard_visibility, num_best_trajs, expt_folder):
-        self.num_guards = num_guards
-        self.guard_visibility = guard_visibility
+    def __init__(self, num_best_trajs, expt_folder):
         self.num_best_trajs = num_best_trajs
         self.expt_folder = expt_folder
 
@@ -166,7 +164,7 @@ class optimize_guard_deployment():
                 threshold_idx = np.searchsorted(cumsum_z, val)
                 levels_list.append(sorted_z[threshold_idx])
 
-            contour = plt.contour(lon_grid, lat_grid, z, levels=levels_list, cmap="viridis")
+            contour = plt.contour(lon_grid, lat_grid, z, levels=levels_list, cmap="viridis", linewidths=2.5)
             plt.title(f'Day: {day + 1}')
 
         plt.tight_layout()
@@ -186,7 +184,7 @@ class optimize_guard_deployment():
                 self.elephant_locations[day]['latitudes']
             ]).T
             
-            clustering = DBSCAN(eps=5, min_samples=5).fit(coords)
+            clustering = DBSCAN(eps=50, min_samples=5).fit(coords)
             
             unique_labels = set(clustering.labels_)
             cluster_centers = []
@@ -290,90 +288,7 @@ class optimize_guard_deployment():
         plt.tight_layout()
         plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/outputs", self.expt_folder,'hotspots_DBSCAN.png'), dpi=300, bbox_inches='tight')
         plt.close()
-
-    def optimize_coverage(self):
-
-        return
-    
-    def generate_schedule(self):
-
-        return
-
-    def optimize_single_timeframe(self):
-
-        return
     
 
 
 
-model_params = {
-    "year": 2010,
-    "month": "Jul",
-    "num_bull_elephants": 1, 
-    "area_size": 1100,              
-    "spatial_resolution": 30, 
-    "max_food_val_cropland": 100,
-    "max_food_val_forest": 10,
-    "prob_food_forest": 0.10,
-    "prob_food_cropland": 0.10,
-    "prob_water_sources": 0.00,
-    "thermoregulation_threshold": 28,
-    "num_days_agent_survives_in_deprivation": 10,     
-    "knowledge_from_fringe": 1500,   
-    "prob_crop_damage": 0.05,           
-    "prob_infrastructure_damage": 0.01,
-    "percent_memory_elephant": 0.375,   
-    "radius_food_search": 750,     
-    "radius_water_search": 750, 
-    "radius_forest_search": 1500,
-    "fitness_threshold": 0.4,   
-    "terrain_radius": 750,       
-    "slope_tolerance": 30,
-    "num_processes": 8,
-    "iterations": 8,
-    "max_time_steps": 288*10,
-    "aggression_threshold_enter_cropland": 1.0,
-    "elephant_agent_visibility_radius": 500,
-    "plot_stepwise_target_selection": True,
-    "threshold_days_of_food_deprivation": 0,
-    "threshold_days_of_water_deprivation": 3,
-    "number_of_feasible_movement_directions": 3,
-    "track_in_mlflow": False,
-    "elephant_starting_location": "user_input",
-    "elephant_starting_latitude": 1049237,
-    "elephant_starting_longitude": 8570917,
-    "elephant_aggression_value": 0.8,
-    "elephant_crop_habituation": False
-    }
-
-
-experiment_name = "exploratory-search-ID-01"
-elephant_category = "solitary_bulls"
-starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
-landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
-memory_matrix_type = "random-memory-matrix-model"
-num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
-maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
-elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
-threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
-threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
-slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
-num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
-elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
-
-expt_folder = os.path.join(experiment_name, starting_location, elephant_category, landscape_food_probability, 
-                                water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
-                                elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
-                                slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
-                                str(model_params["year"]), str(model_params["month"]))
-
-optimise_rangers = optimize_guard_deployment(num_guards=5, 
-                          guard_visibility=200, 
-                          num_best_trajs = 50,
-                          expt_folder=expt_folder)
-
-optimise_rangers.filter_daily_trajectory_data()
-optimise_rangers.plot_daily_hotspots_kde_95(save_plots=True)
-optimise_rangers.identify_hotspots_DBSCAN()
-optimise_rangers.plot_hotspots_DBSCAN()

@@ -20,7 +20,7 @@ from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v2 import bat
 
 model_params_all = {
     "year": 2010,
-    "month": ["Mar", "Jul"],
+    "month": ["Mar"],
     "num_bull_elephants": 1, 
     "area_size": 1100,              
     "spatial_resolution": 30, 
@@ -28,8 +28,8 @@ model_params_all = {
     "max_food_val_forest": [10],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [0.0005],
-    "thermoregulation_threshold": [28, 32],
+    "prob_water_sources": [0.00],
+    "thermoregulation_threshold": [32],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
@@ -40,14 +40,14 @@ model_params_all = {
     "radius_forest_search": 1500,
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
-    "slope_tolerance": [30, 35, 40],
-    "num_processes": 8,
-    "iterations": 8,
+    "slope_tolerance": [30],
+    "num_processes": 10,
+    "iterations": 60,
     "max_time_steps": 288*10,
     "aggression_threshold_enter_cropland": 1.0,
     "elephant_agent_visibility_radius": 500,
     "plot_stepwise_target_selection": True,
-    "threshold_days_of_food_deprivation": [0, 1, 2, 3],
+    "threshold_days_of_food_deprivation": [0],
     "threshold_days_of_water_deprivation": [3],
     "number_of_feasible_movement_directions": 3,
     "track_in_mlflow": False,
@@ -57,6 +57,7 @@ model_params_all = {
     "elephant_aggression_value": [0.8],
     "elephant_crop_habituation": False
     }
+
 
 
 def generate_parameter_combinations(model_params_all):

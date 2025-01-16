@@ -69,8 +69,11 @@ output_folder = os.path.join(experiment_name, starting_location, elephant_catego
 if __name__ == "__main__":
 
     random_analysis = analyse_trajectories(output_folder)
-    random_analysis.main()
-
+    random_analysis.read_all_experiments()
+    random_analysis.rank_order_trajectories(save_dataframe=True)
+    random_analysis.filter_data(experiments=40, start_step=0, end_step = 2880, create_plots=True)
+    random_analysis.plot_all_trajectories_with_fitness(start_step=0, end_step = 2880)
+    
     create_plots = create_distribution_maps(
                             num_best_trajs = 50,
                             expt_folder = output_folder)

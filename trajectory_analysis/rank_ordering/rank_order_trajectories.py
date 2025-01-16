@@ -207,12 +207,8 @@ class analyse_trajectories():
         plt.savefig(os.path.join(self.output_folder, "all_trajectories.png"), dpi = 300, bbox_inches = 'tight')
         plt.close()
 
-    def main(self):
         
-        self.read_all_experiments()
-        self.rank_order_trajectories(save_dataframe=True)
-        self.filter_data(experiments=40, start_step=0, end_step = 2880, create_plots=True)
-        self.plot_all_trajectories_with_fitness(start_step=0, end_step = 2880)
+
 
 
 

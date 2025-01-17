@@ -4,18 +4,17 @@ import sys
 sys.path.append(os.getcwd())
 
 import pandas as pd
-import numpy as np
+import movingpandas as mpd
+import pandas as pd
+from shapely.geometry import Point
 import matplotlib.pyplot as plt
-from scipy import stats
-from osgeo import gdal
-from mpl_toolkits.basemap import Basemap 
-import matplotlib.cm as cm   
-from matplotlib import colors
-from pyproj import Proj, transform 
-from sklearn.cluster import DBSCAN
+from geopandas import GeoDataFrame
+from datetime import datetime
+
 import warnings
 warnings.filterwarnings('ignore')
 
+os.chdir("/home2/anjali/GitHub/abm-elephant-project")
 
 class assign_elephant_trajectory_payoff():
 
@@ -49,13 +48,28 @@ class assign_elephant_trajectory_payoff():
 
         return
     
+    def plot_trajectory(self, traj_df):
+
+        traj_df["geometry"] = traj_df.apply(lambda row: Point(row["longitude"], row["latitude"]), axis=1)
+
+        start_date = '2010-01-01 00:00:00' 
+        timestamps = pd.date_range(start=start_date, periods=len(traj_df), freq='5min')
+        traj_df['timestamp'] = timestamps
+
+        trajectory = mpd.Trajectory(traj_df, traj_id="AgentID", x="longitude", y="latitude", crs=3857, t="timestamp")
+        loc = GeoDataFrame([trajectory.get_row_at(datetime(2010, 1, 1, 0, 0))])
+        trajectory.add_speed(units=('km', 'h'))
+        trajectory.hvplot(line_width=2.5, c="fitness", cmap="coolwarm", colorbar="True", width=500, height=500)
+        img = loc.hvplot(size=100, color="red")*trajectory.hvplot(line_width=2.5, c="fitness", cmap="coolwarm", colorbar="True", width=600, height=600)
+
+        return img
+    
     def assign_payoffs_v1(self):
 
-        print("assigning payoffs")
         for trajectory in self.best_trajs[0:1]:
-            print(trajectory)
+            img = self.plot_trajectory(trajectory)
 
-        return
+        return img
     
 
 
@@ -120,4 +134,7 @@ output_folder = os.path.join(experiment_name, starting_location, elephant_catego
                                 str(model_params["year"]), str(model_params["month"]))
 
 create_payoffs = assign_elephant_trajectory_payoff(num_best_trajs = 50, expt_folder = output_folder)
-create_payoffs.assign_payoffs_v1()
+img = create_payoffs.assign_payoffs_v1()
+
+
+img

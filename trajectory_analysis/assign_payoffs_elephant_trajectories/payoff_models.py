@@ -33,6 +33,9 @@ class assign_elephant_trajectory_payoff():
 
         self.get_best_trajectories()
 
+        self.ranger_location = self.read_locations("trajectory_analysis/ranger-locations/random.yaml")
+        self.plot_trajectories_with_ranger_location()
+
     def get_sorted_trajectories(self):
 
         folder = os.path.join(os.getcwd(), "trajectory_analysis/outputs", self.expt_folder)
@@ -142,7 +145,7 @@ class assign_elephant_trajectory_payoff():
             longitude, latitude = transform(inProj, outProj, ranger[0], ranger[1])
             x_new, y_new = map(longitude,latitude)
 
-            ax.scatter(x_new, y_new, 25, marker='x', color='black', zorder=2)
+            ax.scatter(x_new, y_new, 25, marker='x', color='white', zorder=2)
 
             radius = self.ranger_visibility_radius/(111*1000)  
             circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
@@ -244,7 +247,7 @@ class assign_elephant_trajectory_payoff():
         for ranger in self.ranger_location:
             longitude, latitude = transform(inProj, outProj, ranger[0], ranger[1])
             x_new, y_new = map(longitude,latitude)
-            ax.scatter(x_new, y_new, 25, marker='x', color='black')
+            ax.scatter(x_new, y_new, 25, marker='x', color='white')
             
             radius = self.ranger_visibility_radius/(111*1000)  
             circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
@@ -317,8 +320,6 @@ class assign_elephant_trajectory_payoff():
 
         trajectory_payoffs = []
 
-        self.ranger_location = self.read_locations("trajectory_analysis/ranger-locations/random.yaml")
-        self.plot_trajectories_with_ranger_location()
         intersecting_trajs, non_intersecting_trajs = self.filter_trajectories_in_ranger_radius()
         self.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
 
@@ -342,7 +343,113 @@ class assign_elephant_trajectory_payoff():
 
         return trajectory_payoffs
 
-    def sort_trajectories(self, trajectory_payoffs):
+    def find_first_visible_entry(self, trajectory):
+         
+        first_visible_entries = None
+    
+        for idx, row in trajectory.iterrows():
+            for ranger_location in self.ranger_location:
+                distance = ((row['longitude'] - ranger_location[0])**2 + 
+                            (row['latitude'] - ranger_location[1])**2)**0.5
+                
+                if distance <= self.ranger_visibility_radius:
+                    first_visible_entries = idx
+                    return first_visible_entries
+                else:
+                    first_visible_entries = None
+
+        return first_visible_entries
+
+    def plot_trajectories_untill_ranger_intervention(self):
+
+        fig, ax = plt.subplots(figsize = (10,10))
+        ax.yaxis.set_inverted(True)
+
+        ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
+        data_LULC = ds.ReadAsArray()
+        data_LULC = np.flip(data_LULC, axis=0)
+
+        data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+
+        for i in range(1,10):
+            data_LULC[data_LULC == data_value_map[i]] = i
+
+        row_size, col_size = data_LULC.shape
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+        
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
+        LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
+        LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+
+        map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+        levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+        clrs = ["greenyellow","mediumpurple","turquoise", "plum", "black", "blue", "yellow", "mediumseagreen", "forestgreen"] 
+        cmap, norm = colors.from_levels_and_colors(levels, clrs)
+
+        map.imshow(data_LULC, cmap = cmap, norm=norm, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.5)
+
+        map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+        map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+        cbar = plt.colorbar(ticks=[1,2,3,4,5,6,7,8,9],fraction=0.046, pad=0.04)
+        cbar.ax.set_yticks(ticks=[1,2,3,4,5,6,7,8,9]) 
+        cbar.ax.set_yticklabels(["Deciduous Broadleaf Forest","Built-up Land","Mixed Forest","Shrubland","Barren Land","Water Bodies","Plantations","Grassland","Broadleaf evergreen forest"])
+
+        for i, traj in enumerate(self.best_trajs):
+
+            first_visible_entry = self.find_first_visible_entry(traj)
+
+            if first_visible_entry is not None:
+                data = traj.iloc[:first_visible_entry + 1]
+            
+            else:
+                data = traj
+
+            outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   
+            longitude, latitude = transform(inProj, outProj, data["longitude"], data["latitude"])
+            x_new, y_new = map(longitude,latitude)
+
+            ax.plot(x_new, y_new, 
+                    'b-', alpha=0.4, label='Trajectory')
+
+            ax.scatter(x_new[0], y_new[0], 25, marker='o', color='black', zorder=2)
+            ax.scatter(x_new[-1], y_new[-1], 25, marker='^', color='black', zorder=2)
+
+        for ranger in self.ranger_location:
+            longitude, latitude = transform(inProj, outProj, ranger[0], ranger[1])
+            x_new, y_new = map(longitude,latitude)
+
+            ax.scatter(x_new, y_new, 25, marker='x', color='white', zorder=2)
+
+            radius = self.ranger_visibility_radius/(111*1000)  
+            circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
+            ax.add_artist(circle)
+
+        plt.savefig("trajectory_analysis/assign_payoffs_elephant_trajectories/trajectories_until_ranger_proximity__rangervisibility" + str(self.ranger_visibility_radius) + "m_v1.png", dpi=300, bbox_inches='tight')
+
+        return
+
+    def assign_payoffs_v2(self):
+
+        trajectory_payoffs = []
+
+        for i, traj in enumerate(self.best_trajs):
+
+            first_visible_entry = self.find_first_visible_entry(traj)
+
+            if first_visible_entry is not None:
+                data_before_intervention = traj.iloc[:first_visible_entry + 1]
+            
+            else:
+                data_before_intervention = traj
+
+            trajectory_fitness = data_before_intervention["fitness"].values[-1]
+            trajectory_payoffs.append(trajectory_fitness)
+
+        return trajectory_payoffs
+    
+    def sort_trajectories(self, trajectory_payoffs, name="v1"):
 
         """Sort trajectories based on payoffs."""
 
@@ -409,7 +516,7 @@ class assign_elephant_trajectory_payoff():
         cbar2 = plt.colorbar(sm, cax=cax2, orientation='horizontal')
         cbar2.set_label('payoffs')
 
-        plt.savefig("trajectory_analysis/assign_payoffs_elephant_trajectories/trajectories_with_payoffs___rangervisibility" + str(self.ranger_visibility_radius) + "m_.png", dpi=300, bbox_inches='tight')
+        plt.savefig("trajectory_analysis/assign_payoffs_elephant_trajectories/trajectories_with_payoffs__rangervisibility" + str(self.ranger_visibility_radius) + "m_" + name + ".png", dpi=300, bbox_inches='tight')
         
                     
 
@@ -473,6 +580,9 @@ output_folder = os.path.join(experiment_name, starting_location, elephant_catego
                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
                                 str(model_params["year"]), str(model_params["month"]))
 
-create_payoffs = assign_elephant_trajectory_payoff(num_best_trajs = 100, ranger_visibility_radius=25, expt_folder = output_folder)
+create_payoffs = assign_elephant_trajectory_payoff(num_best_trajs = 50, ranger_visibility_radius=1000, expt_folder = output_folder)
 trajectory_payoffs = create_payoffs.assign_payoffs_v1(cost = 0.10)
-create_payoffs.sort_trajectories(trajectory_payoffs)
+create_payoffs.sort_trajectories(trajectory_payoffs, "v1")
+create_payoffs.plot_trajectories_untill_ranger_intervention()
+trajectory_payoffs = create_payoffs.assign_payoffs_v2()
+create_payoffs.sort_trajectories(trajectory_payoffs, "v2")

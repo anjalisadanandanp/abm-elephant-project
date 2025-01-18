@@ -505,7 +505,121 @@ class optimise_ranger_locations():
         plt.close()
 
         return
-    
+
+    def assign_ranger_payoffs(self):
+
+        """Calculate payoffs for each ranger based on intercepted trajectories."""
+        ranger_payoffs = []
+        
+        for i, ranger_pos in enumerate(self.ranger_location):
+            intercepted_trajectories = 0
+            
+            for traj in self.best_trajs:
+                traj_intercepted = False
+                first_interception_time = None
+                
+                for idx, (lon, lat) in enumerate(zip(traj["longitude"], traj["latitude"])):
+                    distance = np.sqrt((lon - ranger_pos[0])**2 + (lat - ranger_pos[1])**2)
+                    if distance <= self.ranger_visibility_radius:
+                        traj_intercepted = True
+                        first_interception_time = idx
+                        break
+                
+                if traj_intercepted:
+                    intercepted_trajectories += 1
+                    
+            ranger_payoffs.append(intercepted_trajectories)
+        
+        return ranger_payoffs  
+
+    def save_strategies_to_yaml(self, strategies, filename):
+        """Clean and save ranger strategies in readable YAML format."""
+        clean_strategies = []
+        
+        for strategy in strategies:
+            clean_strategy = {
+                'id': int(strategy['id']),
+                'ranger_locations': [
+                    [float(pos[0]), float(pos[1])] 
+                    for pos in strategy['ranger_locations']
+                ],
+                'ranger_payoffs': [float(p) for p in strategy['ranger_payoffs']],
+                'total_cost': float(strategy['total_cost']),
+                'convergence': bool(strategy['convergence'])
+            }
+            clean_strategies.append(clean_strategy)
+        
+        with open(filename, 'w') as f:
+            yaml.dump(clean_strategies, f, default_flow_style=False, sort_keys=False)
+
+        return
+
+    def generate_ranger_strategies(self, num_strategies=10):
+        """Generate multiple ranger deployment strategies and save results."""
+
+        strategies = []
+
+        all_lons = np.concatenate([traj["longitude"].values for traj in self.best_trajs])
+        all_lats = np.concatenate([traj["latitude"].values for traj in self.best_trajs])
+
+        ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
+        data_LULC = ds.ReadAsArray()
+        data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+        for i in range(1,10):
+            data_LULC[data_LULC == data_value_map[i]] = i
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+        plantation_indices = np.where(data_LULC == 7)
+        plantation_points = []
+        for py, px in zip(*plantation_indices):
+            lon = xmin + px * xres
+            lat = ymax + py * yres
+            plantation_points.append([lon, lat])
+        plantation_points = np.array(plantation_points)
+
+        lon_min = min(all_lons) 
+        lon_max = max(all_lons) 
+        lat_min = min(all_lats) 
+        lat_max = max(all_lats)
+
+        plantation_points = plantation_points[(plantation_points[:,0] >= lon_min) & (plantation_points[:,0] <= lon_max) & (plantation_points[:,1] >= lat_min) & (plantation_points[:,1] <= lat_max)]
+
+        for i in range(num_strategies):
+            initial_positions = []
+            indices = np.random.choice(len(plantation_points), self.num_rangers, replace=False)
+            plantation_points = plantation_points[indices]
+            initial_positions = plantation_points.flatten()
+
+            bounds = [(lon_min, lon_max), (lat_min, lat_max)] * self.num_rangers
+
+            result = minimize(
+                self.cost_function_v2,
+                initial_positions,
+                method='Nelder-Mead',
+                bounds=bounds,
+                options={'maxiter': 1000}
+            )
+            
+            self.ranger_location = result.x.reshape(-1, 2)
+            ranger_payoffs = self.assign_ranger_payoffs()
+            
+            final_positions = []
+            for pos in self.ranger_location:
+                final_positions.append([pos[0], pos[1]])
+            
+            strategy = {
+                'id': i,
+                'ranger_locations': final_positions,
+                'ranger_payoffs': ranger_payoffs,
+                'total_cost': result.fun,
+                'convergence': result.success
+            }
+            
+            strategies.append(strategy)
+            
+        output_file = f'trajectory_analysis/assign_payoff_rangers/ranger_strategies_{self.num_rangers}rangers_{len(self.best_trajs)}trajs.yaml'
+        self.save_strategies_to_yaml(strategies, output_file)
+        
+        return strategies
 
 model_params = {
     "year": 2010,
@@ -569,8 +683,11 @@ output_folder = os.path.join(experiment_name, starting_location, elephant_catego
 
 optimizer = optimise_ranger_locations(num_best_trajs = 50, num_rangers=3, ranger_visibility_radius=500, expt_folder = output_folder)
 optimizer.optimize()
+
 optimizer.plot_trajectories_with_ranger_location()
 optimizer.plot_trajectories_untill_ranger_intervention()
 intersecting_trajs, non_intersecting_trajs = optimizer.filter_trajectories_in_ranger_radius()
 optimizer.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
+
+optimizer.generate_ranger_strategies(num_strategies = 5)
 

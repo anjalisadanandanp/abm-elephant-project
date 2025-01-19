@@ -18,6 +18,8 @@ import matplotlib.cm as cm
 from matplotlib import colors
 from scipy.optimize import minimize
 from sklearn.cluster import KMeans
+from scipy.stats import gaussian_kde
+from scipy.spatial.distance import cdist
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -436,13 +438,189 @@ class optimise_ranger_locations():
         self.loss_history.append(uncovered_trajectories + forest_penalty)
 
         return uncovered_trajectories + forest_penalty    
-    
+
+    def cost_function_kde(self, x=None, grid_resolution=100):
+
+        ranger_positions = x.reshape(-1, 2)
+
+        # self.plot_kde_95(ranger_positions, save_plots=True)
+
+        all_lons = np.concatenate([traj["longitude"].values for traj in self.best_trajs])
+        all_lats = np.concatenate([traj["latitude"].values for traj in self.best_trajs])
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')
+        x, y = transform(inProj, outProj, all_lons, all_lats)                                             
+
+        X = np.vstack([
+            x,
+            y
+            ]).T
+            
+        elephant_kde  = gaussian_kde(X.T)
+
+        lat_grid, lon_grid = np.mgrid[min(y): max(y):grid_resolution*1j, min(x): max(x):grid_resolution*1j]
+        positions = np.vstack([lon_grid.ravel(), lat_grid.ravel()])
+
+        elephant_density = np.reshape(elephant_kde(positions).T, lat_grid.shape)
+        elephant_density = elephant_density / elephant_density.max() 
+        
+        ranger_coverage = np.zeros_like(elephant_density)
+        
+        ranger_x, ranger_y = transform(inProj, outProj, 
+                                    ranger_positions[:, 0], 
+                                    ranger_positions[:, 1])
+        
+        radius = self.ranger_visibility_radius /(111 * 1000)
+        
+        for i, (rx, ry) in enumerate(zip(ranger_x, ranger_y)):
+
+            distances = np.sqrt((lon_grid - rx)**2 + (lat_grid - ry)**2)
+
+            # fig, ax = plt.subplots(figsize=(6.8, 6.8))
+            # map = Basemap(llcrnrlat=min(y), urcrnrlat=max(y), llcrnrlon=min(x), urcrnrlon=max(x), resolution='l')
+            # map.drawparallels([min(y), max(y)], labels=[True, False, False, True])
+            # map.drawmeridians([min(x), max(x)], labels=[True, False, False, True])
+            # img = ax.imshow(np.flipud(distances)*111, cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
+            # ax.scatter(rx, ry, 50, marker='x', color='black', zorder=2)
+            # plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
+            # plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'ranger' + str(i) + '_distances.png'), dpi=300, bbox_inches='tight')
+
+            coverage = np.exp(-0.5 * (distances / radius)**2)
+
+            # fig, ax = plt.subplots(figsize=(6.8, 6.8))
+            # map = Basemap(llcrnrlat=min(y), urcrnrlat=max(y), llcrnrlon=min(x), urcrnrlon=max(x), resolution='l')
+            # map.drawparallels([min(y), max(y)], labels=[True, False, False, True])
+            # map.drawmeridians([min(x), max(x)], labels=[True, False, False, True])
+            # img = ax.imshow(np.flipud(coverage), cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
+            # ax.scatter(rx, ry, 50, marker='x', color='black', zorder=2)
+            # plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
+            # plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'ranger' + str(i) + '_coverages.png'), dpi=300, bbox_inches='tight')
+
+            ranger_coverage = np.maximum(ranger_coverage, coverage)
+
+        fig, ax = plt.subplots(figsize=(6.8, 6.8))
+        map = Basemap(llcrnrlat=min(y), urcrnrlat=max(y), llcrnrlon=min(x), urcrnrlon=max(x), resolution='l')
+        map.drawparallels([min(y), max(y)], labels=[True, False, False, True])
+        map.drawmeridians([min(x), max(x)], labels=[True, False, False, True])
+        img = ax.imshow(np.flipud(ranger_coverage), cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
+        plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
+        plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'ranger_coverages.png'), dpi=300, bbox_inches='tight')
+
+        fig, ax = plt.subplots(figsize=(6.8, 6.8))
+        map = Basemap(llcrnrlat=min(y), urcrnrlat=max(y), llcrnrlon=min(x), urcrnrlon=max(x), resolution='l')
+        map.drawparallels([min(y), max(y)], labels=[True, False, False, True])
+        map.drawmeridians([min(x), max(x)], labels=[True, False, False, True])
+        img = ax.imshow(np.flipud((1 - ranger_coverage) * elephant_density), cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
+        plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
+        plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'uncovered_elephant_density.png'), dpi=300, bbox_inches='tight')
+
+        uncovered_score = np.sum((1 - ranger_coverage) * elephant_density) / np.sum(elephant_density)
+        total_cost = uncovered_score
+        
+        return total_cost
+
+    def plot_kde_95(self, ranger_locations, save_plots=False):
+
+        all_lons = np.concatenate([traj["longitude"].values for traj in self.best_trajs])
+        all_lats = np.concatenate([traj["latitude"].values for traj in self.best_trajs])
+
+        fig, ax = plt.subplots(figsize=(6.8, 6.8))
+
+        min_lat = min(all_lats) 
+        max_lat = max(all_lats)
+        min_lon = min(all_lons) 
+        max_lon = max(all_lons) 
+
+        ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
+        geotransform = ds.GetGeoTransform()
+        pixel_width = geotransform[1]
+        pixel_height = geotransform[5]
+        x0 = geotransform[0]
+        y0 = geotransform[3]
+
+        off_x_min = int((min_lon - x0) / pixel_width)
+        off_y_min = int((max_lat - y0) / pixel_height)
+        off_x_max = int((max_lon - x0) / pixel_width)
+        off_y_max = int((min_lat - y0) / pixel_height)
+        
+        x_off = min(off_x_min, off_x_max)
+        y_off = min(off_y_min, off_y_max)
+
+        x_count = abs(off_x_max - off_x_min)
+        y_count = abs(off_y_max - off_y_min)
+        
+        data_LULC = ds.ReadAsArray(x_off, y_off, x_count, y_count)
+
+        data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+
+        for i in range(1, 10):
+            data_LULC[data_LULC == data_value_map[i]] = i
+
+        data_LULC = np.flip(data_LULC, axis=0)
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
+        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+        row_size, col_size = data_LULC.shape
+
+        LON_MIN, LAT_MIN = transform(inProj, outProj, min_lon, min_lat)
+        LON_MAX, LAT_MAX = transform(inProj, outProj, max_lon, max_lat)
+
+        map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+        levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+        clrs = ["greenyellow","mediumpurple","turquoise", "plum", "black", "blue", "yellow", "mediumseagreen", "forestgreen"] 
+        cmap, norm = colors.from_levels_and_colors(levels, clrs)
+
+        map.imshow(data_LULC, cmap = cmap, norm=norm, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.5)
+
+        map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+        map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+        x, y = transform(inProj, outProj, all_lons, all_lats)
+
+        X = np.vstack([
+            x,
+            y
+            ]).T
+        
+        kde = gaussian_kde(X.T)
+
+        lat_grid, lon_grid = np.mgrid[min(y): max(y):100j, min(x): max(x):100j]
+        positions = np.vstack([lon_grid.ravel(), lat_grid.ravel()])
+        
+        z = np.reshape(kde(positions).T, lat_grid.shape)
+
+        z = z/z.sum()
+
+        sorted_z = np.sort(z.flatten())
+        cumsum_z = np.cumsum(sorted_z)
+
+        levels_list = []
+        
+        for val in np.arange(0.05, 1.00, 0.10):
+            threshold_idx = np.searchsorted(cumsum_z, val)
+            levels_list.append(sorted_z[threshold_idx])
+
+        contour = plt.contour(lon_grid, lat_grid, z, levels=levels_list, cmap="viridis", linewidths=2.5)
+
+        for rx, ry in zip(ranger_locations[:, 0], ranger_locations[:, 1]):
+            rx, ry = transform(inProj, outProj, rx, ry)
+            plt.plot(rx, ry, 'ro', markersize=8)
+
+        plt.tight_layout()
+
+        if save_plots:
+            plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'kde_plot.png'), dpi=300, bbox_inches='tight')
+
+        plt.close()
+
     def optimize(self):
 
         initial_positions = []
 
         all_lons = np.concatenate([traj["longitude"].values for traj in self.best_trajs])
         all_lats = np.concatenate([traj["latitude"].values for traj in self.best_trajs])
+
         # points = np.column_stack((all_lons, all_lats))
         # kmeans = KMeans(n_clusters=self.num_rangers, random_state=42)
         # kmeans.fit(points)
@@ -475,7 +653,7 @@ class optimise_ranger_locations():
         bounds = [(lon_min, lon_max), (lat_min, lat_max)] * self.num_rangers
 
         result = minimize(
-            self.cost_function_v2,
+            self.cost_function_kde,
             initial_positions,
             method='Nelder-Mead',
             bounds=bounds,
@@ -689,5 +867,5 @@ optimizer.plot_trajectories_untill_ranger_intervention()
 intersecting_trajs, non_intersecting_trajs = optimizer.filter_trajectories_in_ranger_radius()
 optimizer.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
 
-optimizer.generate_ranger_strategies(num_strategies = 5)
+# optimizer.generate_ranger_strategies(num_strategies = 5)
 

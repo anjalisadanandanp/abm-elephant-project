@@ -34,6 +34,7 @@ class optimise_ranger_locations():
         self.ranger_visibility_radius = ranger_visibility_radius
         self.expt_folder = expt_folder
         self.loss_history = []
+        self.elephant_kde = None
 
         self.get_best_trajectories()
 
@@ -456,15 +457,17 @@ class optimise_ranger_locations():
             y
             ]).T
             
-        elephant_kde  = gaussian_kde(X.T)
+        if self.elephant_kde is None:
+            self.elephant_kde  = gaussian_kde(X.T)
 
-        lat_grid, lon_grid = np.mgrid[min(y): max(y):grid_resolution*1j, min(x): max(x):grid_resolution*1j]
-        positions = np.vstack([lon_grid.ravel(), lat_grid.ravel()])
+            self.lat_grid, self.lon_grid = np.mgrid[min(y): max(y):grid_resolution*1j, min(x): max(x):grid_resolution*1j]
+            positions = np.vstack([self.lon_grid.ravel(), self.lat_grid.ravel()])
+            elephant_density = np.reshape(self.elephant_kde(positions).T, self.lat_grid.shape)
+            self.elephant_density = elephant_density / elephant_density.max() 
+            
+            print("Elephant KDE fitted")
 
-        elephant_density = np.reshape(elephant_kde(positions).T, lat_grid.shape)
-        elephant_density = elephant_density / elephant_density.max() 
-        
-        ranger_coverage = np.zeros_like(elephant_density)
+        ranger_coverage = np.zeros_like(self.elephant_density)
         
         ranger_x, ranger_y = transform(inProj, outProj, 
                                     ranger_positions[:, 0], 
@@ -474,7 +477,7 @@ class optimise_ranger_locations():
         
         for i, (rx, ry) in enumerate(zip(ranger_x, ranger_y)):
 
-            distances = np.sqrt((lon_grid - rx)**2 + (lat_grid - ry)**2)
+            distances = np.sqrt((self.lon_grid - rx)**2 + (self.lat_grid - ry)**2)
 
             # fig, ax = plt.subplots(figsize=(6.8, 6.8))
             # map = Basemap(llcrnrlat=min(y), urcrnrlat=max(y), llcrnrlon=min(x), urcrnrlon=max(x), resolution='l')
@@ -510,13 +513,15 @@ class optimise_ranger_locations():
         map = Basemap(llcrnrlat=min(y), urcrnrlat=max(y), llcrnrlon=min(x), urcrnrlon=max(x), resolution='l')
         map.drawparallels([min(y), max(y)], labels=[True, False, False, True])
         map.drawmeridians([min(x), max(x)], labels=[True, False, False, True])
-        img = ax.imshow(np.flipud((1 - ranger_coverage) * elephant_density), cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
+        img = ax.imshow(np.flipud((1 - ranger_coverage) * self.elephant_density), cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
         plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
         plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'uncovered_elephant_density.png'), dpi=300, bbox_inches='tight')
 
-        uncovered_score = np.sum((1 - ranger_coverage) * elephant_density) / np.sum(elephant_density)
+        uncovered_score = np.sum((1 - ranger_coverage) * self.elephant_density) / np.sum(self.elephant_density)
         total_cost = uncovered_score
         
+        self.loss_history.append(total_cost)
+
         return total_cost
 
     def plot_kde_95(self, ranger_locations, save_plots=False):
@@ -614,48 +619,52 @@ class optimise_ranger_locations():
 
         plt.close()
 
-    def optimize(self):
+    def optimize(self, starting_positions="kmeans"):
 
         initial_positions = []
 
         all_lons = np.concatenate([traj["longitude"].values for traj in self.best_trajs])
         all_lats = np.concatenate([traj["latitude"].values for traj in self.best_trajs])
 
-        # points = np.column_stack((all_lons, all_lats))
-        # kmeans = KMeans(n_clusters=self.num_rangers, random_state=42)
-        # kmeans.fit(points)
-        # initial_positions = kmeans.cluster_centers_.flatten()
-
-        ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
-        data_LULC = ds.ReadAsArray()
-        data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
-        for i in range(1,10):
-            data_LULC[data_LULC == data_value_map[i]] = i
-        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
-        plantation_indices = np.where(data_LULC == 7)
-        plantation_points = []
-        for py, px in zip(*plantation_indices):
-            lon = xmin + px * xres
-            lat = ymax + py * yres
-            plantation_points.append([lon, lat])
-        plantation_points = np.array(plantation_points)
-
         lon_min = min(all_lons) 
         lon_max = max(all_lons) 
         lat_min = min(all_lats) 
         lat_max = max(all_lats)
 
-        plantation_points = plantation_points[(plantation_points[:,0] >= lon_min) & (plantation_points[:,0] <= lon_max) & (plantation_points[:,1] >= lat_min) & (plantation_points[:,1] <= lat_max)]
-        indices = np.random.choice(len(plantation_points), self.num_rangers, replace=False)
-        plantation_points = plantation_points[indices]
-        initial_positions = plantation_points.flatten()
+        if starting_positions == "kmeans":
+            points = np.column_stack((all_lons, all_lats))
+            kmeans = KMeans(n_clusters=self.num_rangers, random_state=42)
+            kmeans.fit(points)
+            initial_positions = kmeans.cluster_centers_.flatten()
+
+        elif starting_positions == "plantations":
+            ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
+            data_LULC = ds.ReadAsArray()
+            data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+            for i in range(1,10):
+                data_LULC[data_LULC == data_value_map[i]] = i
+            xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+            plantation_indices = np.where(data_LULC == 7)
+            plantation_points = []
+            for py, px in zip(*plantation_indices):
+                lon = xmin + px * xres
+                lat = ymax + py * yres
+                plantation_points.append([lon, lat])
+            plantation_points = np.array(plantation_points)
+
+            plantation_points = plantation_points[(plantation_points[:,0] >= lon_min) & (plantation_points[:,0] <= lon_max) & (plantation_points[:,1] >= lat_min) & (plantation_points[:,1] <= lat_max)]
+            indices = np.random.choice(len(plantation_points), self.num_rangers, replace=False)
+            plantation_points = plantation_points[indices]
+            initial_positions = plantation_points.flatten()
 
         bounds = [(lon_min, lon_max), (lat_min, lat_max)] * self.num_rangers
+
+        #method='L-BFGS-B', "Nelder-Mead", "BFGS", "Powell"
 
         result = minimize(
             self.cost_function_kde,
             initial_positions,
-            method='Nelder-Mead',
+            method='Powell',
             bounds=bounds,
             options={'maxiter': 1000}
         )

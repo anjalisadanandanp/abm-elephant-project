@@ -20,6 +20,7 @@ from scipy.optimize import minimize
 from sklearn.cluster import KMeans
 from scipy.stats import gaussian_kde
 from scipy.spatial.distance import cdist
+import pathlib
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -28,20 +29,58 @@ os.chdir("/home2/anjali/GitHub/abm-elephant-project")
 
 class optimise_ranger_locations():
 
-    def __init__(self, num_best_trajs, num_rangers, ranger_visibility_radius, expt_folder):
+    def __init__(self, num_best_trajs, num_rangers, ranger_visibility_radius, data_folder, output_folder):
         self.num_best_trajs = num_best_trajs
         self.num_rangers = num_rangers
         self.ranger_visibility_radius = ranger_visibility_radius
-        self.expt_folder = expt_folder
+        self.data_folder = data_folder
+        self.output_folder = output_folder
         self.loss_history = []
         self.elephant_kde = None
 
+
+        self.read_all_experiments()
+        self.rank_order_trajectories(save_dataframe = True)
         self.get_best_trajectories()
 
+    def read_all_experiments(self):
+    
+        path = pathlib.Path(self.data_folder)
+        subfolders = [x for x in path.iterdir() if x.is_dir()]
+        self.file_paths = [str(subfolder / "output_files/agent_data.csv") for subfolder in subfolders]
+
+    def rank_order_trajectories(self, save_dataframe = False):
+
+        data = []
+        for file_path in self.file_paths:
+            try:
+                df = pd.read_csv(file_path)
+                length_rank = len(df)
+                last_fitness = df['fitness'].iloc[-1] 
+                data.append({
+                    'file_path': file_path,
+                    'length_rank': length_rank,
+                    'fitness_rank': last_fitness
+                })
+            except FileNotFoundError:
+                print(f"Warning: File not found: {file_path}")
+            except Exception as e:
+                print(f"Error reading {file_path}: {e}")
+
+        df_ranks = pd.DataFrame(data)
+        df_ranks['length_rank'] = df_ranks['length_rank'].rank(method='dense', ascending=False)
+        df_ranks['fitness_rank'] = df_ranks['fitness_rank'].rank(method='dense', ascending=False) 
+
+        self.sorted_df = df_ranks.sort_values(by=['length_rank', 'fitness_rank'], ascending=[True, True]) 
+
+        if save_dataframe == True:
+            self.sorted_df.to_csv(os.path.join(self.output_folder, "ordered_experiments.csv"))
+
+        return
+    
     def get_sorted_trajectories(self):
 
-        folder = os.path.join(os.getcwd(), "trajectory_analysis/outputs", self.expt_folder)
-        self.sorted_trajs_df = pd.read_csv(os.path.join(folder, "ordered_experiments.csv"))
+        self.sorted_trajs_df = pd.read_csv(os.path.join(self.output_folder, "ordered_experiments.csv"))
 
         return
 
@@ -127,7 +166,7 @@ class optimise_ranger_locations():
             circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
             ax.add_artist(circle)
             
-        plt.savefig("trajectory_analysis/assign_payoff_rangers/trajectories_with_ranger_locations__numrangers" + str(self.num_rangers) + "_rangervisibility" + str(self.ranger_visibility_radius) + "m_v1.png", dpi=300, bbox_inches='tight')
+        plt.savefig(os.path.join(self.output_folder, "trajectories_with_ranger_locations__numrangers" + str(self.num_rangers) + "_rangervisibility" + str(self.ranger_visibility_radius) + "m_v1.png"), dpi=300, bbox_inches='tight')
 
     def filter_trajectories_in_ranger_radius(self):
         """Filter trajectories that intersect with ranger visibility circles."""
@@ -229,7 +268,7 @@ class optimise_ranger_locations():
             circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
             ax.add_artist(circle)
 
-        plt.savefig("trajectory_analysis/assign_payoff_rangers/trajectories_with_ranger_locations__numrangers" + str(self.num_rangers) + "_rangervisibility" + str(self.ranger_visibility_radius) + "m_v2.png", dpi=300, bbox_inches='tight')
+        plt.savefig(os.path.join(self.output_folder, "trajectories_with_ranger_locations__numrangers" + str(self.num_rangers) + "_rangervisibility" + str(self.ranger_visibility_radius) + "m_v2.png"), dpi=300, bbox_inches='tight')
 
     def calculate_landuse_time(self, trajectory):
         """Calculate time steps spent in each landuse type."""
@@ -375,7 +414,7 @@ class optimise_ranger_locations():
             circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
             ax.add_artist(circle)
 
-        plt.savefig("trajectory_analysis/assign_payoff_rangers/trajectories_until_ranger_proximity__numrangers" + str(self.num_rangers) + "_rangervisibility" + str(self.ranger_visibility_radius) + "m_v1.png", dpi=300, bbox_inches='tight')
+        plt.savefig(os.path.join(self.output_folder, "trajectories_until_ranger_proximity__numrangers" + str(self.num_rangers) + "_rangervisibility" + str(self.ranger_visibility_radius) + "m_v1.png"), dpi=300, bbox_inches='tight')
 
         return
 
@@ -465,7 +504,7 @@ class optimise_ranger_locations():
             elephant_density = np.reshape(self.elephant_kde(positions).T, self.lat_grid.shape)
             self.elephant_density = elephant_density / elephant_density.max() 
             
-            print("Elephant KDE fitted")
+            print("Elephant space use KDE fitted")
 
         ranger_coverage = np.zeros_like(self.elephant_density)
         
@@ -507,7 +546,7 @@ class optimise_ranger_locations():
         map.drawmeridians([min(x), max(x)], labels=[True, False, False, True])
         img = ax.imshow(np.flipud(ranger_coverage), cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
         plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
-        plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'ranger_coverages.png'), dpi=300, bbox_inches='tight')
+        plt.savefig(os.path.join(self.output_folder, 'ranger_coverages.png'), dpi=300, bbox_inches='tight')
 
         fig, ax = plt.subplots(figsize=(6.8, 6.8))
         map = Basemap(llcrnrlat=min(y), urcrnrlat=max(y), llcrnrlon=min(x), urcrnrlon=max(x), resolution='l')
@@ -515,7 +554,7 @@ class optimise_ranger_locations():
         map.drawmeridians([min(x), max(x)], labels=[True, False, False, True])
         img = ax.imshow(np.flipud((1 - ranger_coverage) * self.elephant_density), cmap='coolwarm', alpha=0.75, extent=[min(x), max(x), min(y), max(y)], zorder=1)
         plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
-        plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'uncovered_elephant_density.png'), dpi=300, bbox_inches='tight')
+        plt.savefig(os.path.join(self.output_folder, 'uncovered_elephant_density.png'), dpi=300, bbox_inches='tight')
 
         uncovered_score = np.sum((1 - ranger_coverage) * self.elephant_density) / np.sum(self.elephant_density)
         total_cost = uncovered_score
@@ -615,7 +654,7 @@ class optimise_ranger_locations():
         plt.tight_layout()
 
         if save_plots:
-            plt.savefig(os.path.join(os.getcwd(), "trajectory_analysis/assign_payoff_rangers", 'kde_plot.png'), dpi=300, bbox_inches='tight')
+            plt.savefig(os.path.join(self.output_folder, 'kde_plot.png'), dpi=300, bbox_inches='tight')
 
         plt.close()
 
@@ -688,7 +727,7 @@ class optimise_ranger_locations():
         ax.grid(True, linestyle='--', alpha=0.7)
         ax.legend(loc='upper right')
         
-        plt.savefig('trajectory_analysis/assign_payoff_rangers/optimization_loss.png', dpi=300, bbox_inches='tight')
+        plt.savefig(os.path.join(self.output_folder, 'optimization_loss.png'), dpi=300, bbox_inches='tight')
         plt.close()
 
         return
@@ -741,47 +780,57 @@ class optimise_ranger_locations():
 
         return
 
-    def generate_ranger_strategies(self, num_strategies=10):
+    def generate_ranger_strategies(self, starting_positions="kmeans", num_strategies=10):
         """Generate multiple ranger deployment strategies and save results."""
+
+        print("Generating Multiple Ranger Strategies")
 
         strategies = []
 
+        initial_positions = []
+
         all_lons = np.concatenate([traj["longitude"].values for traj in self.best_trajs])
         all_lats = np.concatenate([traj["latitude"].values for traj in self.best_trajs])
-
-        ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
-        data_LULC = ds.ReadAsArray()
-        data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
-        for i in range(1,10):
-            data_LULC[data_LULC == data_value_map[i]] = i
-        xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
-        plantation_indices = np.where(data_LULC == 7)
-        plantation_points = []
-        for py, px in zip(*plantation_indices):
-            lon = xmin + px * xres
-            lat = ymax + py * yres
-            plantation_points.append([lon, lat])
-        plantation_points = np.array(plantation_points)
 
         lon_min = min(all_lons) 
         lon_max = max(all_lons) 
         lat_min = min(all_lats) 
         lat_max = max(all_lats)
 
-        plantation_points = plantation_points[(plantation_points[:,0] >= lon_min) & (plantation_points[:,0] <= lon_max) & (plantation_points[:,1] >= lat_min) & (plantation_points[:,1] <= lat_max)]
+        if starting_positions == "kmeans":
+            points = np.column_stack((all_lons, all_lats))
+            kmeans = KMeans(n_clusters=self.num_rangers, random_state=42)
+            kmeans.fit(points)
+            initial_positions = kmeans.cluster_centers_.flatten()
 
-        for i in range(num_strategies):
-            initial_positions = []
+        elif starting_positions == "plantations":
+            ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
+            data_LULC = ds.ReadAsArray()
+            data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+            for i in range(1,10):
+                data_LULC[data_LULC == data_value_map[i]] = i
+            xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+            plantation_indices = np.where(data_LULC == 7)
+            plantation_points = []
+            for py, px in zip(*plantation_indices):
+                lon = xmin + px * xres
+                lat = ymax + py * yres
+                plantation_points.append([lon, lat])
+            plantation_points = np.array(plantation_points)
+
+            plantation_points = plantation_points[(plantation_points[:,0] >= lon_min) & (plantation_points[:,0] <= lon_max) & (plantation_points[:,1] >= lat_min) & (plantation_points[:,1] <= lat_max)]
             indices = np.random.choice(len(plantation_points), self.num_rangers, replace=False)
             plantation_points = plantation_points[indices]
             initial_positions = plantation_points.flatten()
 
-            bounds = [(lon_min, lon_max), (lat_min, lat_max)] * self.num_rangers
+        bounds = [(lon_min, lon_max), (lat_min, lat_max)] * self.num_rangers
+
+        for i in range(num_strategies):
 
             result = minimize(
-                self.cost_function_v2,
+                self.cost_function_kde,
                 initial_positions,
-                method='Nelder-Mead',
+                method='Powell',
                 bounds=bounds,
                 options={'maxiter': 1000}
             )
@@ -803,7 +852,7 @@ class optimise_ranger_locations():
             
             strategies.append(strategy)
             
-        output_file = f'trajectory_analysis/assign_payoff_rangers/ranger_strategies_{self.num_rangers}rangers_{len(self.best_trajs)}trajs.yaml'
+        output_file = os.path.join(self.output_folder, 'ranger_strategies_' + str(self.num_rangers) + 'rangers_' + str(len(self.best_trajs)) + 'trajs.yaml')
         self.save_strategies_to_yaml(strategies, output_file)
         
         return strategies
@@ -843,10 +892,12 @@ model_params = {
     "elephant_starting_latitude": 1049237,
     "elephant_starting_longitude": 8570917,
     "elephant_aggression_value": 0.8,
-    "elephant_crop_habituation": False
+    "elephant_crop_habituation": False,
+    "num_guards": 3,
+    "ranger_visibility_radius": 500
     }
 
-experiment_name = "exploratory-search-ID-01"
+experiment_name = "ranger-deployment-v1"
 
 elephant_category = "solitary_bulls"
 starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
@@ -862,13 +913,26 @@ slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
 num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
 elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
-output_folder = os.path.join(experiment_name, starting_location, elephant_category, landscape_food_probability, 
+data_folder = os.path.join(os.getcwd(), "model_runs", "exploratory-search-ID-01", starting_location, elephant_category, landscape_food_probability, 
                                 water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                 elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
                                 str(model_params["year"]), str(model_params["month"]))
 
-optimizer = optimise_ranger_locations(num_best_trajs = 50, num_rangers=3, ranger_visibility_radius=500, expt_folder = output_folder)
+output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+                                water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
+                                elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
+                                slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
+                                str(model_params["year"]), str(model_params["month"]), "guard_agent_placement_optimisation")
+
+path = pathlib.Path(output_folder)
+path.mkdir(parents=True, exist_ok=True)
+
+optimizer = optimise_ranger_locations(num_best_trajs = 50, 
+                                      num_rangers=model_params["num_guards"], 
+                                      ranger_visibility_radius=model_params["ranger_visibility_radius"], 
+                                      data_folder = data_folder, 
+                                      output_folder = output_folder)
 optimizer.optimize()
 
 optimizer.plot_trajectories_with_ranger_location()
@@ -876,5 +940,5 @@ optimizer.plot_trajectories_untill_ranger_intervention()
 intersecting_trajs, non_intersecting_trajs = optimizer.filter_trajectories_in_ranger_radius()
 optimizer.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
 
-# optimizer.generate_ranger_strategies(num_strategies = 5)
+optimizer.generate_ranger_strategies(starting_positions="kmeans", num_strategies = 5)
 

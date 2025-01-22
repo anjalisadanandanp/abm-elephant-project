@@ -38,7 +38,6 @@ class optimise_ranger_locations():
         self.loss_history = []
         self.elephant_kde = None
 
-
         self.read_all_experiments()
         self.rank_order_trajectories(save_dataframe = True)
         self.get_best_trajectories()
@@ -94,6 +93,7 @@ class optimise_ranger_locations():
         for traj in range(self.num_best_trajs):
             path = self.sorted_trajs_df["file_path"].iloc[traj]
             data = pd.read_csv(os.path.join(str(path)))
+            data = data[data["AgentID"] == "bull_0"]
             self.best_trajs.append(data)
 
             if len(data) > self.max_simulation_length:
@@ -142,6 +142,7 @@ class optimise_ranger_locations():
             outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   
             longitude, latitude = transform(inProj, outProj, data["longitude"], data["latitude"])
             x_new, y_new = map(longitude,latitude)
+
             C = np.arange(len(x_new))
             nz = mcolors.Normalize()
             nz.autoscale(C)
@@ -658,7 +659,7 @@ class optimise_ranger_locations():
 
         plt.close()
 
-    def optimize(self, starting_positions="kmeans"):
+    def optimize(self, starting_positions="kmeans", max_steps=100):
 
         initial_positions = []
 
@@ -705,7 +706,7 @@ class optimise_ranger_locations():
             initial_positions,
             method='Powell',
             bounds=bounds,
-            options={'maxiter': 1000}
+            options={'maxiter': max_steps}
         )
         
         self.ranger_location = result.x.reshape(-1, 2)
@@ -852,93 +853,96 @@ class optimise_ranger_locations():
             
             strategies.append(strategy)
             
-        output_file = os.path.join(self.output_folder, 'ranger_strategies_' + str(self.num_rangers) + 'rangers_' + str(len(self.best_trajs)) + 'trajs.yaml')
+        output_file = os.path.join(self.output_folder, 'ranger_strategies_' + str(self.num_rangers) + 'rangers.yaml')
         self.save_strategies_to_yaml(strategies, output_file)
         
         return strategies
 
-model_params = {
-    "year": 2010,
-    "month": "Jul",
-    "num_bull_elephants": 1, 
-    "area_size": 1100,              
-    "spatial_resolution": 30, 
-    "max_food_val_cropland": 100,
-    "max_food_val_forest": 10,
-    "prob_food_forest": 0.10,
-    "prob_food_cropland": 0.10,
-    "prob_water_sources": 0.00,
-    "thermoregulation_threshold": 28,
-    "num_days_agent_survives_in_deprivation": 10,     
-    "knowledge_from_fringe": 1500,   
-    "prob_crop_damage": 0.05,           
-    "prob_infrastructure_damage": 0.01,
-    "percent_memory_elephant": 0.375,   
-    "radius_food_search": 750,     
-    "radius_water_search": 750, 
-    "radius_forest_search": 1500,
-    "fitness_threshold": 0.4,   
-    "terrain_radius": 750,       
-    "slope_tolerance": 30,
-    "max_time_steps": 288*10,
-    "aggression_threshold_enter_cropland": 1.0,
-    "elephant_agent_visibility_radius": 500,
-    "plot_stepwise_target_selection": False,
-    "threshold_days_of_food_deprivation": 0,
-    "threshold_days_of_water_deprivation": 3,
-    "number_of_feasible_movement_directions": 3,
-    "track_in_mlflow": False,
-    "elephant_starting_location": "user_input",
-    "elephant_starting_latitude": 1049237,
-    "elephant_starting_longitude": 8570917,
-    "elephant_aggression_value": 0.8,
-    "elephant_crop_habituation": False,
-    "num_guards": 3,
-    "ranger_visibility_radius": 500
-    }
 
-experiment_name = "ranger-deployment-v1"
+if __name__ == "__main__":
 
-elephant_category = "solitary_bulls"
-starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
-landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
-memory_matrix_type = "random-memory-matrix-model"
-num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
-maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
-elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
-threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
-threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
-slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
-num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
-elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
+    model_params = {
+        "year": 2010,
+        "month": "Mar",
+        "num_bull_elephants": 1, 
+        "area_size": 1100,              
+        "spatial_resolution": 30, 
+        "max_food_val_cropland": 100,
+        "max_food_val_forest": 10,
+        "prob_food_forest": 0.10,
+        "prob_food_cropland": 0.10,
+        "prob_water_sources": 0.00,
+        "thermoregulation_threshold": 28,
+        "num_days_agent_survives_in_deprivation": 10,     
+        "knowledge_from_fringe": 1500,   
+        "prob_crop_damage": 0.05,           
+        "prob_infrastructure_damage": 0.01,
+        "percent_memory_elephant": 0.375,   
+        "radius_food_search": 750,     
+        "radius_water_search": 750, 
+        "radius_forest_search": 1500,
+        "fitness_threshold": 0.4,   
+        "terrain_radius": 750,       
+        "slope_tolerance": 30,
+        "max_time_steps": 288*10,
+        "aggression_threshold_enter_cropland": 1.0,
+        "elephant_agent_visibility_radius": 500,
+        "plot_stepwise_target_selection": False,
+        "threshold_days_of_food_deprivation": 0,
+        "threshold_days_of_water_deprivation": 3,
+        "number_of_feasible_movement_directions": 3,
+        "track_in_mlflow": False,
+        "elephant_starting_location": "user_input",
+        "elephant_starting_latitude": 1049237,
+        "elephant_starting_longitude": 8570917,
+        "elephant_aggression_value": 0.8,
+        "elephant_crop_habituation": False,
+        "num_guards": 3,
+        "ranger_visibility_radius": 500
+        }
 
-data_folder = os.path.join(os.getcwd(), "model_runs", "exploratory-search-ID-01", starting_location, elephant_category, landscape_food_probability, 
-                                water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
-                                elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
-                                slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
-                                str(model_params["year"]), str(model_params["month"]))
+    experiment_name = "ranger-deployment-v1"
 
-output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
-                                water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
-                                elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
-                                slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
-                                str(model_params["year"]), str(model_params["month"]), "guard_agent_placement_optimisation")
+    elephant_category = "solitary_bulls"
+    starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
+    landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
+    water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
+    memory_matrix_type = "random-memory-matrix-model"
+    num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
+    maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
+    elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
+    threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
+    threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
+    slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
+    num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
+    elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
-path = pathlib.Path(output_folder)
-path.mkdir(parents=True, exist_ok=True)
+    data_folder = os.path.join(os.getcwd(), "model_runs", "exploratory-search-ID-01", starting_location, elephant_category, landscape_food_probability, 
+                                    water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
+                                    elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
+                                    slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
+                                    str(model_params["year"]), str(model_params["month"]))
 
-optimizer = optimise_ranger_locations(num_best_trajs = 50, 
-                                      num_rangers=model_params["num_guards"], 
-                                      ranger_visibility_radius=model_params["ranger_visibility_radius"], 
-                                      data_folder = data_folder, 
-                                      output_folder = output_folder)
-optimizer.optimize()
+    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+                                    water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
+                                    elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
+                                    slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
+                                    str(model_params["year"]), str(model_params["month"]), "guard_agent_placement_optimisation")
 
-optimizer.plot_trajectories_with_ranger_location()
-optimizer.plot_trajectories_untill_ranger_intervention()
-intersecting_trajs, non_intersecting_trajs = optimizer.filter_trajectories_in_ranger_radius()
-optimizer.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
+    path = pathlib.Path(output_folder)
+    path.mkdir(parents=True, exist_ok=True)
 
-optimizer.generate_ranger_strategies(starting_positions="kmeans", num_strategies = 5)
+    optimizer = optimise_ranger_locations(num_best_trajs = 40, 
+                                          num_rangers=model_params["num_guards"], 
+                                          ranger_visibility_radius=model_params["ranger_visibility_radius"], 
+                                          data_folder = data_folder, 
+                                          output_folder = output_folder)
+    optimizer.optimize()
+
+    optimizer.plot_trajectories_with_ranger_location()
+    optimizer.plot_trajectories_untill_ranger_intervention()
+    intersecting_trajs, non_intersecting_trajs = optimizer.filter_trajectories_in_ranger_radius()
+    optimizer.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
+
+    optimizer.generate_ranger_strategies(starting_positions="kmeans", num_strategies = 2)
 

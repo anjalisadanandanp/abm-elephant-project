@@ -2253,11 +2253,18 @@ class conflict_model(Model):
                 print(f"Error reading YAML file: {e}")
                 return None
 
-        experiments = read_experiment_data(os.path.join(str(pathlib.Path(folder).parent), "guard_agent_placement_optimisation", "ranger_strategies_" + str(self.num_guards) + "rangers_50trajs.yaml"))
-        converged_experiments = [exp for exp in experiments if exp['convergence']]
-        best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
-
-        self.ranger_locations = best_experiment['ranger_locations']
+        try:
+            print("Reading ranger strategies from file")
+            experiments = read_experiment_data(os.path.join(str(pathlib.Path(folder).parent.parent), "guard_agent_placement_optimisation", "ranger_strategies_" + str(self.num_guards) + "rangers.yaml"))
+            converged_experiments = [exp for exp in experiments if exp['convergence']]
+            best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
+            self.ranger_locations = best_experiment['ranger_locations']
+        except:
+            print("Randomly placing ranger agents")
+            experiments = read_experiment_data(os.path.join("trajectory_analysis/ranger-locations/random_ranger_strategies_" + str(self.num_guards) + "guards.yaml"))
+            converged_experiments = [exp for exp in experiments if exp['convergence']]
+            best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
+            self.ranger_locations = best_experiment['ranger_locations']
 
         ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
         data = ds.ReadAsArray()
@@ -2289,10 +2296,10 @@ class conflict_model(Model):
         map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
 
 
-        for k in range(0, len(best_experiment['ranger_locations'])):
+        for k in range(0, len(self.ranger_locations)):
 
-            this_x=best_experiment['ranger_locations'][k][0]    
-            this_y=best_experiment['ranger_locations'][k][1]    
+            this_x=self.ranger_locations[k][0]    
+            this_y=self.ranger_locations[k][1]    
             humans=AgentCreator(Guard_agents,{"model":self}) 
             newagent=humans.create_agent(Point(this_x,this_y),"guard:"+str(k))
             newagent.mode = None
@@ -2318,7 +2325,7 @@ class conflict_model(Model):
             x, y = map(longitude,latitude)
             ax.scatter(x, y, 25, marker='x', color='red', zorder=2) 
 
-        plt.title("Gurad agent initialisation")
+        plt.title("Guard agent initialisation")
         plt.savefig(os.path.join(folder, self.now, "output_files", "guard_agent_placement.png"), dpi = 300, bbox_inches = 'tight')
 
         newagent.find_ranger_coverage()
@@ -2859,12 +2866,10 @@ class conflict_model(Model):
         self.update_season()
         self.update_human_disturbance_explict()
 
-        # try:
-        #     self.schedule.step()
-        # except:
-        #     self.running = False
-
-        self.schedule.step()
+        try:
+            self.schedule.step()
+        except:
+            self.running = False
 
         self.datacollector.collect(self)
 

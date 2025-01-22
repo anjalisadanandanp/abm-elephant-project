@@ -14,6 +14,7 @@ import time
 from multiprocessing import freeze_support
 
 from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v3 import batch_run_model
+from trajectory_analysis.assign_payoff_rangers.optimise_ranger_locations import optimise_ranger_locations
 #------------importing libraries----------------#
 
 
@@ -42,7 +43,7 @@ model_params_all = {
     "terrain_radius": 750,       
     "slope_tolerance": [30],
     "num_processes": 10,
-    "iterations": 40,
+    "iterations": 10,
     "max_time_steps": 288*5,
     "aggression_threshold_enter_cropland": 1.0,
     "human_habituation_tolerance": 1.0,
@@ -114,28 +115,8 @@ def generate_parameter_combinations(model_params_all):
     return all_param_dicts
 
 
-def run_model(experiment_name, model_params):
+def run_model(experiment_name, model_params, output_folder):
 
-    elephant_category = "solitary_bulls"
-    starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
-    landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-    water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
-    memory_matrix_type = "random-memory-matrix-model"
-    num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
-    maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
-    elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
-    threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
-    threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
-    slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
-    num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
-    elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
-
-    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
-                                 water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
-                                 elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
-                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
-                                 str(model_params["year"]), str(model_params["month"]), "abm-runs-with-guard-agents")
-    
     path = pathlib.Path(output_folder)
     path.mkdir(parents=True, exist_ok=True)
 
@@ -172,7 +153,57 @@ class Experiment:
         param_dicts = generate_parameter_combinations(model_params_all)
 
         for model_params in param_dicts:
-            run_model(experiment_name, model_params)
+
+            experiment_name = "ranger-deployment-v2"
+
+            elephant_category = "solitary_bulls"
+            starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
+            landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
+            water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
+            memory_matrix_type = "random-memory-matrix-model"
+            num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
+            maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
+            elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
+            threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
+            threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
+            slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
+            num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
+            elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
+
+            for step in range(1, 5):
+
+                data_folder = os.path.join(os.getcwd(), "model_runs", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+                                                water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
+                                                elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
+                                                slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
+                                                str(model_params["year"]), str(model_params["month"]), "abm-runs-with-guard-agents", "step-" + str(step))
+
+                #------------agent based model----------------#
+                run_model(experiment_name, model_params, data_folder)
+                #------------agent based model----------------#
+
+                output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+                                                water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
+                                                elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
+                                                slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
+                                                str(model_params["year"]), str(model_params["month"]), "guard_agent_placement_optimisation")
+
+                path = pathlib.Path(output_folder)
+                path.mkdir(parents=True, exist_ok=True)
+
+                optimizer = optimise_ranger_locations(num_best_trajs = 5, 
+                                                    num_rangers=model_params["num_guards"], 
+                                                    ranger_visibility_radius=model_params["ranger_visibility_radius"], 
+                                                    data_folder = data_folder, 
+                                                    output_folder = output_folder)
+                optimizer.optimize(max_steps=10)
+
+                optimizer.plot_trajectories_with_ranger_location()
+                optimizer.plot_trajectories_untill_ranger_intervention()
+                intersecting_trajs, non_intersecting_trajs = optimizer.filter_trajectories_in_ranger_radius()
+                optimizer.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
+
+                optimizer.generate_ranger_strategies(starting_positions="kmeans", num_strategies = 1)
 
         end = time.time()
 

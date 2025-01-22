@@ -60,8 +60,8 @@ model_params_all = {
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
     "slope_tolerance": [30],
-    "num_processes": 10,
-    "iterations": 10,
+    "num_processes": 8,
+    "iterations": 32,
     "max_time_steps": 288*10,
     "aggression_threshold_enter_cropland": 1.0,
     "human_habituation_tolerance": 1.0,
@@ -521,14 +521,15 @@ class Experiment:
                                                     ranger_visibility_radius=model_params["ranger_visibility_radius"], 
                                                     data_folder = data_folder, 
                                                     output_folder = output_folder)
-                optimizer.optimize()
+                
+                optimizer.optimize(starting_positions="kmeans_plantation_points")
 
                 optimizer.plot_trajectories_with_ranger_location()
                 optimizer.plot_trajectories_untill_ranger_intervention()
                 intersecting_trajs, non_intersecting_trajs = optimizer.filter_trajectories_in_ranger_radius()
                 optimizer.plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
 
-                optimizer.generate_ranger_strategies(starting_positions="kmeans", num_strategies = 1)
+                optimizer.generate_ranger_strategies(starting_positions="kmeans_plantation_points", num_strategies = 1)
                 #------------ranger placement optimisation----------------#
 
             #--------plotting the cost vs step------------#

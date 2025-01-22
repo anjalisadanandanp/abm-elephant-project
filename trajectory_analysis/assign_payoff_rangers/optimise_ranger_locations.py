@@ -505,7 +505,7 @@ class optimise_ranger_locations():
             elephant_density = np.reshape(self.elephant_kde(positions).T, self.lat_grid.shape)
             self.elephant_density = elephant_density / elephant_density.max() 
             
-            print("Elephant space use KDE fitted")
+            # print("Elephant space use KDE fitted")
 
         ranger_coverage = np.zeros_like(self.elephant_density)
         
@@ -784,7 +784,7 @@ class optimise_ranger_locations():
     def generate_ranger_strategies(self, starting_positions="kmeans", num_strategies=10):
         """Generate multiple ranger deployment strategies and save results."""
 
-        print("Generating Multiple Ranger Strategies")
+        print("Generating Ranger Strategies")
 
         strategies = []
 

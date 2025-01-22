@@ -2016,9 +2016,16 @@ class conflict_model(Model):
         shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(self.folder_root, "env"))
-        # shutil.copy(os.path.join(folder, "food_matrix_" + str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif"), os.path.join(self.folder_root, "env"))
-        # shutil.copy(os.path.join(folder, "water_matrix_" + str(self.prob_water_sources) + "_.tif"), os.path.join(self.folder_root, "env"))
-        # shutil.copy(os.path.join(folder, "landscape_cell_status.tif"), os.path.join(self.folder_root, "env"))
+
+        os.makedirs(os.path.dirname(os.path.join(self.folder_root, "env", "ranger_strategy")), exist_ok=True)
+        target_folder = os.path.join(str(pathlib.Path(folder).parent.parent), "guard_agent_placement_optimisation")
+        if os.path.exists(target_folder):
+            # print("Using ranger strategy files from: ", target_folder)
+            ranger_strategy_files_source = target_folder
+        else:
+            # print("using default ranger strategy files")
+            ranger_strategy_files_source = os.path.join("trajectory_analysis/ranger-locations")
+        shutil.copytree(ranger_strategy_files_source, os.path.join(self.folder_root, "env", "ranger_strategy"))
 
         self.DEM = self.DEM_study_area()
         self.SLOPE = self.SLOPE_study_area()
@@ -2250,17 +2257,17 @@ class conflict_model(Model):
                 return data
             
             except Exception as e:
-                print(f"Error reading YAML file: {e}")
+                # print(f"Error reading YAML file: {e}")
                 return None
 
         try:
-            print("Reading ranger strategies from file")
+            # print("reading ranger strategies from file")
             experiments = read_experiment_data(os.path.join(str(pathlib.Path(folder).parent.parent), "guard_agent_placement_optimisation", "ranger_strategies_" + str(self.num_guards) + "rangers.yaml"))
             converged_experiments = [exp for exp in experiments if exp['convergence']]
             best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
             self.ranger_locations = best_experiment['ranger_locations']
-        except:
-            print("Randomly placing ranger agents")
+        except Exception as e:
+            # print("using default ranger strategies")
             experiments = read_experiment_data(os.path.join("trajectory_analysis/ranger-locations/random_ranger_strategies_" + str(self.num_guards) + "guards.yaml"))
             converged_experiments = [exp for exp in experiments if exp['convergence']]
             best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])

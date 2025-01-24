@@ -4,6 +4,7 @@ import sys
 sys.path.append(os.getcwd())
 
 from trajectory_analysis.rank_ordering.rank_order_trajectories import analyse_trajectories
+from trajectory_analysis.probability_maps.create_distribution_plots import create_distribution_maps
 
 model_params = {
     "year": 2010,
@@ -27,13 +28,11 @@ model_params = {
     "radius_forest_search": 1500,
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
-    "slope_tolerance": 40,
-    "num_processes": 8,
-    "iterations": 8,
+    "slope_tolerance": 30,
     "max_time_steps": 288*10,
     "aggression_threshold_enter_cropland": 1.0,
     "elephant_agent_visibility_radius": 500,
-    "plot_stepwise_target_selection": True,
+    "plot_stepwise_target_selection": False,
     "threshold_days_of_food_deprivation": 0,
     "threshold_days_of_water_deprivation": 3,
     "number_of_feasible_movement_directions": 3,
@@ -68,6 +67,18 @@ output_folder = os.path.join(experiment_name, starting_location, elephant_catego
                                 str(model_params["year"]), str(model_params["month"]))
 
 if __name__ == "__main__":
+
     random_analysis = analyse_trajectories(output_folder)
-    random_analysis.main()
+    random_analysis.read_all_experiments()
+    random_analysis.rank_order_trajectories(save_dataframe=True)
+    random_analysis.filter_data(experiments=40, start_step=0, end_step = 2880, create_plots=True)
+    random_analysis.plot_all_trajectories_with_fitness(start_step=0, end_step = 2880)
+    
+    create_plots = create_distribution_maps(
+                            num_best_trajs = 50,
+                            expt_folder = output_folder)
+    create_plots.filter_daily_trajectory_data()
+    create_plots.plot_daily_hotspots_kde_95(save_plots=True)
+    create_plots.identify_hotspots_DBSCAN()
+    create_plots.plot_hotspots_DBSCAN()
 

@@ -933,6 +933,7 @@ class optimise_ranger_locations():
         return ranger_payoffs  
 
     def save_strategies_to_yaml(self, strategies, filename):
+        
         """Clean and save ranger strategies in readable YAML format."""
         clean_strategies = []
         

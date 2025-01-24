@@ -1304,8 +1304,7 @@ class Elephant(GeoAgent):
         self.target_lon, self.target_lat = lon, lat
         self.target_present = True
 
-        if (self.danger_to_life==True and self.conflict_with_humans==True):    
-
+        if self.danger_to_life==True and self.conflict_with_humans==True and self.model.plot_stepwise_target_selection == True:    
             self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "escape_target_v1", filter, x, y)
 
         return
@@ -1468,8 +1467,7 @@ class Elephant(GeoAgent):
         self.target_lon, self.target_lat = lon, lat
         self.target_present = True
 
-        if (self.danger_to_life==True and self.conflict_with_humans==True):    
-
+        if self.danger_to_life==True and self.conflict_with_humans==True and self.model.plot_stepwise_target_selection == True:    
             self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "escape_target_v2", filter, x, y)
 
         return

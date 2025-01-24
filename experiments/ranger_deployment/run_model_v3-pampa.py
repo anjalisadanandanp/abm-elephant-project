@@ -23,14 +23,15 @@ from matplotlib import colors
 
 from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v3 import batch_run_model
 from trajectory_analysis.assign_payoff_rangers.optimise_ranger_locations import optimise_ranger_locations
+from experiments.ranger_deployment.experiment_names import FancyNameGenerator
 #------------importing libraries----------------#
 
 
 
 
 optimisation_args = {
-    "max_optimisation_steps": 4,
-    "num_best_trajs": 8,
+    "max_optimisation_steps": 6,
+    "num_best_trajs": 24,
 
 }
 
@@ -204,9 +205,9 @@ class Experiment:
                     
             return intersecting_trajs, non_intersecting_trajs
 
-        def plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs):
+        def plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs, ranger_locations):
 
-            fig, ax = plt.subplots(figsize=(10,10))
+            fig, ax = plt.subplots(figsize=(6.8,6.8))
             ax.yaxis.set_inverted(True)
 
             ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
@@ -277,7 +278,7 @@ class Experiment:
                                      "step" + str(step) + "_trajectories_with_ranger_locations__numrangers" + str(model_params["num_guards"]) + "_rangervisibility" + str(model_params["ranger_visibility_radius"]) + "m_v2.png"), 
                                      dpi=300, bbox_inches='tight')
 
-        def find_first_visible_entry(trajectory):
+        def find_first_visible_entry(trajectory, ranger_locations):
             
             first_visible_entries = None
         
@@ -334,10 +335,27 @@ class Experiment:
             assert total_time == len(trajectory), "Total time steps don't match trajectory length"
     
             return landuse_times
-    
-        def plot_trajectories_untill_ranger_intervention():
 
-            fig, ax = plt.subplots(figsize = (10,10))
+        def calculate_daily_landuse_time(trajectory, steps_per_day=288):
+            """Calculate landuse time for each day."""
+            
+            days = len(trajectory["longitude"]) // steps_per_day
+            daily_landuse = []
+            
+            for day in range(days):
+                start_idx = day * steps_per_day
+                end_idx = start_idx + steps_per_day
+                
+                day_trajectory = trajectory.iloc[start_idx:end_idx]
+                
+                landuse_times = calculate_landuse_time(day_trajectory)
+                daily_landuse.append(landuse_times)
+                
+            return daily_landuse
+        
+        def plot_trajectories_untill_ranger_intervention(trajectories, ranger_locations):
+
+            fig, ax = plt.subplots(figsize = (6.8, 6.8))
             ax.yaxis.set_inverted(True)
 
             ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
@@ -373,7 +391,7 @@ class Experiment:
 
             for i, traj in enumerate(trajectories):
 
-                first_visible_entry = find_first_visible_entry(traj)
+                first_visible_entry = find_first_visible_entry(traj, ranger_locations)
 
                 if first_visible_entry is not None:
                     data = traj.iloc[:first_visible_entry + 1]
@@ -407,6 +425,125 @@ class Experiment:
 
             return
 
+        def calculate_average_plantation_usage(trajectories):
+            #cost: average number of time steps spent in the crop fields
+
+            plantation_usage = 0
+            for traj in trajectories:
+                landuse_times = calculate_landuse_time(traj)[7]
+                plantation_usage += landuse_times
+            average_usage = plantation_usage/len(trajectories)
+
+            print("Number of intersecting trajectories:", len(intersecting_trajs), "Number of non-intersecting trajectories:", len(non_intersecting_trajs), "Average Plantation Usage:", average_usage)
+
+            return average_usage
+
+        def is_df_in_list(target_df, df_list):
+            return any(target_df.equals(df) for df in df_list)
+
+        def sort_trajectories(trajectory_payoffs, trajectories, make_plots=True, name="v1"):
+
+            """Sort trajectories based on payoffs."""
+
+            pairs = list(zip(trajectory_payoffs, trajectories))
+            sorted_pairs = sorted(pairs, key=lambda x: x[0], reverse=True)
+            
+            trajs_with_best_payoffs = [traj for _, traj in sorted_pairs]
+            payoffs = [payoff for payoff,_ in sorted_pairs]
+
+            if make_plots:
+
+                fig, ax = plt.subplots(figsize=(6.8,6.8))
+                ax.yaxis.set_inverted(True)
+                
+                ds = gdal.Open(os.path.join("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"))
+                data_LULC = ds.ReadAsArray()
+                data_LULC = np.flip(data_LULC, axis=0)
+
+                data_value_map = {1:1, 2:3, 3:4, 4:5, 5:6, 6:9, 7:10, 8:14, 9:15}
+
+                for i in range(1,10):
+                    data_LULC[data_LULC == data_value_map[i]] = i
+
+                row_size, col_size = data_LULC.shape
+                xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
+                
+                outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
+                LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
+                LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+
+                map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+                levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
+                clrs = ["greenyellow","mediumpurple","turquoise", "plum", "black", "blue", "yellow", "mediumseagreen", "forestgreen"] 
+                cmap, norm = colors.from_levels_and_colors(levels, clrs)
+
+                map.imshow(data_LULC, cmap = cmap, norm=norm, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 0.5)
+
+                map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+                map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+                cbar = plt.colorbar(ticks=[1,2,3,4,5,6,7,8,9],fraction=0.046, pad=0.04)
+                cbar.ax.set_yticks(ticks=[1,2,3,4,5,6,7,8,9]) 
+                cbar.ax.set_yticklabels(["Deciduous Broadleaf Forest","Built-up Land","Mixed Forest","Shrubland","Barren Land","Water Bodies","Plantations","Grassland","Broadleaf evergreen forest"])
+                
+                payoff_colors = plt.cm.RdYlGn_r((trajectory_payoffs - min(trajectory_payoffs)) / 
+                                                (max(trajectory_payoffs) - min(trajectory_payoffs)))
+
+                for data, payoff, color in zip(trajs_with_best_payoffs, payoffs, payoff_colors):
+
+                    longitude, latitude = transform(inProj, outProj, data["longitude"], data["latitude"])
+                    x_new, y_new = map(longitude, latitude)
+                    
+                    ax.quiver(x_new[:-1], y_new[:-1],
+                            x_new[1:]-x_new[:-1], y_new[1:]-y_new[:-1],
+                            scale_units='xy', angles='xy', 
+                            scale=1, zorder=int(payoff*10), color=color, width=0.0025)
+                    
+                    ax.scatter(x_new[0], y_new[0], 25, marker='o', color='black', zorder=int(payoff*10))
+                    ax.scatter(x_new[-1], y_new[-1], 25, marker='^', color='black', zorder=int(payoff*10))
+
+                sm = plt.cm.ScalarMappable(cmap=plt.cm.RdYlGn_r, 
+                                            norm=plt.Normalize(min(trajectory_payoffs), 
+                                                            max(trajectory_payoffs)))
+                cax2 = fig.add_axes([0.2, 0.05, 0.6, 0.02]) 
+                cbar2 = plt.colorbar(sm, cax=cax2, orientation='horizontal')
+                cbar2.set_label('payoffs')
+
+                plt.savefig(os.path.join(pathlib.Path(data_folder).parent, "strategy_evaluation_files", 
+                                                    "step" + str(step) + "_trajectories_with_payoffs" + "_" + name + ".png"),
+                                                    dpi=300, bbox_inches='tight'),
+
+                plt.close()
+
+            return trajs_with_best_payoffs, payoffs
+            
+        def assign_payoffs_v1(trajectories, ranger_locations, cost):
+
+            trajectory_payoffs = []
+
+            intersecting_trajs, non_intersecting_trajs = filter_trajectories_in_ranger_radius(trajectories, ranger_locations)
+
+            for i, traj in enumerate(trajectories):
+                daily_landuse_time = calculate_daily_landuse_time(traj)
+                daily_food_consumed = traj["food_consumed"][::288].values[1:]
+                trajectory_fitness = traj["fitness"][::288].values[-1]
+                plantation_use_time =[day[7] for day in daily_landuse_time]
+
+                if is_df_in_list(traj, intersecting_trajs):
+                    for plantation_use, food in zip(plantation_use_time, daily_food_consumed):
+                        if plantation_use > 0:
+                            trajectory_fitness -= cost
+
+                elif is_df_in_list(traj, non_intersecting_trajs):
+                    for plantation_use, food in zip(plantation_use_time, daily_food_consumed):
+                        if plantation_use > 0 and food >= traj["daily_dry_matter_intake"].unique()[0]:
+                            trajectory_fitness += cost
+
+                trajectory_payoffs.append(trajectory_fitness)
+
+            return trajectory_payoffs
+        
         folders = [f for f in os.listdir(data_folder) if os.path.isdir(os.path.join(data_folder, f))]
 
         trajectories = []
@@ -428,18 +565,16 @@ class Experiment:
         intersecting_trajs, non_intersecting_trajs = filter_trajectories_in_ranger_radius(trajectories, ranger_locations)
         
         if make_plots:
-            plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs)
-            plot_trajectories_untill_ranger_intervention()
+            plot_filtered_trajectories(intersecting_trajs, non_intersecting_trajs, ranger_locations)
+            plot_trajectories_untill_ranger_intervention(trajectories, ranger_locations)
 
-        cost = 0
-        for traj in trajectories:
-            landuse_times = calculate_landuse_time(traj)[7]
-            cost += landuse_times
-        avg_cost = cost/len(trajectories)
+        average_usage = calculate_average_plantation_usage(trajectories)
 
-        print("Number of intersecting trajectories:", len(intersecting_trajs), "Number of non-intersecting trajectories:", len(non_intersecting_trajs), "Average cost:", avg_cost)
+        trajectory_payoffs = assign_payoffs_v1(trajectories, ranger_locations, cost=0.05)
 
-        return avg_cost
+        sorted_trajectories, sorted_payoffs = sort_trajectories(trajectory_payoffs, trajectories, make_plots=True, name="v1")
+
+        return average_usage, sorted_trajectories, sorted_payoffs
 
     def run_experiment(self, send_notification):
 
@@ -449,7 +584,9 @@ class Experiment:
 
         start = time.time()
 
-        experiment_name = "ranger-deployment-v1"
+        generator = FancyNameGenerator()
+        experiment_name = generator.generate_name()
+
 
         if model_params_all["track_in_mlflow"] == True:
             try:
@@ -460,8 +597,6 @@ class Experiment:
         param_dicts = generate_parameter_combinations(model_params_all)
 
         for model_params in param_dicts:
-
-            experiment_name = "ranger-deployment-v2"
 
             elephant_category = "solitary_bulls"
             starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
@@ -477,7 +612,7 @@ class Experiment:
             num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
             elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
-            cost = []
+            average_plantation_usage = []
 
             for step in range(1, optimisation_args["max_optimisation_steps"]+1):
 
@@ -499,9 +634,10 @@ class Experiment:
 
 
 
-                #-----evaluate the effectiveness of the ranger placement-----#
-                cost.append(self.evaluate_trajectories_v1(data_folder, model_params, step, make_plots=True))
-                #-----evaluate the effectiveness of the ranger placement-----#
+                #-----evaluate the effectiveness of the trajectories and ranger placement-----#
+                average_plantation_usage_step, sorted_trajectories, sorted_payoffs = self.evaluate_trajectories_v1(data_folder, model_params, step, make_plots=True)
+                average_plantation_usage.append(average_plantation_usage_step)
+                #-----evaluate the effectiveness of the trajectories and ranger placement-----#
 
 
 
@@ -534,12 +670,12 @@ class Experiment:
 
             #--------plotting the cost vs step------------#
             fig, ax = plt.subplots(figsize=(6.5, 4.5))
-            ax.plot(range(1, optimisation_args["max_optimisation_steps"]+1), cost, marker='o', color='blue', label='Cost')
+            ax.plot(range(1, optimisation_args["max_optimisation_steps"]+1), average_plantation_usage, marker='o', color='blue', label='average plantation usage')
             ax.set_xlabel('Step')
-            ax.set_ylabel('Cost')
-            ax.set_title('Cost vs Step')
+            ax.set_ylabel('Average Plantation Usage (time steps)')
             ax.legend()
-            plt.savefig(os.path.join(pathlib.Path(data_folder).parent, "strategy_evaluation_files", "cost_vs_step.png"), dpi=300, bbox_inches='tight')
+            plt.grid()
+            plt.savefig(os.path.join(pathlib.Path(data_folder).parent, "strategy_evaluation_files", "average_plantation_usage_vs_step.png"), dpi=300, bbox_inches='tight')
             plt.close()
             #--------plotting the cost vs step------------#
 
@@ -573,5 +709,5 @@ class Experiment:
 
 if __name__ == "__main__":
     experiment = Experiment("anjalisadanandan96@gmail.com", "fqdceolumrwtnmxo")
-    experiment.run_experiment(send_notification=False)
+    experiment.run_experiment(send_notification=True)
     

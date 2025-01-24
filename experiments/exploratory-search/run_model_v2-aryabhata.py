@@ -4,7 +4,6 @@ import os
 import sys
 sys.path.append(os.getcwd())
 
-import pathlib
 import yaml
 import itertools
 import mlflow
@@ -40,15 +39,15 @@ model_params_all = {
     "radius_forest_search": 1500,
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
-    "slope_tolerance": [30],
+    "slope_tolerance": [30, 35],
     "num_processes": 32,
     "iterations": 96,
     "max_time_steps": 288*30,
     "aggression_threshold_enter_cropland": 1.0,
     "elephant_agent_visibility_radius": 500,
     "plot_stepwise_target_selection": False,
-    "threshold_days_of_food_deprivation": [0],
-    "threshold_days_of_water_deprivation": [3],
+    "threshold_days_of_food_deprivation": [0, 1, 2, 3],
+    "threshold_days_of_water_deprivation": [0, 1, 2, 3],
     "number_of_feasible_movement_directions": 3,
     "track_in_mlflow": False,
     "elephant_starting_location": "user_input",
@@ -133,8 +132,7 @@ def run_model(experiment_name, model_params):
                                  slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
                                  str(model_params["year"]), str(model_params["month"]))
     
-    path = pathlib.Path(output_folder)
-    path.mkdir(parents=True, exist_ok=True, mode=0o777)
+    os.makedirs(output_folder, exist_ok=True)
 
     with open(os.path.join(output_folder, 'model_parameters.yaml'), 'w') as configfile:
         yaml.dump(model_params, configfile, default_flow_style=False)

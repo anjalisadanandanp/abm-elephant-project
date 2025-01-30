@@ -11,9 +11,10 @@ import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 from matplotlib import colors
 from pyproj import Proj, transform
+import yaml
+import itertools
 
 import warnings
-
 warnings.filterwarnings("ignore")
 
 fontsize = 8
@@ -29,7 +30,107 @@ plt.rcParams.update(
     }
 )
 
+import sys
+sys.path.append(os.getcwd())
 
+from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v5 import (
+    batch_run_model
+)
+
+from experiments.ranger_deployment.experiment_names import FancyNameGenerator
+
+
+def generate_parameter_combinations(model_params_all):
+
+    month = model_params_all["month"]
+    max_food_val_forest = model_params_all["max_food_val_forest"]
+    prob_food_forest = model_params_all["prob_food_forest"]
+    prob_food_cropland = model_params_all["prob_food_cropland"]
+    thermoregulation_threshold = model_params_all["thermoregulation_threshold"]
+    threshold_days_food = model_params_all["threshold_days_of_food_deprivation"]
+    threshold_days_water = model_params_all["threshold_days_of_water_deprivation"]
+    prob_water_sources = model_params_all["prob_water_sources"]
+    num_days_agent_survives_in_deprivation = model_params_all[
+        "num_days_agent_survives_in_deprivation"
+    ]
+    slope_tolerance = model_params_all["slope_tolerance"]
+    elephant_aggression_value = model_params_all["elephant_aggression_value"]
+
+    combinations = list(
+        itertools.product(
+            month,
+            max_food_val_forest,
+            prob_food_forest,
+            prob_food_cropland,
+            thermoregulation_threshold,
+            threshold_days_food,
+            threshold_days_water,
+            prob_water_sources,
+            num_days_agent_survives_in_deprivation,
+            slope_tolerance,
+            elephant_aggression_value,
+        )
+    )
+
+    all_param_dicts = []
+    for combo in combinations:
+        params_dict = model_params_all.copy()
+
+        params_dict.update(
+            {
+                "month": combo[0],
+                "max_food_val_forest": combo[1],
+                "prob_food_forest": combo[2],
+                "prob_food_cropland": combo[3],
+                "thermoregulation_threshold": combo[4],
+                "threshold_days_of_food_deprivation": combo[5],
+                "threshold_days_of_water_deprivation": combo[6],
+                "prob_water_sources": combo[7],
+                "num_days_agent_survives_in_deprivation": combo[8],
+                "slope_tolerance": combo[9],
+                "elephant_aggression_value": combo[10],
+            }
+        )
+
+        all_param_dicts.append(params_dict)
+
+    return all_param_dicts
+
+
+def run_abm_without_rangers(experiment_name, model_params, output_folder, step=None, strategy=None):
+
+    path = pathlib.Path(output_folder)
+    path.mkdir(parents=True, exist_ok=True)
+
+    with open(os.path.join(output_folder, "model_parameters.yaml"), "w") as configfile:
+        yaml.dump(model_params, configfile, default_flow_style=False)
+
+    batch_run_model(model_params, experiment_name, output_folder, step, strategy)
+
+    return
+
+
+def run_abm_given_state_and_ranger_locations(experiment_name, model_params, output_folder, strategy, run_folder, **kwargs):
+
+    path = pathlib.Path(output_folder)
+    path.mkdir(parents=True, exist_ok=True)
+
+    for dictionary in kwargs.values():
+        model_params.update(dictionary)
+
+    with open(os.path.join(output_folder, "model_parameters.yaml"), "w") as configfile:
+        yaml.dump(model_params, configfile, default_flow_style=False)
+
+    batch_run_model(model_params=model_params, 
+                    experiment_name=experiment_name, 
+                    output_folder=output_folder, 
+                    strategy=strategy,
+                    run_folder_name=run_folder)
+
+    return
+
+
+    
 class LandUseRewards:
 
     def __init__(self, raster_path):
@@ -446,6 +547,7 @@ class LandUseRewards:
         interpolated=None,
         name=None,
         make_trajectory_plots=False,
+        save_location=None
     ):
         """Check if given coordinates intercept any targets and return rewards/penalties"""
         results = []
@@ -523,8 +625,8 @@ class LandUseRewards:
 
         strategy_df.to_csv(
             os.path.join(
-                os.getcwd(),
-                "game_theory_codes/game_rewards/outputs/strategy_"
+                save_location,
+                "strategy_"
                 + name
                 + "_rewards_and_penalties.csv",
             ),
@@ -555,8 +657,6 @@ class LandUseRewards:
             outProj, inProj = Proj(init="epsg:4326"), Proj(init="epsg:3857")
             LON_MIN, LAT_MIN = transform(inProj, outProj, xmin, ymax + yres * col_size)
             LON_MAX, LAT_MAX = transform(inProj, outProj, xmin + xres * row_size, ymax)
-
-            print(LON_MIN, LON_MAX, LAT_MIN, LAT_MAX)
 
             map = Basemap(
                 llcrnrlon=LON_MIN,
@@ -654,8 +754,8 @@ class LandUseRewards:
 
             plt.savefig(
                 os.path.join(
-                    os.getcwd(),
-                    "game_theory_codes/game_rewards/outputs/strategy_" + name + "_.png",
+                    save_location,
+                    "strategy_" + name + "_.png",
                 ),
                 dpi=300,
                 bbox_inches="tight",
@@ -663,8 +763,52 @@ class LandUseRewards:
 
         return strategy_df
 
+    def read_ranger_locations(self, path=os.path.join("trajectory_analysis/ranger-locations/random_ranger_strategies_3guards.yaml")):
+
+        def read_experiment_data(yaml_file_path):
+            try:
+                with open(yaml_file_path, 'r') as file:
+                    data = yaml.safe_load(file)
+                    
+                for experiment in data:
+                    experiment['ranger_locations'] = np.array(experiment['ranger_locations'])
+                    experiment['ranger_payoffs'] = np.array(experiment['ranger_payoffs'])
+                    
+                return data
+            
+            except Exception as e:
+                print(f"Error reading YAML file: {e}")
+                return None
+            
+        experiments = read_experiment_data(path)
+        converged_experiments = [exp for exp in experiments if exp['convergence']]
+        best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
+        self.ranger_locations = best_experiment['ranger_locations']
+        
+    def find_first_visible_entry(self, trajectory, ranger_visibility_radius):
+         
+        first_visible_entries = None
+    
+        for idx, row in trajectory.iterrows():
+            for ranger_location in self.ranger_locations:
+                distance = ((row['longitude'] - ranger_location[0])**2 + 
+                            (row['latitude'] - ranger_location[1])**2)**0.5
+                
+                if distance <= ranger_visibility_radius:
+                    first_visible_entries = idx
+                    return first_visible_entries
+                else:
+                    first_visible_entries = None
+
+        return first_visible_entries
+    
+    def get_elephant_agent_attributes(self, trajectory, idx):
+        return trajectory.iloc[idx]
+
+
 
 if __name__ == "__main__":
+
 
     raster_path = os.path.join(
         "mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"
@@ -694,19 +838,20 @@ if __name__ == "__main__":
         targets_df_attacker, interpolated, name="attacker"
     )
 
-    model_params = {
+
+    model_params_all = {
         "year": 2010,
-        "month": "Mar",
+        "month": ["Mar"],
         "num_bull_elephants": 1,
         "area_size": 1100,
         "spatial_resolution": 30,
         "max_food_val_cropland": 100,
-        "max_food_val_forest": 10,
-        "prob_food_forest": 0.10,
-        "prob_food_cropland": 0.10,
-        "prob_water_sources": 0.00,
-        "thermoregulation_threshold": 28,
-        "num_days_agent_survives_in_deprivation": 10,
+        "max_food_val_forest": [10],
+        "prob_food_forest": [0.10],
+        "prob_food_cropland": [0.10],
+        "prob_water_sources": [0.00],
+        "thermoregulation_threshold": [28],
+        "num_days_agent_survives_in_deprivation": [10],
         "knowledge_from_fringe": 1500,
         "prob_crop_damage": 0.05,
         "prob_infrastructure_damage": 0.01,
@@ -716,109 +861,222 @@ if __name__ == "__main__":
         "radius_forest_search": 1500,
         "fitness_threshold": 0.4,
         "terrain_radius": 750,
-        "slope_tolerance": 30,
+        "slope_tolerance": [30],
+        "num_processes": 8,
+        "iterations": 32,
         "max_time_steps": 288 * 10,
         "aggression_threshold_enter_cropland": 1.0,
-        "elephant_agent_visibility_radius": 500,
+        "human_habituation_tolerance": 1.0,
+        "elephant_agent_visibility_radius": 1000,
         "plot_stepwise_target_selection": False,
-        "threshold_days_of_food_deprivation": 0,
-        "threshold_days_of_water_deprivation": 3,
+        "threshold_days_of_food_deprivation": [0],
+        "threshold_days_of_water_deprivation": [3],
         "number_of_feasible_movement_directions": 3,
         "track_in_mlflow": False,
         "elephant_starting_location": "user_input",
         "elephant_starting_latitude": 1049237,
         "elephant_starting_longitude": 8570917,
-        "elephant_aggression_value": 0.8,
+        "elephant_aggression_value": [0.8],
         "elephant_crop_habituation": False,
         "num_guards": 3,
-        "ranger_visibility_radius": 500,
+        "ranger_visibility_radius": 1000,
     }
 
-    experiment_name = "ranger-deployment-within-plantations"
+    param_dicts = generate_parameter_combinations(model_params_all)
 
-    elephant_category = "solitary_bulls"
-    starting_location = (
-        "latitude-"
-        + str(model_params["elephant_starting_latitude"])
-        + "-longitude-"
-        + str(model_params["elephant_starting_longitude"])
-    )
-    landscape_food_probability = (
-        "landscape-food-probability-forest-"
-        + str(model_params["prob_food_forest"])
-        + "-cropland-"
-        + str(model_params["prob_food_cropland"])
-    )
-    water_holes_probability = "water-holes-within-landscape-" + str(
-        model_params["prob_water_sources"]
-    )
-    memory_matrix_type = "random-memory-matrix-model"
-    num_days_agent_survives_in_deprivation = (
-        "num_days_agent_survives_in_deprivation-"
-        + str(model_params["num_days_agent_survives_in_deprivation"])
-    )
-    maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(
-        model_params["max_food_val_forest"]
-    )
-    elephant_thermoregulation_threshold = (
-        "thermoregulation-threshold-temperature-"
-        + str(model_params["thermoregulation_threshold"])
-    )
-    threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(
-        model_params["threshold_days_of_food_deprivation"]
-    )
-    threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(
-        model_params["threshold_days_of_water_deprivation"]
-    )
-    slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
-    num_days_agent_survives_in_deprivation = (
-        "num_days_agent_survives_in_deprivation-"
-        + str(model_params["num_days_agent_survives_in_deprivation"])
-    )
-    elephant_aggression_value = "elephant_aggression_value_" + str(
-        model_params["elephant_aggression_value"]
-    )
+    for model_params in param_dicts:
 
-    data_folder = os.path.join(
-        os.getcwd(),
-        "model_runs",
-        "exploratory-search-ID-01",
-        starting_location,
-        elephant_category,
-        landscape_food_probability,
-        water_holes_probability,
-        memory_matrix_type,
-        num_days_agent_survives_in_deprivation,
-        maximum_food_in_a_forest_cell,
-        elephant_thermoregulation_threshold,
-        threshold_food_derivation_days,
-        threshold_water_derivation_days,
-        slope_tolerance,
-        num_days_agent_survives_in_deprivation,
-        elephant_aggression_value,
-        str(model_params["year"]),
-        str(model_params["month"]),
-    )
+        generator = FancyNameGenerator()
+        run_name = generator.generate_name()
+        experiment_name = "ranger-deployment-within-plantations/" + run_name
 
-    subfolders = [f.path for f in os.scandir(data_folder) if f.is_dir()]
+        elephant_category = "solitary_bulls"
 
-    subfolders = np.random.choice(subfolders, 10, replace=False)
-
-    for subfolder in subfolders:
-
-        output_file_path = os.path.join(subfolder, "output_files", "agent_data.csv")
-        output_file = pd.read_csv(output_file_path)
-
-        elephant_agent_data = output_file[output_file["AgentID"] == "bull_0"]
-        latitudes = elephant_agent_data["latitude"]
-        longitudes = elephant_agent_data["longitude"]
-
-        assign_rewards_and_penalties.check_target_interception(
-            latitudes,
-            longitudes,
-            targets_df_defender,
-            targets_df_attacker,
-            interpolated=interpolated,
-            name=pathlib.Path(subfolder).parts[-1],
-            make_trajectory_plots=True
+        starting_location = (
+            "latitude-"
+            + str(model_params["elephant_starting_latitude"])
+            + "-longitude-"
+            + str(model_params["elephant_starting_longitude"])
         )
+
+        landscape_food_probability = (
+            "landscape-food-probability-forest-"
+            + str(model_params["prob_food_forest"])
+            + "-cropland-"
+            + str(model_params["prob_food_cropland"])
+        )
+
+        water_holes_probability = "water-holes-within-landscape-" + str(
+            model_params["prob_water_sources"]
+        )
+
+        memory_matrix_type = "random-memory-matrix-model"
+
+        num_days_agent_survives_in_deprivation = (
+            "num_days_agent_survives_in_deprivation-"
+            + str(model_params["num_days_agent_survives_in_deprivation"])
+        )
+
+        maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(
+            model_params["max_food_val_forest"]
+        )
+
+        elephant_thermoregulation_threshold = (
+            "thermoregulation-threshold-temperature-"
+            + str(model_params["thermoregulation_threshold"])
+        )
+
+        threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(
+            model_params["threshold_days_of_food_deprivation"]
+        )
+
+        threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(
+            model_params["threshold_days_of_water_deprivation"]
+        )
+
+        slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
+        
+        num_days_agent_survives_in_deprivation = (
+            "num_days_agent_survives_in_deprivation-"
+            + str(model_params["num_days_agent_survives_in_deprivation"])
+        )
+
+        elephant_aggression_value = "elephant_aggression_value_" + str(
+            model_params["elephant_aggression_value"]
+        )
+
+        output_folder = os.path.join(
+            os.getcwd(),
+            "model_runs",
+            experiment_name,
+            "without_rangers",
+            starting_location,
+            elephant_category,
+            landscape_food_probability,
+            water_holes_probability,
+            memory_matrix_type,
+            num_days_agent_survives_in_deprivation,
+            maximum_food_in_a_forest_cell,
+            elephant_thermoregulation_threshold,
+            threshold_food_derivation_days,
+            threshold_water_derivation_days,
+            slope_tolerance,
+            num_days_agent_survives_in_deprivation,
+            elephant_aggression_value,
+            str(model_params["year"]),
+            str(model_params["month"])
+        )
+
+        path = pathlib.Path(output_folder)
+        path.mkdir(parents=True, exist_ok=True)
+
+        run_abm_without_rangers(
+            experiment_name, model_params, output_folder
+        )
+        
+        subfolders = [f.path for f in os.scandir(output_folder) if f.is_dir()]
+
+        for subfolder in subfolders:
+
+            subfolder_name = pathlib.Path(subfolder).parts[-1]
+
+            output_folder = os.path.join(
+                os.getcwd(),
+                "model_runs",
+                experiment_name,
+                "with_rangers",
+                starting_location,
+                elephant_category,
+                landscape_food_probability,
+                water_holes_probability,
+                memory_matrix_type,
+                num_days_agent_survives_in_deprivation,
+                maximum_food_in_a_forest_cell,
+                elephant_thermoregulation_threshold,
+                threshold_food_derivation_days,
+                threshold_water_derivation_days,
+                slope_tolerance,
+                num_days_agent_survives_in_deprivation,
+                elephant_aggression_value,
+                str(model_params["year"]),
+                str(model_params["month"]),
+                subfolder_name
+            )
+
+            output_file_path = os.path.join(subfolder, "output_files", "agent_data.csv")
+            output_file = pd.read_csv(output_file_path)
+
+            elephant_agent_data = output_file[output_file["AgentID"] == "bull_0"]
+            latitudes = elephant_agent_data["latitude"]
+            longitudes = elephant_agent_data["longitude"]
+
+            path = pathlib.Path(output_folder)
+            path.mkdir(parents=True, exist_ok=True)
+            
+            strategy_rewards_and_penalties = assign_rewards_and_penalties.check_target_interception(
+                latitudes,
+                longitudes,
+                targets_df_defender,
+                targets_df_attacker,
+                interpolated=interpolated,
+                name=subfolder_name,
+                make_trajectory_plots=True,
+                save_location=output_folder
+            )
+
+            assign_rewards_and_penalties.read_ranger_locations()
+
+            first_entry = assign_rewards_and_penalties.find_first_visible_entry(elephant_agent_data, model_params["ranger_visibility_radius"])
+
+            if first_entry != None:
+
+                elephant_agent_state = assign_rewards_and_penalties.get_elephant_agent_attributes(elephant_agent_data, first_entry)
+                run_state = {"elephant_fitness": float(elephant_agent_state["fitness"]),
+                             "elephant_mode": str(elephant_agent_state["mode"]),
+                             "daily_dry_matter_intake": float(elephant_agent_state["daily_dry_matter_intake"]),
+                             "food_consumed": float(elephant_agent_state["food_consumed"]),
+                             "visit_water_source": bool(elephant_agent_state["visit_water_source"]),
+                             "num_days_water_source_visit": int(elephant_agent_state["num_days_water_source_visit"]),
+                             "num_days_food_depreceation": int(elephant_agent_state["num_days_food_depreceation"]),
+                             "elephant_starting_latitude":  float(elephant_agent_state["latitude"]),
+                             "elephant_starting_longitude":  float(elephant_agent_state["longitude"]),
+                             "restart": True,
+                             "max_time_steps": int(model_params["max_time_steps"] - first_entry)
+                             }
+                
+                run_abm_given_state_and_ranger_locations(experiment_name=experiment_name,
+                                                         model_params=model_params, 
+                                                         output_folder=output_folder, 
+                                                         strategy=subfolder_name, 
+                                                         run_folder=subfolder,
+                                                         kwargs=run_state)
+
+                subfolders = [f.path for f in os.scandir(output_folder) if f.is_dir()]
+
+                for subfolder in subfolders:
+
+                    subfolder_name = pathlib.Path(subfolder).parts[-1]
+
+                    output_file_path = os.path.join(subfolder, "output_files", "agent_data.csv")
+                    output_file = pd.read_csv(output_file_path)
+
+                    elephant_agent_data = output_file[output_file["AgentID"] == "bull_0"]
+                    latitudes = elephant_agent_data["latitude"]
+                    longitudes = elephant_agent_data["longitude"]
+
+                    strategy_rewards_and_penalties = assign_rewards_and_penalties.check_target_interception(
+                        latitudes,
+                        longitudes,
+                        targets_df_defender,
+                        targets_df_attacker,
+                        interpolated=interpolated,
+                        name=subfolder_name,
+                        make_trajectory_plots=True,
+                        save_location=output_folder
+                    )
+
+
+            else:
+                pass
+
+        

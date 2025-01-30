@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
-num_targets_to_protect = 10
-num_defender_resouces = 4
+
 
 
 def expected_utility_adversary(
-    defender_coverage_probability, adversary_payoffs, adversary_penaltys
+    defender_coverage_probability, adversary_payoffs, adversary_penaltys, num_targets_to_protect
 ):
     # returns the expected utility of the adversary for attacking each target
 
@@ -22,7 +22,7 @@ def expected_utility_adversary(
     return U
 
 
-def adversary_quantal_response(lamda, U):
+def adversary_quantal_response(lamda, U, num_targets_to_protect):
     # returns the quantal response of the adversary for attacking each target
 
     Q = np.zeros(num_targets_to_protect)
@@ -34,7 +34,7 @@ def adversary_quantal_response(lamda, U):
 
 
 def expected_utility_defender(
-    Q, defender_payoffs, defender_penaltys, defender_coverage_probability
+    Q, defender_payoffs, defender_penaltys, defender_coverage_probability, num_targets_to_protect
 ):
     # returns the expected utility of the defender for defending each target
 
@@ -66,21 +66,19 @@ def compute_gradient(
     defender_payoffs,
     defender_penaltys,
     lamda,
+    num_targets_to_protect
 ):
     """
     Compute gradient of defender's expected utility with respect to coverage probabilities
     """
 
     U_adv = expected_utility_adversary(
-        defender_coverage, adversary_payoffs, adversary_penaltys
+        defender_coverage, adversary_payoffs, adversary_penaltys, num_targets_to_protect
     )
 
-
-    Q = adversary_quantal_response(lamda, U_adv)
-
+    Q = adversary_quantal_response(lamda, U_adv, num_targets_to_protect)
 
     gradient = np.zeros(len(defender_coverage))
-
 
     exp_terms = np.exp(lamda * U_adv)
     sum_exp = np.sum(exp_terms)
@@ -115,8 +113,11 @@ def optimize_coverage(
     defender_payoffs,
     defender_penaltys,
     lamda,
+    num_targets_to_protect,
+    num_defender_resources,
     learning_rate=0.01,
     num_iterations=10000,
+
 ):
     """
     Optimize defender coverage using projected gradient descent
@@ -134,24 +135,21 @@ def optimize_coverage(
             defender_payoffs,
             defender_penaltys,
             lamda,
+            num_targets_to_protect
         )
-
 
         coverage = coverage + learning_rate * gradient
 
-
-        coverage = project_to_simplex(coverage, s=num_defender_resouces)
-
+        coverage = project_to_simplex(coverage, s=num_defender_resources)
 
         history.append(coverage.copy())
 
-
         U_adv = expected_utility_adversary(
-            coverage, adversary_payoffs, adversary_penaltys
+            coverage, adversary_payoffs, adversary_penaltys, num_targets_to_protect
         )
-        Q = adversary_quantal_response(lamda, U_adv)
+        Q = adversary_quantal_response(lamda, U_adv, num_targets_to_protect)
         U_def = expected_utility_defender(
-            Q, defender_payoffs, defender_penaltys, coverage
+            Q, defender_payoffs, defender_penaltys, coverage, num_targets_to_protect
         )
         utility_history.append(np.sum(U_def))
 
@@ -164,68 +162,94 @@ def optimize_coverage(
 
 
 
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-def generate_random_feasible_point(num_targets, num_resources):
+def generate_random_feasible_point(num_targets_to_protect, num_resources):
     """
     Generate a random feasible starting point where:
     - Each element is between 0 and 1
     - Sum equals num_resources
     """
-    x = np.random.random(num_targets)
+    x = np.random.random(num_targets_to_protect)
     return project_to_simplex(x, s=num_resources)
 
-def find_local_minimum(x0, adversary_payoffs, adversary_penaltys,
-                      defender_payoffs, defender_penaltys, lamda,
-                      learning_rate=0.01, max_iterations=1000):
+
+def find_local_minimum(
+    x0,
+    adversary_payoffs,
+    adversary_penaltys,
+    defender_payoffs,
+    defender_penaltys,
+    lamda,
+    num_targets_to_protect,
+    num_defender_resources,
+    learning_rate=0.01,
+    max_iterations=1000,
+):
     """
     Find local minimum starting from x0 using gradient descent
     Returns:
     - opt_value: optimal value found
     - opt_point: optimal point found
     """
+
     coverage, history, utility_history = optimize_coverage(
-        x0, adversary_payoffs, adversary_penaltys,
-        defender_payoffs, defender_penaltys, lamda,
-        learning_rate, max_iterations
+        x0,
+        adversary_payoffs,
+        adversary_penaltys,
+        defender_payoffs,
+        defender_penaltys,
+        lamda,
+        num_targets_to_protect,
+        num_defender_resources,
+        learning_rate,
+        max_iterations,
     )
-    
-    U_adv = expected_utility_adversary(coverage, adversary_payoffs, adversary_penaltys)
-    Q = adversary_quantal_response(lamda, U_adv)
-    U_def = expected_utility_defender(Q, defender_payoffs, defender_penaltys, coverage)
+
+    U_adv = expected_utility_adversary(coverage, adversary_payoffs, adversary_penaltys, num_targets_to_protect)
+    Q = adversary_quantal_response(lamda, U_adv, num_targets_to_protect)
+    U_def = expected_utility_defender(Q, defender_payoffs, defender_penaltys, coverage, num_targets_to_protect)
     final_utility_defender = np.sum(U_def)
     final_utility_adversary = np.sum(U_adv)
-    
-    return -final_utility_defender, final_utility_adversary, coverage  
 
-def brqr_multiple_starts(num_targets, num_resources, adversary_payoffs, adversary_penaltys,
-                        defender_payoffs, defender_penaltys, lamda, num_starts=10):
+    return -final_utility_defender, final_utility_adversary, coverage
+
+
+def brqr_multiple_starts(
+    num_targets_to_protect,
+    num_defender_resources,
+    adversary_payoffs,
+    adversary_penaltys,
+    defender_payoffs,
+    defender_penaltys,
+    lamda,
+    num_starts=10,
+):
     """
     Implement BRQR algorithm with multiple starting points
     """
-    opt_g = float('inf')  
+    opt_g = float("inf")
     x_opt = None
-    
 
     all_starts = []
     all_results = []
     all_values = []
     adversary_utility = []
-    
-    for i in range(num_starts):
 
-        x0 = generate_random_feasible_point(num_targets, num_resources)
+    for i in tqdm(range(num_starts)):
+
+        x0 = generate_random_feasible_point(num_targets_to_protect, num_defender_resources)
         all_starts.append(x0)
-        
 
         opt_i, final_utility_adversary, x_star = find_local_minimum(
-            x0, adversary_payoffs, adversary_penaltys,
-            defender_payoffs, defender_penaltys, lamda
+            x0,
+            adversary_payoffs,
+            adversary_penaltys,
+            defender_payoffs,
+            defender_penaltys,
+            lamda,
+            num_targets_to_protect,
+            num_defender_resources
         )
-        
+
         all_results.append(x_star)
         all_values.append(opt_i)
         adversary_utility.append(final_utility_adversary)
@@ -233,78 +257,109 @@ def brqr_multiple_starts(num_targets, num_resources, adversary_payoffs, adversar
         if opt_i < opt_g:
             opt_g = opt_i
             x_opt = x_star
-    
-    return -opt_g, x_opt, all_starts, all_results, all_values, adversary_utility 
+
+    return -opt_g, x_opt, all_starts, all_results, all_values, adversary_utility
 
 
-num_starts = 25
-lamda = 1
+if __name__ == "__main__":
 
-adversary_payoffs = [1, 4, 6, 1, 5, 7, 1, 4, 6, 1]  # payoff for each target
-adversary_penaltys = [-1, 0, -6, 0, -5, -8, 0, 0, -3, 0]  # penalty for each target
+    num_targets_to_protect = 10
+    num_defender_resources = 4
+    num_starts = 25
+    lamda = 1
 
-defender_payoffs = [1, 4, 6, 1, 5, 7, 1, 4, 6, 1]  # payoff for each target
-defender_penaltys = [-1, 0, -6, 0, -5, -8, 0, 0, -3, 0]  # penalty for each target
+    adversary_payoffs = [1, 4, 6, 1, 5, 7, 1, 4, 6, 1]  # payoff for each target
+    adversary_penaltys = [-1, 0, -6, 0, -5, -8, 0, 0, -3, 0]  # penalty for each target
 
+    defender_payoffs = [1, 4, 6, 1, 5, 7, 1, 4, 6, 1]  # payoff for each target
+    defender_penaltys = [-1, 0, -6, 0, -5, -8, 0, 0, -3, 0]  # penalty for each target
 
+    global_opt, global_x_opt, all_starts, all_results, all_values, adversary_utility = (
+        brqr_multiple_starts(
+            num_targets_to_protect,
+            num_defender_resources,
+            adversary_payoffs,
+            adversary_penaltys,
+            defender_payoffs,
+            defender_penaltys,
+            lamda,
+            num_starts,
+        )
+    )
 
+    plt.figure(figsize=(15, 5))
 
+    plt.subplot(1, 3, 1)
+    for i in range(num_starts):
+        plt.scatter(
+            range(num_targets_to_protect),
+            all_starts[i],
+            alpha=0.3,
+            marker="o",
+            label=f"Starting Points" if i == 0 else None,
+            s=1,
+            color="b",
+        )
+        plt.plot(
+            range(num_targets_to_protect), all_starts[i], "b--", linewidth=0.1, zorder=1
+        )
+        plt.scatter(
+            range(num_targets_to_protect),
+            all_results[i],
+            alpha=0.3,
+            marker="s",
+            label=f"Converged Results" if i == 0 else None,
+            s=1,
+            color="g",
+        )
+        plt.plot(
+            range(num_targets_to_protect),
+            all_results[i],
+            "g--",
+            linewidth=0.4,
+            zorder=1,
+        )
 
-global_opt, global_x_opt, all_starts, all_results, all_values, adversary_utility = brqr_multiple_starts(
-    num_targets_to_protect, num_defender_resouces,
-    adversary_payoffs, adversary_penaltys,
-    defender_payoffs, defender_penaltys,
-    lamda, num_starts
-)
+    plt.plot(
+        range(num_targets_to_protect),
+        global_x_opt,
+        "r-",
+        linewidth=2,
+        label="Global Best",
+        zorder=2,
+    )
+    plt.xlabel("Target")
+    plt.ylabel("Coverage Probability")
+    plt.title("Starting Points and Results")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
 
+    plt.subplot(1, 3, 2)
+    plt.plot(range(num_starts), -np.array(all_values), "bo-")
+    plt.axhline(y=global_opt, color="r", linestyle="--", label="Global Best")
+    plt.xlabel("Start Number")
+    plt.ylabel("Defender Expected Utility")
+    plt.title("Results from Different Starting Points")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
 
-plt.figure(figsize=(15, 5))
+    plt.subplot(1, 3, 3)
+    plt.plot(range(num_starts), np.array(adversary_utility), "bo-")
+    plt.xlabel("Start Number")
+    plt.ylabel("Adversary Expected Utility")
+    plt.title("Results from Different Starting Points")
+    plt.grid(True, alpha=0.3)
 
+    plt.tight_layout()
+    plt.show()
 
-plt.subplot(1, 3, 1)
-for i in range(num_starts):
-    plt.scatter(range(num_targets_to_protect), all_starts[i], 
-               alpha=0.3, marker='o', label=f'Starting Points' if i == 0 else None, s=1, color='b')
-    plt.plot(range(num_targets_to_protect), all_starts[i], 'b--', linewidth=0.1, zorder=1)
-    plt.scatter(range(num_targets_to_protect), all_results[i], 
-               alpha=0.3, marker='s', label=f'Converged Results' if i == 0 else None, s=1, color='g')
-    plt.plot(range(num_targets_to_protect), all_results[i], 'g--', linewidth=0.4, zorder=1)
+    print(f"\nGlobal best defender utility: {global_opt:.4f}")
+    print("Global best coverage strategy:", global_x_opt)
+    print("total number of defender resources:", sum(global_x_opt))
 
-plt.plot(range(num_targets_to_protect), global_x_opt, 'r-', linewidth=2, label='Global Best', zorder=2)
-plt.xlabel('Target')
-plt.ylabel('Coverage Probability')
-plt.title('Starting Points and Results')
-plt.grid(True, alpha=0.3)
-plt.legend()
-
-
-plt.subplot(1, 3, 2)
-plt.plot(range(num_starts), -np.array(all_values), 'bo-') 
-plt.axhline(y=global_opt, color='r', linestyle='--', label='Global Best')
-plt.xlabel('Start Number')
-plt.ylabel('Defender Expected Utility')
-plt.title('Results from Different Starting Points')
-plt.grid(True, alpha=0.3)
-plt.legend()
-
-
-plt.subplot(1, 3, 3)
-plt.plot(range(num_starts), np.array(adversary_utility), 'bo-')  
-plt.xlabel('Start Number')
-plt.ylabel('Adversary Expected Utility')
-plt.title('Results from Different Starting Points')
-plt.grid(True, alpha=0.3)
-
-plt.tight_layout()
-plt.show()
-
-
-print(f"\nGlobal best defender utility: {global_opt:.4f}")
-print("Global best coverage strategy:", global_x_opt)
-print("total number of defender resources:", sum(global_x_opt))
-
-
-U_final = expected_utility_adversary(global_x_opt, adversary_payoffs, adversary_penaltys)
-Q_final = adversary_quantal_response(lamda, U_final)
-print("\nAdversary's expected utilities under best strategy:", sum(U_final))
-print("\nAdversary's attack probabilities under best strategy:", Q_final)
+    U_final = expected_utility_adversary(
+        global_x_opt, adversary_payoffs, adversary_penaltys, num_targets_to_protect
+    )
+    Q_final = adversary_quantal_response(lamda, U_final, num_targets_to_protect)
+    print("\nAdversary's expected utilities under best strategy:", sum(U_final))
+    print("\nAdversary's attack probabilities under best strategy:", Q_final)

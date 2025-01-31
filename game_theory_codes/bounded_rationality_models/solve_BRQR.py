@@ -159,9 +159,6 @@ def optimize_coverage(
     return coverage, history, utility_history
 
 
-
-
-
 def generate_random_feasible_point(num_targets_to_protect, num_resources):
     """
     Generate a random feasible starting point where:

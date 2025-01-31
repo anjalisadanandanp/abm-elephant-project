@@ -8,15 +8,13 @@ import numpy as np
 
 from game_theory_codes.bounded_rationality_models.solve_BRQR import brqr_multiple_starts, expected_utility_adversary, adversary_quantal_response
 
-# game_result_loc = "model_runs/ranger-deployment-within-plantations/emerald_01-29-25__21-23"
-
 adversary_df = pd.read_csv("game_theory_codes/game_rewards/outputs/attacker_rewards_penalties.csv")
 defender_df = pd.read_csv("game_theory_codes/game_rewards/outputs/defender_rewards_penalties.csv")
 
 global num_targets_to_protect
 num_targets_to_protect = 438
 num_defender_resources = 10
-num_starts =10
+num_starts = 25
 lamda = 1
 
 adversary_payoffs = adversary_df["reward"].values

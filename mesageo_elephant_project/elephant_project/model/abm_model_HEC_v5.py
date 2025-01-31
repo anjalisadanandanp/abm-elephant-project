@@ -2342,20 +2342,15 @@ class conflict_model(Model):
                 with open(yaml_file_path, 'r') as file:
                     data = yaml.safe_load(file)
                     
-                for experiment in data:
-                    experiment['ranger_locations'] = np.array(experiment['ranger_locations'])
-                    experiment['ranger_payoffs'] = np.array(experiment['ranger_payoffs'])
-                    
                 return data
             
             except Exception as e:
                 print(f"Error reading YAML file: {e}")
                 return None
 
-        experiments = read_experiment_data(os.path.join("trajectory_analysis/ranger-locations/random_ranger_strategies_" + str(self.num_guards) + "guards.yaml"))
-        converged_experiments = [exp for exp in experiments if exp['convergence']]
-        best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
-        self.ranger_locations = best_experiment['ranger_locations']
+        experiments = read_experiment_data(os.path.join(os.getcwd(), "model_runs/", _experiment_name_, "guard_agent_placement_optimisation", "without_rangers", 'ranger_strategies_' + str(self.num_guards) + 'rangers.yaml'))
+
+        self.ranger_locations = experiments['ranger_locations']
 
         ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
         data = ds.ReadAsArray()
@@ -3088,6 +3083,7 @@ class conflict_model(Model):
 def batch_run_model(model_params, experiment_name, output_folder, step=None, strategy=None, run_folder_name=None):
 
     freeze_support()
+    print(experiment_name)
 
     global folder 
     folder = output_folder
@@ -3100,6 +3096,9 @@ def batch_run_model(model_params, experiment_name, output_folder, step=None, str
 
     global run_folder
     run_folder = run_folder_name
+
+    global _experiment_name_
+    _experiment_name_ = experiment_name
 
     if model_params["track_in_mlflow"] == True:
         mlflow.set_experiment(experiment_name)

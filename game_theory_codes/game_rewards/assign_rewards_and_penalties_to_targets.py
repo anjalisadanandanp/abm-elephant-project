@@ -38,6 +38,8 @@ from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v5 import (
 )
 
 from experiments.ranger_deployment.experiment_names import FancyNameGenerator
+from game_theory_codes.game_rewards.find_ranger_locations import optimise_ranger_locations
+from game_theory_codes.game_rewards.find_strategy_payoffs import return_cost
 
 
 def generate_parameter_combinations(model_params_all):
@@ -568,47 +570,21 @@ class LandUseRewards:
                 (attacker_payoff["row"] == y) & (attacker_payoff["col"] == x)
             ]
 
-            if not target_defender.empty and not target_attacker.empty:
+            if not target_defender.empty and not target_attacker.empty:  #if the elephant trajectory has intercepted a target
 
                 results.append(
                     {
                         "lat": lat,
                         "lon": lon,
                         "targetID": target_defender.iloc[0]["targetID"],
-                        "defender_reward": target_defender.iloc[0]["reward"],
+                        "defender_reward": 0,
                         "defender_penalty": target_defender.iloc[0]["penalty"],
-                        "attacker_reward": attacker_payoff.iloc[0]["reward"],
-                        "attacker_penalty": attacker_payoff.iloc[0]["penalty"],
+                        "attacker_reward": target_attacker.iloc[0]["reward"],
+                        "attacker_penalty": 0,
                     }
                 )
 
-            elif not target_defender.empty:
-                results.append(
-                    {
-                        "lat": lat,
-                        "lon": lon,
-                        "targetID": target_defender.iloc[0]["targetID"],
-                        "defender_reward": target_defender.iloc[0]["reward"],
-                        "defender_penalty": target_defender.iloc[0]["penalty"],
-                        "attacker_reward": None,
-                        "attacker_penalty": None,
-                    }
-                )
-
-            elif not target_attacker.empty:
-                results.append(
-                    {
-                        "lat": lat,
-                        "lon": lon,
-                        "targetID": target_attacker.iloc[0]["targetID"],
-                        "defender_reward": None,
-                        "defender_penalty": None,
-                        "attacker_reward": attacker_payoff.iloc[0]["reward"],
-                        "attacker_penalty": attacker_payoff.iloc[0]["penalty"],
-                    }
-                )
-
-            else:
+            else:     
                 results.append(
                     {
                         "lat": lat,
@@ -862,8 +838,8 @@ if __name__ == "__main__":
         "fitness_threshold": 0.4,
         "terrain_radius": 750,
         "slope_tolerance": [30],
-        "num_processes": 8,
-        "iterations": 32,
+        "num_processes": 2,
+        "iterations": 2,
         "max_time_steps": 288 * 10,
         "aggression_threshold_enter_cropland": 1.0,
         "human_habituation_tolerance": 1.0,
@@ -967,6 +943,8 @@ if __name__ == "__main__":
             str(model_params["month"])
         )
 
+        OUTPUT_FOLDER_withoutrangers = output_folder
+
         path = pathlib.Path(output_folder)
         path.mkdir(parents=True, exist_ok=True)
 
@@ -974,6 +952,19 @@ if __name__ == "__main__":
             experiment_name, model_params, output_folder
         )
         
+        strategy_output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, "guard_agent_placement_optimisation", "without_rangers")
+
+        path = pathlib.Path(strategy_output_folder)
+        path.mkdir(parents=True, exist_ok=True)
+
+        optimizer = optimise_ranger_locations(
+                                            num_rangers=model_params["num_guards"], 
+                                            ranger_visibility_radius=model_params["ranger_visibility_radius"], 
+                                            data_folder = output_folder, 
+                                            output_folder = strategy_output_folder)
+        
+        optimizer.optimize()
+
         subfolders = [f.path for f in os.scandir(output_folder) if f.is_dir()]
 
         for subfolder in subfolders:
@@ -1003,6 +994,8 @@ if __name__ == "__main__":
                 subfolder_name
             )
 
+            OUTPUT_FOLDER_withrangers = pathlib.Path(output_folder).parent
+
             output_file_path = os.path.join(subfolder, "output_files", "agent_data.csv")
             output_file = pd.read_csv(output_file_path)
 
@@ -1028,7 +1021,7 @@ if __name__ == "__main__":
 
             first_entry = assign_rewards_and_penalties.find_first_visible_entry(elephant_agent_data, model_params["ranger_visibility_radius"])
 
-            if first_entry != None:
+            if first_entry != None and int(model_params["max_time_steps"] - first_entry) > 0:
 
                 elephant_agent_state = assign_rewards_and_penalties.get_elephant_agent_attributes(elephant_agent_data, first_entry)
                 run_state = {"elephant_fitness": float(elephant_agent_state["fitness"]),
@@ -1075,8 +1068,17 @@ if __name__ == "__main__":
                         save_location=output_folder
                     )
 
-
             else:
+                print("Trajectory did not intercept the rangers!")
                 pass
+
+        NUM_TARGETS = 438
+
+        attacker_rewards_df = pd.read_csv("game_theory_codes/game_rewards/outputs/attacker_rewards_penalties.csv")
+        defender_rewards_df = pd.read_csv("game_theory_codes/game_rewards/outputs/defender_rewards_penalties.csv")
+
+        cost = return_cost(attacker_rewards_df, defender_rewards_df, OUTPUT_FOLDER_withoutrangers, OUTPUT_FOLDER_withrangers, NUM_TARGETS)
+        print(OUTPUT_FOLDER_withoutrangers, OUTPUT_FOLDER_withrangers)
+        print("COST:", cost)
 
         

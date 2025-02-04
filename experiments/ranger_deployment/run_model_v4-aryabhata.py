@@ -1304,5 +1304,5 @@ class Experiment:
 
 if __name__ == "__main__":
     experiment = Experiment("anjalisadanandan96@gmail.com", "fqdceolumrwtnmxo")
-    experiment.run_experiment(send_notification=False)
+    experiment.run_experiment(send_notification=True)
     

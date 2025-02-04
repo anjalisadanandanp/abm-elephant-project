@@ -417,8 +417,8 @@ class LandUseRewards:
         plt.close()
 
     def assign_defender_target_rewards_and_penalties_random(
-        self, target_value=10, interpolated=None
-    ):
+        self, target_value=10, interpolated=None):
+
         """Assign targetID, rewards and penalties for landuse cells"""
         if interpolated is None:
             raise ValueError("Interpolated matrix required")
@@ -764,6 +764,8 @@ class LandUseRewards:
                 bbox_inches="tight",
             )
 
+            plt.close()
+
         return strategy_df
 
     def read_ranger_locations(self, path=os.path.join("trajectory_analysis/ranger-locations/random_ranger_strategies_3guards.yaml")):
@@ -1085,7 +1087,8 @@ def plot_optimization_results(history):
    plt.legend()
    plt.title('Optimization Progress')
    plt.grid(True)
-   plt.show()
+   plt.savefig('game_theory_codes/game_rewards/outputs/optimization_results.png', bbox_inches='tight', dpi=300)
+   plt.close()
 
 
 
@@ -1123,9 +1126,9 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 30,
-            "num_processes": 2,
-            "iterations": 2,
-            "max_time_steps": 288 * 5,
+            "num_processes": 8,
+            "iterations": 32,
+            "max_time_steps": 288 * 10,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
             "elephant_agent_visibility_radius": 1000,
@@ -1145,7 +1148,7 @@ if __name__ == "__main__":
     
     generator = FancyNameGenerator()
     run_name = generator.generate_name()
-    experiment_name = "ranger-deployment-within-plantations-GA-optimisation/" + run_name
+    experiment_name = "ranger-deployment-within-plantations-GA-optimisation-03/" + run_name
 
     elephant_category = "solitary_bulls"
 
@@ -1227,11 +1230,11 @@ if __name__ == "__main__":
     optimizer = RangerOptimizer(
         num_rangers=model_params["num_guards"],
         data_folder=output_folder,
-        population_size=4,
-        generations=4
+        population_size=10,
+        generations=10
     )
 
-    population = optimizer.initialize_population()
+    population = optimizer.initialize_population_v2()
     best_solution = None
     best_fitness = float('-inf')
 
@@ -1250,7 +1253,7 @@ if __name__ == "__main__":
         
         parents = optimizer.select_parents(population, fitness_scores)
         offspring = optimizer.crossover(parents)
-        population = optimizer.mutate(offspring)
+        population = optimizer.mutate_v2(offspring)
 
     print(best_fitness, best_solution)
 

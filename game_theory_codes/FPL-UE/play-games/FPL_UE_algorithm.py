@@ -514,8 +514,7 @@ def select_defender_strategy(
     E: Set[np.ndarray],  # Set of exploration strategies
     estimated_reward: np.ndarray,  # Current estimated reward vector
     gamma: float,  # Exploration probability
-    eta: float,  
-    targets_df_defender: pd.DataFrame  # DataFrame containing target information
+    eta: float
     ) -> np.ndarray:
     """
     Selects a strategy based on the exploration-exploitation trade-off.
@@ -523,8 +522,6 @@ def select_defender_strategy(
 
     flag = np.random.random() < gamma 
 
-    # print("EXPLORATION PHASE" if flag else "EXPLOITATION PHASE")
-    
     if flag:  # Exploration of strategies
         strategies = list(E)
         v_t = strategies[np.random.randint(len(strategies))]
@@ -532,11 +529,11 @@ def select_defender_strategy(
     else:  # Exploitation of learned strategies
 
         n = len(estimated_reward)
-        z = np.random.exponential(scale=1/eta, size=n)
+        # z = np.random.exponential(scale=1/eta, size=n)
         
-        perturbed_reward = estimated_reward + z
+        perturbed_reward = estimated_reward
 
-        fig = plot_rewards_comparison(estimated_reward, z, perturbed_reward, eta)
+        # fig = plot_rewards_comparison(estimated_reward, z, perturbed_reward, eta)
 
         max_reward = float('-inf')
         best_strategy = None
@@ -544,11 +541,6 @@ def select_defender_strategy(
         for v in E:
 
             v = np.array(v)
-            protected_indices = np.where(v == 1)[0]
-            unprotected_indices = np.where(v == 0)[0]
-
-            protected_reward = sum(targets_df_defender.iloc[protected_indices]['reward'])
-            unprotected_penalty = sum(targets_df_defender.iloc[unprotected_indices]['penalty'])
             
             total_reward = np.dot(v, perturbed_reward) 
 
@@ -565,22 +557,24 @@ def update_estimated_reward(
     K: np.ndarray,
     attacker_strategy: np.ndarray,
     defender_strategy: np.ndarray,
-    targets_df_defender: pd.DataFrame
+    targets_df: pd.DataFrame
 ) -> np.ndarray:
     """
     Updates estimated rewards based on chosen strategy and actual rewards/penalties.
     """
 
-    updated_reward = estimated_reward.copy()
-
     attacker_strategy = np.array(attacker_strategy)
     defender_strategy = np.array(defender_strategy)
+
+    r = (targets_df['reward'] - targets_df['penalty']).values
+    r_t = [a * b for a, b in zip(attacker_strategy, r)]
+
+    updated_reward = estimated_reward.copy()
 
     protected_cells = np.where((defender_strategy == 1))[0]
     
     for idx in protected_cells:
-        reward = targets_df_defender.iloc[idx]['reward'] + targets_df_defender.iloc[idx]['penalty']
-        updated_reward[idx] += K[idx] * reward
+        updated_reward[idx] += K[idx] * r_t[idx]
     
     return updated_reward
 
@@ -596,7 +590,7 @@ def GR_algorithm(eta: float,
                  estimated_reward: np.ndarray, 
                  E: Set[np.ndarray], 
                  gamma: float, 
-                 targets_df_defender: pd.DataFrame) -> np.ndarray:
+                 targets_df: pd.DataFrame) -> np.ndarray:
     """
     Implements the GR (Geometric Resampling) Algorithm.
     """
@@ -606,7 +600,7 @@ def GR_algorithm(eta: float,
     
     while k <= M:
 
-        v_tilde = select_defender_strategy(E, estimated_reward, gamma, eta, targets_df_defender)
+        v_tilde = select_defender_strategy(E, estimated_reward, gamma, eta)
         
         for i in range(n):
             if k < M and v_tilde[i] == 1 and K[i] == 0:
@@ -621,14 +615,97 @@ def GR_algorithm(eta: float,
     
     return K
 
+def step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df):
 
+    attacker_strategy = np.array(attacker_strategy_i)
+    defender_strategy = np.array(defender_strategy_i)
 
+    r = (targets_df['reward'] - targets_df['penalty']).values
+    r_t = [a * b for a, b in zip(attacker_strategy, r)]
 
+    reward_01 = np.dot(defender_strategy, r_t)
+    reward_02 = np.dot(attacker_strategy, targets_df['penalty'].values)
 
+    return reward_01 + reward_02
 
+def calculate_best_strategy_v1(E, attacker_strategy):
 
+    max_reward = float('-inf')
+    best_strategy = None
 
+    attacker_strategy = np.array(attacker_strategy)
+    
+    for v in E:
 
+        v = np.array(v)
+
+        protected_indices = np.where(v == 1)[0]
+        unprotected_indices = np.where(v == 0)[0]
+
+        attacked_targets = np.where(np.array(attacker_strategy) == 1)[0]
+        attacked_but_not_protected = attacked_targets[np.isin(attacked_targets, unprotected_indices)]
+
+        protected_reward = sum(targets_df.iloc[protected_indices]['reward'])
+        unprotected_penalty = sum(targets_df.iloc[attacked_but_not_protected]['penalty'])
+
+        total_reward = protected_reward + unprotected_penalty
+
+        if total_reward > max_reward:
+            max_reward = total_reward
+            best_strategy = v
+    
+    return best_strategy
+
+def calculate_best_strategy_v2(E, attacker_strategy_history):
+    
+    max_reward = float('-inf')
+    best_strategy = None
+    
+    attack_counts = np.zeros(len(targets_df))
+    for strategy in attacker_strategy_history:
+        attack_counts += np.array(strategy)
+
+    for v in E:
+
+        v = np.array(v)
+        protected_indices = np.where(v == 1)[0]
+        unprotected_indices = np.where(v == 0)[0]
+        
+        weighted_rewards = targets_df['reward'] * attack_counts
+        protected_reward = sum(weighted_rewards[protected_indices])
+
+        for attacker_strategy in attacker_strategy_history:
+            attacked_targets = np.where(np.array(attacker_strategy) == 1)[0]
+            attacked_but_not_protected = attacked_targets[np.isin(attacked_targets, unprotected_indices)]
+            unprotected_penalty_i = sum(targets_df.iloc[attacked_but_not_protected]['penalty'])
+            total_reward = protected_reward + unprotected_penalty_i
+        
+        if total_reward > max_reward:
+            max_reward = total_reward
+            best_strategy = v
+    
+    return best_strategy
+
+def calculate_defender_regret(defender_strategy_history, attacker_strategy_history, best_hindsight_strategy):
+    
+    assert len(defender_strategy_history) == len(attacker_strategy_history)
+    max_steps = len(defender_strategy_history)
+
+    REGRET = 0
+
+    for step in range(max_steps):
+        attacker_strategy_i = attacker_strategy_history[step]
+        defender_strategy_i = defender_strategy_history[step]
+
+        r = (targets_df['reward'] - targets_df['penalty']).values
+        r_t = [a * b for a, b in zip(attacker_strategy_i, r)]
+
+        regret_i = np.dot(best_hindsight_strategy, r_t) - np.dot(defender_strategy_i, r_t)
+
+        REGRET += regret_i
+
+    return REGRET
+     
 
 
 # Test the implementation
@@ -643,28 +720,19 @@ if __name__ == "__main__":
     interpolated = assign_rewards_and_penalties.interpolate_matrix((10, 10))
     assign_rewards_and_penalties.plot_matrices(interpolated)
 
-    targets_df_defender = assign_rewards_and_penalties.assign_defender_target_rewards_and_penalties_random(
+    targets_df = assign_rewards_and_penalties.assign_defender_target_rewards_and_penalties_random(
         target_value=10, interpolated=interpolated
     )
     assign_rewards_and_penalties.plot_with_rewards(
-        targets_df_defender, interpolated, name="defender"
+        targets_df, interpolated, name="defender"
     )
 
-    targets_df_attacker = assign_rewards_and_penalties.assign_attacker_target_rewards_and_penalties_random(
-        target_value=10, interpolated=interpolated
-    )
-    assign_rewards_and_penalties.plot_with_rewards(
-        targets_df_attacker, interpolated, name="attacker"
-    )
-
-    assert len(targets_df_defender) == len(targets_df_attacker)
-
-    NUM_LANDSCAPE_CELLS = len(targets_df_attacker)  # Total number of landscape cells within the simulation extent
+    NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
     BUDGET_K = 2  # Maximum number of cells that can be protected by the defenders at every time-step
-    MAX_GAME_STEPS = 10  # Maximum number of time-steps in the game
-    gamma = 0.1  # Exploration/Exploitation Trade-off parameter
-    eta = 0.80  #reward perturbation parameter
-    M = 100
+    MAX_GAME_STEPS = 100  # Maximum number of time-steps in the game
+    gamma = 0.25  # Exploration/Exploitation Trade-off parameter
+    eta = 0  #reward perturbation parameter
+    M = 15
 
     # Generate all valid defender strategies
     E = generate_defender_strategies(NUM_LANDSCAPE_CELLS, BUDGET_K)
@@ -674,6 +742,12 @@ if __name__ == "__main__":
         print(f"Strategy {i + 1}: {strategy}")
 
     estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+
+    protected_rewards = []
+    attacked_penalties = []
+
+    defender_strategy_history = []
+    attacker_strategy_history = []
     
     for i in range(MAX_GAME_STEPS):
 
@@ -682,14 +756,23 @@ if __name__ == "__main__":
         attacker_strategy_i = select_random_strategy(E)
         print("Attacker strategy:", attacker_strategy_i)
         
-        defender_strategy_i = select_defender_strategy(E, estimated_reward, gamma, eta, targets_df_defender)
-
+        defender_strategy_i = select_defender_strategy(E, estimated_reward, gamma, eta)
         print(f"Selected strategy: {defender_strategy_i}")
+
         print(f"Number of cells protected: {int(sum(defender_strategy_i))}")
-        print(f"Protected target IDs: {targets_df_defender['targetID'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
+        print(f"Protected target IDs: {targets_df['targetID'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
 
-        K = GR_algorithm(eta, M, estimated_reward, E=E, gamma=gamma, targets_df_defender=targets_df_defender)
-        print("K values:", K)
+        print("Best strategy for defender for the current step:", calculate_best_strategy_v1(E, attacker_strategy_i))
 
-        estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df_defender)
-        
+        defender_strategy_history.append(defender_strategy_i)
+        attacker_strategy_history.append(attacker_strategy_i)
+
+        print("Best strategy for defender considering all attacker histories:", calculate_best_strategy_v2(E, attacker_strategy_history))
+
+        K = GR_algorithm(eta, M, estimated_reward, E=E, gamma=gamma, targets_df=targets_df)
+
+        estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
+
+        print("step utility for defender:", step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df))
+
+        print("Defender regret:", calculate_defender_regret(defender_strategy_history, attacker_strategy_history, calculate_best_strategy_v2(E, attacker_strategy_history)))

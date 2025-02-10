@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Set
+from typing import Set
 from itertools import combinations
 import os
 from osgeo import gdal
@@ -7,13 +7,8 @@ from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import pandas as pd
-import pathlib
-from mpl_toolkits.basemap import Basemap
-import matplotlib.colors as mcolors
-import matplotlib.cm as cm
 from matplotlib import colors
-from pyproj import Proj, transform
-import yaml
+import random
 
 
 
@@ -275,54 +270,37 @@ class LandUseRewards:
         )
         plt.close()
 
-    def assign_defender_target_rewards_and_penalties_random(
+    def assign_target_rewards_and_penalties_random(
         self, target_value=10, interpolated=None):
-
-        """Assign targetID, rewards and penalties for landuse cells"""
+        """
+        Assign targetID, rewards and penalties for landuse cells.
+        Ensures U_c_i > U_u_i for each target i, with values in [-0.5, 0.5]
+        """
         if interpolated is None:
             raise ValueError("Interpolated matrix required")
 
         target_cells = np.where(interpolated == target_value)
         n_targets = len(target_cells[0])
+        
+        uncovered_utilities = np.random.uniform(-0.5, 0.45, n_targets)
+        
+        covered_utilities = np.array([
+            np.random.uniform(uncovered_utilities[i] + 0.0001, 0.5)
+            for i in range(n_targets)
+        ])
 
         df = pd.DataFrame(
             {
                 "targetID": range(1, n_targets + 1),
                 "row": target_cells[0],
                 "col": target_cells[1],
-                "reward": np.random.uniform(1, 10, n_targets),
-                "penalty": np.random.uniform(-10, 0, n_targets),
+                "reward": covered_utilities,  # U_c_i
+                "penalty": uncovered_utilities,  # U_u_i
             }
         )
 
         df.to_csv(
-            "game_theory_codes/FPL-UE/outputs/defender_rewards_penalties.csv",
-            index=False,
-        )
-        return df
-
-    def assign_attacker_target_rewards_and_penalties_random(
-        self, target_value=10, interpolated=None
-    ):
-        """Assign targetID, rewards and penalties for landuse cells"""
-        if interpolated is None:
-            raise ValueError("Interpolated matrix required")
-
-        target_cells = np.where(interpolated == target_value)
-        n_targets = len(target_cells[0])
-
-        df = pd.DataFrame(
-            {
-                "targetID": range(1, n_targets + 1),
-                "row": target_cells[0],
-                "col": target_cells[1],
-                "reward": np.random.uniform(1, 10, n_targets),
-                "penalty": np.random.uniform(-10, 0, n_targets),
-            }
-        )
-
-        df.to_csv(
-            "game_theory_codes/FPL-UE/outputs/attacker_rewards_penalties.csv",
+            "game_theory_codes/FPL-UE/outputs/target_rewards_penalties.csv",
             index=False,
         )
         return df
@@ -360,7 +338,7 @@ class LandUseRewards:
                 ax1.text(
                     row["col"],
                     row["row"],
-                    f'{row["reward"]:.0f}',
+                    f'{row["reward"]:.1f}',
                     ha="center",
                     va="center",
                     color="black",
@@ -370,7 +348,7 @@ class LandUseRewards:
                 ax2.text(
                     row["col"],
                     row["row"],
-                    f'{row["penalty"]:.0f}',
+                    f'{row["penalty"]:.1f}',
                     ha="center",
                     va="center",
                     color="black",
@@ -425,6 +403,8 @@ class LandUseRewards:
                 bbox_inches="tight",
             )
             plt.close()
+
+        return
 
 
 
@@ -529,11 +509,12 @@ def select_defender_strategy(
     else:  # Exploitation of learned strategies
 
         n = len(estimated_reward)
-        # z = np.random.exponential(scale=1/eta, size=n)
+        z = np.random.exponential(scale=1/eta, size=n)
         
-        perturbed_reward = estimated_reward
+        perturbed_reward = estimated_reward + z
 
-        # fig = plot_rewards_comparison(estimated_reward, z, perturbed_reward, eta)
+        if random.random() < 0.01:
+            fig = plot_rewards_comparison(estimated_reward, z, perturbed_reward, eta)
 
         max_reward = float('-inf')
         best_strategy = None
@@ -589,8 +570,7 @@ def GR_algorithm(eta: float,
                  M: int, 
                  estimated_reward: np.ndarray, 
                  E: Set[np.ndarray], 
-                 gamma: float, 
-                 targets_df: pd.DataFrame) -> np.ndarray:
+                 gamma: float) -> np.ndarray:
     """
     Implements the GR (Geometric Resampling) Algorithm.
     """
@@ -639,19 +619,10 @@ def calculate_best_strategy_v1(E, attacker_strategy):
 
         v = np.array(v)
 
-        protected_indices = np.where(v == 1)[0]
-        unprotected_indices = np.where(v == 0)[0]
+        step_utility_defender_i = step_utility_defender(attacker_strategy, v, targets_df)
 
-        attacked_targets = np.where(np.array(attacker_strategy) == 1)[0]
-        attacked_but_not_protected = attacked_targets[np.isin(attacked_targets, unprotected_indices)]
-
-        protected_reward = sum(targets_df.iloc[protected_indices]['reward'])
-        unprotected_penalty = sum(targets_df.iloc[attacked_but_not_protected]['penalty'])
-
-        total_reward = protected_reward + unprotected_penalty
-
-        if total_reward > max_reward:
-            max_reward = total_reward
+        if step_utility_defender_i > max_reward:
+            max_reward = step_utility_defender_i
             best_strategy = v
     
     return best_strategy
@@ -668,20 +639,16 @@ def calculate_best_strategy_v2(E, attacker_strategy_history):
     for v in E:
 
         v = np.array(v)
-        protected_indices = np.where(v == 1)[0]
-        unprotected_indices = np.where(v == 0)[0]
-        
-        weighted_rewards = targets_df['reward'] * attack_counts
-        protected_reward = sum(weighted_rewards[protected_indices])
+
+        total_strategy_utilty = 0
 
         for attacker_strategy in attacker_strategy_history:
-            attacked_targets = np.where(np.array(attacker_strategy) == 1)[0]
-            attacked_but_not_protected = attacked_targets[np.isin(attacked_targets, unprotected_indices)]
-            unprotected_penalty_i = sum(targets_df.iloc[attacked_but_not_protected]['penalty'])
-            total_reward = protected_reward + unprotected_penalty_i
+
+            step_utility_defender_i = step_utility_defender(attacker_strategy, v, targets_df)
+            total_strategy_utilty += step_utility_defender_i
         
-        if total_reward > max_reward:
-            max_reward = total_reward
+        if total_strategy_utilty > max_reward:
+            max_reward = total_strategy_utilty
             best_strategy = v
     
     return best_strategy
@@ -691,7 +658,8 @@ def calculate_defender_regret(defender_strategy_history, attacker_strategy_histo
     assert len(defender_strategy_history) == len(attacker_strategy_history)
     max_steps = len(defender_strategy_history)
 
-    REGRET = 0
+    regret_i_hindsight = 0
+    regret_i = 0
 
     for step in range(max_steps):
         attacker_strategy_i = attacker_strategy_history[step]
@@ -700,54 +668,117 @@ def calculate_defender_regret(defender_strategy_history, attacker_strategy_histo
         r = (targets_df['reward'] - targets_df['penalty']).values
         r_t = [a * b for a, b in zip(attacker_strategy_i, r)]
 
-        regret_i = np.dot(best_hindsight_strategy, r_t) - np.dot(defender_strategy_i, r_t)
+        regret_i_hindsight += np.dot(best_hindsight_strategy, r_t)
 
-        REGRET += regret_i
+    for step in range(max_steps):
+        attacker_strategy_i = attacker_strategy_history[step]
+        defender_strategy_i = defender_strategy_history[step]
+
+        r = (targets_df['reward'] - targets_df['penalty']).values
+        r_t = [a * b for a, b in zip(attacker_strategy_i, r)]
+
+        regret_i += np.dot(defender_strategy_i, r_t)
+
+    REGRET = (regret_i_hindsight - regret_i)/max_steps
+
+    # print("best_hindsight_strategy: ",  regret_i_hindsight, "defender_strategy_i: ", regret_i, "REGRET: ", REGRET)
 
     return REGRET
      
+def plot_defender_regret(defender_regret_values):
 
+    regret_values = np.array(defender_regret_values)
+    steps = np.arange(1, len(regret_values) + 1)
+    
 
-# Test the implementation
-if __name__ == "__main__":
+    plt.figure(figsize=(6, 6))
+    plt.plot(steps, regret_values, 'b-', label='FPL-UE')
+    
+    plt.xlabel('Step')
+    plt.ylabel('Regret Value')
+    plt.title('Defender Regret Over Time')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend()
+    
+    plt.tight_layout()
 
-    raster_path = os.path.join(
-        "mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"
-    )
+    plt.savefig('game_theory_codes/FPL-UE/outputs/defender_regret_plot.png', dpi=300, bbox_inches='tight')
+    
+    plt.close()
 
-    assign_rewards_and_penalties = LandUseRewards(raster_path)
+    return
 
-    interpolated = assign_rewards_and_penalties.interpolate_matrix((10, 10))
-    assign_rewards_and_penalties.plot_matrices(interpolated)
+def plot_average_regret(average_regret, std_regret, num_plays):
+    steps = np.arange(1, len(average_regret) + 1)
+    
+    plt.figure(figsize=(8, 4))
+    
+    plt.plot(steps, average_regret, 'b-', label=f'Average Regret ({num_plays} plays)', linewidth=2)
+    
+    plt.fill_between(steps, 
+                     average_regret - std_regret, 
+                     average_regret + std_regret, 
+                     alpha=0.2, 
+                     color='b',
+                     label='±1 Standard Deviation')
+    
+    plt.xlabel('Step', fontsize=12)
+    plt.ylabel('Average Regret', fontsize=12)
+    plt.title(f'Average Defender Regret Over {num_plays} Plays', fontsize=14)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=10)
+    
+    final_avg_regret = average_regret[-1]
+    final_std_regret = std_regret[-1]
+    plt.annotate(f'Final Average Regret: {final_avg_regret:.2f} ± {final_std_regret:.2f}',
+                xy=(0.02, 0.95), 
+                xycoords='axes fraction',
+                bbox=dict(facecolor='white', alpha=0.8))
+    
+    plt.tight_layout()
+    plt.savefig('game_theory_codes/FPL-UE/outputs/average_defender_regret.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    return
 
-    targets_df = assign_rewards_and_penalties.assign_defender_target_rewards_and_penalties_random(
-        target_value=10, interpolated=interpolated
-    )
-    assign_rewards_and_penalties.plot_with_rewards(
-        targets_df, interpolated, name="defender"
-    )
+def run_multiple_plays(num_plays, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targets_df):
 
-    NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
-    BUDGET_K = 2  # Maximum number of cells that can be protected by the defenders at every time-step
-    MAX_GAME_STEPS = 100  # Maximum number of time-steps in the game
-    gamma = 0.25  # Exploration/Exploitation Trade-off parameter
-    eta = 0  #reward perturbation parameter
-    M = 15
+    all_plays_regret = np.zeros((num_plays, MAX_GAME_STEPS))
+    
+    for play in range(num_plays):
+        print(f"\n=== Starting Play {play + 1}/{num_plays} ===")
+        
+        estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+        defender_strategy_history = []
+        attacker_strategy_history = []
+        
+        for i in range(MAX_GAME_STEPS):
+            attacker_strategy_i = select_random_strategy(E)
+            defender_strategy_i = select_defender_strategy(E, estimated_reward, gamma, eta)
+            
+            defender_strategy_history.append(defender_strategy_i)
+            attacker_strategy_history.append(attacker_strategy_i)
+            
+            best_defender_strategy_t = calculate_best_strategy_v2(E, attacker_strategy_history)
+            
+            K = GR_algorithm(eta, M, estimated_reward, E=E, gamma=gamma)
+            estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
+            
+            regret_i = calculate_defender_regret(defender_strategy_history, attacker_strategy_history, best_defender_strategy_t)
+            all_plays_regret[play, i] = regret_i
+    
+    average_regret = np.mean(all_plays_regret, axis=0)
+    std_regret = np.std(all_plays_regret, axis=0)
+    
+    return average_regret, std_regret
 
-    # Generate all valid defender strategies
-    E = generate_defender_strategies(NUM_LANDSCAPE_CELLS, BUDGET_K)
-
-    print("Example strategies:")
-    for i, strategy in enumerate(list(E)[:5]):  
-        print(f"Strategy {i + 1}: {strategy}")
+def run_single_play(MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targets_df):
 
     estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
 
-    protected_rewards = []
-    attacked_penalties = []
-
     defender_strategy_history = []
     attacker_strategy_history = []
+
+    defender_regret_values = []
     
     for i in range(MAX_GAME_STEPS):
 
@@ -762,17 +793,82 @@ if __name__ == "__main__":
         print(f"Number of cells protected: {int(sum(defender_strategy_i))}")
         print(f"Protected target IDs: {targets_df['targetID'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
 
-        print("Best strategy for defender for the current step:", calculate_best_strategy_v1(E, attacker_strategy_i))
-
         defender_strategy_history.append(defender_strategy_i)
         attacker_strategy_history.append(attacker_strategy_i)
 
-        print("Best strategy for defender considering all attacker histories:", calculate_best_strategy_v2(E, attacker_strategy_history))
+        best_defender_strategy_i = calculate_best_strategy_v1(E, attacker_strategy_i)
 
-        K = GR_algorithm(eta, M, estimated_reward, E=E, gamma=gamma, targets_df=targets_df)
+        print("Best strategy for defender for the current step:", best_defender_strategy_i)
+
+        best_defender_strategy_t = calculate_best_strategy_v2(E, attacker_strategy_history)
+
+        print("Best strategy for defender considering all attacker histories:", best_defender_strategy_t)
+
+        K = GR_algorithm(eta, M, estimated_reward, E=E, gamma=gamma)
 
         estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
 
         print("step utility for defender:", step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df))
 
-        print("Defender regret:", calculate_defender_regret(defender_strategy_history, attacker_strategy_history, calculate_best_strategy_v2(E, attacker_strategy_history)))
+        regret_i = calculate_defender_regret(defender_strategy_history, attacker_strategy_history, best_defender_strategy_t)
+
+        print("Defender regret:", regret_i)
+
+        defender_regret_values.append(regret_i)
+
+    plot_defender_regret(defender_regret_values)
+
+    return  
+
+
+
+
+
+
+if __name__ == "__main__":
+
+    raster_path = os.path.join(
+        "mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"
+    )
+
+    assign_rewards_and_penalties = LandUseRewards(raster_path)
+
+    interpolated = assign_rewards_and_penalties.interpolate_matrix((8, 8))
+    assign_rewards_and_penalties.plot_matrices(interpolated)
+
+    targets_df = assign_rewards_and_penalties.assign_target_rewards_and_penalties_random(
+        target_value=10, interpolated=interpolated
+    )
+    assign_rewards_and_penalties.plot_with_rewards(
+        targets_df, interpolated, name="defender"
+    )
+
+    NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
+    BUDGET_K = 1  # Maximum number of cells that can be protected by the defenders at every time-step
+    MAX_GAME_STEPS = 1000  # Maximum number of time-steps in the game
+    gamma = 0.25  # Exploration/Exploitation Trade-off parameter
+    eta = 10  #reward perturbation parameter
+    M = 10
+
+    # Generate all valid defender strategies
+    E = generate_defender_strategies(NUM_LANDSCAPE_CELLS, BUDGET_K)
+
+    print("Example strategies:")
+    for i, strategy in enumerate(list(E)[:5]):  
+        print(f"Strategy {i + 1}: {strategy}")
+
+    # run_single_play(MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targets_df)
+
+    num_plays = 10 
+    average_regret, std_regret = run_multiple_plays(
+        num_plays=num_plays,
+        MAX_GAME_STEPS=MAX_GAME_STEPS,
+        NUM_LANDSCAPE_CELLS=NUM_LANDSCAPE_CELLS,
+        E=E,
+        M=M,
+        gamma=gamma,
+        eta=eta,
+        targets_df=targets_df
+    )
+
+    plot_average_regret(average_regret, std_regret, num_plays)

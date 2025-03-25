@@ -22,14 +22,6 @@ from experiments.ranger_deployment.experiment_names import FancyNameGenerator
 
 
 
-optimisation_args = {
-    "max_optimisation_steps": 6,
-    "num_best_trajs": 24,
-
-}
-
-
-
 
 model_params_all = {
     "year": 2010,

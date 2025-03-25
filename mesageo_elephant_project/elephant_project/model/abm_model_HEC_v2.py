@@ -1385,9 +1385,9 @@ class Elephant(GeoAgent):
         with rio.open(source) as src:
             ras_meta = src.profile
 
-        proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
-        with rio.open(proximity_loc, 'w', **ras_meta) as dst:
-            dst.write(np.array(self.proximity_to_food_sources).astype('float32'), 1)
+        # proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
+        # with rio.open(proximity_loc, 'w', **ras_meta) as dst:
+        #     dst.write(np.array(self.proximity_to_food_sources).astype('float32'), 1)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1625,7 +1625,7 @@ class conflict_model(Model):
         prob_food_cropland,                         #probability of food in the cropland
         prob_water_sources,                         #probability of water holes in the landscape
         thermoregulation_threshold,                 #threshold temperature for thermoregulation for the elephant agents
-        num_days_agent_survives_in_deprivation,          
+        num_days_agent_survives_in_deprivation,     #number of days an agent survives without food and water     
         knowledge_from_fringe,                      #distance from the fringe where elephants knows food availability within the crop fields
         prob_crop_damage,                           #probability of damaging crop if entered an agricultural field
         prob_infrastructure_damage,                 #probability of damaging infrastructure if entered a settlement area
@@ -1635,22 +1635,22 @@ class conflict_model(Model):
         radius_forest_search,                       #radius within which the elephant agent searches for forest
         fitness_threshold,                          #fitness threshold below which the elephant agent engages only in foraging activities
         terrain_radius,                             #parameter in terrain cost function
-        slope_tolerance,                                  #parameter in terrain cost function
+        slope_tolerance,                            #parameter in terrain cost function
         num_processes,                              #number of processes to run the simulation
         iterations,                                 #number of iterations to run the simulation
         max_time_steps,                             #maximum simulation time (in ticks)
         aggression_threshold_enter_cropland,        #aggression threshold for entering a cropland cell
-        elephant_agent_visibility_radius,           
-        plot_stepwise_target_selection,
-        threshold_days_of_food_deprivation,
-        threshold_days_of_water_deprivation,
-        number_of_feasible_movement_directions,
-        track_in_mlflow,
-        elephant_starting_location,
-        elephant_starting_latitude,
-        elephant_starting_longitude,
-        elephant_aggression_value,
-        elephant_crop_habituation
+        elephant_agent_visibility_radius,           #elephant agent visibility radius
+        plot_stepwise_target_selection,             #plot stepwise target selection
+        threshold_days_of_food_deprivation,         #threshold days of food deprivation
+        threshold_days_of_water_deprivation,        #threshold days of water deprivation
+        number_of_feasible_movement_directions,     #number of feasible movement directions
+        track_in_mlflow,                            #track the simulation in MLFlow
+        elephant_starting_location,                 #starting location of the elephant agents
+        elephant_starting_latitude,                 #starting latitude of the elephant agents
+        elephant_starting_longitude,                #starting longitude of the elephant agents
+        elephant_aggression_value,                  #aggression value of the elephant agents
+        elephant_crop_habituation                   #elephant crop habituation value
         ):
 
 

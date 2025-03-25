@@ -1,3 +1,6 @@
-/mesageo_elephant_project/elephant_project/experiment_setup_files/data_downloads
-run_env.txt
+*.pyc 
 model_runs/*
+mlruns/*
+
+
+

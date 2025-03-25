@@ -33,7 +33,7 @@ model_params_all = {
     "max_food_val_forest": [10, 20, 30, 40],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [0.00, 0.001, 0.005, 0.01],
+    "prob_water_sources": [0.0001, 0.0005, 0.05],
     "thermoregulation_threshold": [28, 32],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
@@ -145,6 +145,7 @@ class Experiment:
 
         generator = FancyNameGenerator()
         experiment_name = generator.generate_name()
+        experiment_name = "horizon_03-25-25__14-59"
 
 
         if model_params_all["track_in_mlflow"] == True:

@@ -25,7 +25,7 @@ import pathlib
 import warnings
 warnings.filterwarnings('ignore')
 
-os.chdir("/home2/anjali/GitHub/abm-elephant-project")
+# os.chdir("/home2/anjali/GitHub/abm-elephant-project")
 
 class optimise_ranger_locations():
 

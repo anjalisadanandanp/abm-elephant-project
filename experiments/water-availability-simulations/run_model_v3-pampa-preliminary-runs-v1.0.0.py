@@ -30,10 +30,10 @@ model_params_all = {
     "area_size": 1100,              
     "spatial_resolution": 30, 
     "max_food_val_cropland": 100,
-    "max_food_val_forest": [10, 20, 30, 40],
+    "max_food_val_forest": [25],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [0.0001, 0.0005, 0.05],
+    "prob_water_sources": [0.5],
     "thermoregulation_threshold": [28, 32],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
@@ -59,7 +59,7 @@ model_params_all = {
     "elephant_starting_location": "user_input",
     "elephant_starting_latitude": 1049237,
     "elephant_starting_longitude": 8570917,
-    "elephant_aggression_value": [0.8],
+    "elephant_aggression_value": [0.2, 0.8],
     "elephant_crop_habituation": False
     }
 
@@ -145,8 +145,6 @@ class Experiment:
 
         generator = FancyNameGenerator()
         experiment_name = generator.generate_name()
-        experiment_name = "horizon_03-25-25__14-59"
-
 
         if model_params_all["track_in_mlflow"] == True:
             try:
@@ -173,7 +171,7 @@ class Experiment:
             elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
 
-            data_folder = os.path.join(os.getcwd(), "model_runs", "water-availability-simulations", "preliminary-runs-v1.0.0", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+            data_folder = os.path.join(os.getcwd(), "model_runs", "water-availability-simulations", "only-river-water-availability", experiment_name, starting_location, elephant_category, landscape_food_probability, 
                                                 water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                                 elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,

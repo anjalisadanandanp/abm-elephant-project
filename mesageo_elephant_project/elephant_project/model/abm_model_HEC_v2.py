@@ -1593,6 +1593,7 @@ class environment():
 
         return
     #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def initialize_water_matrix_only_rivers(self):
         
         """The function initializes water matrix based on the simulation parameters"""
@@ -1668,7 +1669,7 @@ class environment():
     def main(self):
 
         self.initialize_food_matrix()
-        self.initialize_water_matrix_v1()
+        self.initialize_water_matrix_only_rivers()
 
         return
     #---------------------------------------------------------------------------------------------------------

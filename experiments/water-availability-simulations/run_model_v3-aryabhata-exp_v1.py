@@ -30,7 +30,7 @@ model_params_all = {
     "area_size": 1100,              
     "spatial_resolution": 30, 
     "max_food_val_cropland": 100,
-    "max_food_val_forest": [5, 10, 20, 30, 40],
+    "max_food_val_forest": [5, 15, 25],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
     "prob_water_sources": [1.0, 0.50, 0.10, 0.01],
@@ -59,7 +59,7 @@ model_params_all = {
     "elephant_starting_location": "user_input",
     "elephant_starting_latitude": 1049237,
     "elephant_starting_longitude": 8570917,
-    "elephant_aggression_value": [0.8],
+    "elephant_aggression_value": [0.2, 0.8],
     "elephant_crop_habituation": False
     }
 

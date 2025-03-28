@@ -102,12 +102,12 @@ class Elephant(GeoAgent):
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
         #----------------hoose the type of memory matrix initialization-------------------#
-        # self.initialize_food_memory_matrix_only_forest()
-        self.initialize_food_memory_matrix_random()
+        self.initialize_food_memory_matrix_only_forest()
+        # self.initialize_food_memory_matrix_random()
         # self.initialize_food_memory_matrix_with_knowledge_from_fringe()
         #---------------------------------------------------------------------------------#
-        # self.initialize_water_memory_matrix_only_forest()
-        self.initialize_water_memory_matrix_forest_and_croplands()
+        self.initialize_water_memory_matrix_only_forest()
+        # self.initialize_water_memory_matrix_forest_and_croplands()
         #---------------------------------------------------------------------------------#
 
         self.proximity_to_water_sources = self.model.calculate_proximity_map(landscape_matrix=self.water_memory_cells, target_class=1, name="water_sources")
@@ -227,7 +227,7 @@ class Elephant(GeoAgent):
 
         for i in range(0,self.model.row_size):
             for j in range(0,self.model.col_size):
-                if self.proximity_to_plantations[i][j] > 1:
+                if self.proximity_to_plantations[i][j] > 50:
                     if self.model.WATER[i][j] > 0:
                         water_memory_cells[i,j] = 1
                     

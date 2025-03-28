@@ -1553,7 +1553,7 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix(self):
+    def initialize_water_matrix_v1(self):
         
         """The function initializes water matrix based on the simulation parameters"""
         #Prob_water: probability of water being available in a given cell 
@@ -1593,11 +1593,82 @@ class environment():
 
         return
     #---------------------------------------------------------------------------------------------------------
+    def initialize_water_matrix_only_rivers(self):
+        
+        """The function initializes water matrix based on the simulation parameters"""
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        LULC = gdal.Open(fid).ReadAsArray()
+        rowmax, colmax = LULC.shape
+
+        water_matrix = np.zeros_like(LULC)
+
+        for i in range(0,rowmax):
+            for j in range(0,colmax):
+                if LULC[i,j]==9:
+                    if np.random.uniform(0,1) < self.prob_water_sources:
+                        water_matrix[i,j]=1
+
+        #saving the water matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        # make any necessary changes to raster properties, e.g.:
+        ras_meta['dtype'] = "int32"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(water_matrix.astype(int), 1)
+
+        return
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
+    def initialize_water_matrix_only_water_holes(self):
+        
+        """The function initializes water matrix based on the simulation parameters"""
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        LULC = gdal.Open(fid).ReadAsArray()
+        rowmax, colmax = LULC.shape
+
+        water_matrix = np.zeros_like(LULC)
+
+        for i in range(0,rowmax):
+            for j in range(0,colmax):
+                if np.random.uniform(0,1) < self.prob_water_sources:
+                    water_matrix[i,j]=1
+
+        #saving the water matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        # make any necessary changes to raster properties, e.g.:
+        ras_meta['dtype'] = "int32"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(water_matrix.astype(int), 1)
+        return
+    #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
         self.initialize_food_matrix()
-        self.initialize_water_matrix()
+        self.initialize_water_matrix_v1()
 
         return
     #---------------------------------------------------------------------------------------------------------

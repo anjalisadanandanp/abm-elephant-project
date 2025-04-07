@@ -243,7 +243,6 @@ class Elephant(GeoAgent):
 
         return
     #-------------------------------------------------------------------------------------------
-    #-------------------------------------------------------------------------------------------
     def initialize_water_memory_matrix_forest_and_croplands(self):
         """ Function that assigns memory matrix to elephants."""
 
@@ -1288,7 +1287,6 @@ class Elephant(GeoAgent):
         row_end = self.ROW + radius//2 + 1
         col_end = self.COL + radius//2 + 1
 
-        #To handle edge cases
         if self.ROW < radius:
             row_start = 0
 
@@ -1302,7 +1300,6 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         coord_list=[]
-        
         for i in range(row_start, row_end):
             for j in range(col_start, col_end):
                 if i == self.ROW and j == self.COL:
@@ -1312,7 +1309,7 @@ class Elephant(GeoAgent):
                     coord_list.append([i, j])
 
         if coord_list==[]:
-            coord_list.append([self.ROW,self.COL])
+            coord_list.append([self.ROW, self.COL])
             for _ in range(25):
 
                 radius = int(self.model.terrain_radius*2/self.model.xres)   

@@ -1,11 +1,8 @@
 import numpy as np
 import rasterio
-from scipy.ndimage import distance_transform_edt, binary_dilation, generate_binary_structure, sobel
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
 import random
 import os
-import pandas as pd
 import matplotlib.patches as mpatches
 from scipy.ndimage import distance_transform_edt
 
@@ -24,7 +21,6 @@ class DeterrentPolicyPlanner:
         self.crs = self.landuse_meta['crs']
         
         self.current_policy = None
-        self.policy_stats = None
     
     def _load_raster(self, path):
 
@@ -69,29 +65,29 @@ class DeterrentPolicyPlanner:
         
         return suitability
 
-    def _calculate_suitability_v1(self):
+    def _calculate_suitability_v1(self, w_border, w_roads, w_plantation, w_dem, w_slope):
 
         suitability = np.zeros(self.landuse.shape, dtype=np.float32)
         
         border_mask = self._detect_forest_plantation_border(buffer_size=self.forest_agricultural_boundary_buffer)
-        suitability += border_mask 
+        suitability += border_mask * w_border
         
         road_mask = self.roads > 0
         if np.any(road_mask):
             road_dist = distance_transform_edt(~road_mask) * self.landuse_meta['transform'][0]
             road_proximity = np.clip(1 - (road_dist / 500), 0, 1)
-            suitability += road_proximity 
+            suitability += road_proximity * w_roads
 
         plantation_mask = self.landuse == 10
-        suitability += plantation_mask
+        suitability += plantation_mask * w_plantation
         
         if self.dem.min() != self.dem.max():
             elevation_norm = (self.dem - self.dem.min()) / (self.dem.max() - self.dem.min())
             elevation_suitability = 1 - elevation_norm
-            suitability += elevation_suitability 
+            suitability += elevation_suitability * w_dem
 
         slope_suitability = (self.slope < 30).astype(np.float32)
-        suitability += slope_suitability 
+        suitability += slope_suitability *w_slope
         
         if suitability.max() > 0:
             suitability = suitability / suitability.max()
@@ -150,9 +146,9 @@ class DeterrentPolicyPlanner:
 
         return policy
 
-    def generate_clustered_policy(self, coverage_percentage, threshold=0.5):
+    def generate_clustered_policy(self, coverage_percentage, threshold, w_border, w_roads, w_plantation, w_dem, w_slope):
 
-        self.suitability = self._calculate_suitability_v1()
+        self.suitability = self._calculate_suitability_v1(w_border, w_roads, w_plantation, w_dem, w_slope)
 
         suitable_areas = self.suitability >= threshold
         
@@ -280,43 +276,84 @@ class DeterrentPolicyPlanner:
 
         return 
 
-    def make_policies(self, configs, output_dir=None):
+    def save_raster(self, output_path, reference_raster_path, nodata_value=-1, dtype=None):
+
+        data = self.current_policy
+        
+        with rasterio.open(reference_raster_path) as src:
+            transform = src.transform
+            crs = src.crs
+            
+            if dtype is None:
+                dtype = data.dtype
+            
+            if len(data.shape) == 2:
+                height, width = data.shape
+                count = 1
+            elif len(data.shape) == 3:
+                count, height, width = data.shape
+            else:
+                raise ValueError("Input data must be 2D (single band) or 3D (multi-band)")
+            
+            new_dataset = rasterio.open(
+                output_path,
+                'w',
+                driver='GTiff',
+                height=height,
+                width=width,
+                count=count,
+                dtype=dtype,
+                crs=crs,
+                transform=transform,
+                nodata=nodata_value
+            )
+            
+            if count == 1:
+                new_dataset.write(data, 1)
+            else:
+                for i in range(count):
+                    new_dataset.write(data[i], i+1)
+            
+            new_dataset.close()
+        
+    def make_policies(self, config, output_dir=None):
         
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
+
+        config_type = config.get('type', 'random')
+        coverage = config.get('coverage')
+        threshold = config.get('threshold')
+
+        if config_type == 'random':
+            policy = self.generate_random_policy(coverage, threshold)
+            title = f"Random Policy: ({coverage}% coverage at {threshold} suitability threshold)"
+            config_id = f"{config_type}__coverage_{coverage}__threshold_{threshold}"
         
-        for config in configs:
-
-            config_type = config.get('type', 'random')
-            coverage = config.get('coverage', 5)
-            threshold = config.get('threshold', 0.5)
-
-            if config_type == 'random':
-                policy = self.generate_random_policy(coverage, threshold)
-                title = f"Random Policy: ({coverage}% coverage at {threshold} suitability threshold)"
-                config_id = f"{config_type}__coverage_{coverage}__threshold_{threshold}"
-            
-            elif config_type == 'perimeter':
-                buffer_dist = config.get('buffer_distance', 100)
-                policy = self.generate_perimeter_policy(coverage, threshold)
-                title = f"Perimeter Policy ({coverage}% coverage, {buffer_dist}m buffer at {threshold} suitability threshold)"
-                config_id = f"{config_type}__coverage_{coverage}__threshold_{threshold}"
-            
-            elif config_type == 'clustered':
-                policy = self.generate_clustered_policy(coverage, threshold)
-                title = f"Clustered Policy ({coverage}% coverage)"
-                config_id = f"{config_type}__coverage_{coverage}__threshold_{threshold}"
-            
-            else:
-                raise ValueError(f"Unknown policy type!")
-            
-            self.make_plots(output_dir, name=config_id)
+        elif config_type == 'perimeter':
+            buffer_dist = config.get('buffer_distance')
+            policy = self.generate_perimeter_policy(coverage, threshold)
+            title = f"Perimeter Policy ({coverage}% coverage, {buffer_dist}m buffer at {threshold} suitability threshold)"
+            config_id = f"{config_type}__coverage_{coverage}__threshold_{threshold}"
+        
+        elif config_type == 'clustered':
+            w_border = config.get('w_border')
+            w_roads = config.get('w_roads')
+            w_plantation = config.get('w_plantation')
+            w_dem = config.get('w_dem')
+            w_slope = config.get('w_slope')
+            policy = self.generate_clustered_policy(coverage, threshold, w_border, w_roads, w_plantation, w_dem, w_slope)
+            title = f"Clustered Policy ({coverage}% coverage)"
+            config_id = f"{config_type}__coverage_{coverage}__threshold_{threshold}__w_border_{w_border}__w_roads_{w_roads}__w_plantation_{w_plantation}__w_dem_{w_dem}__w_slope_{w_slope}"
+        
+        else:
+            raise ValueError(f"Unknown policy type!")
+        
+        self.make_plots(output_dir, name=config_id)
             
         return
-
-def main():
-
-    """Example usage of the DeterrentPolicyPlanner class."""
+      
+if __name__ == "__main__":
 
     landuse_path = "deterrent-measures/data/LULC.tif"
     dem_path = "deterrent-measures/data/DEM.tif"
@@ -334,16 +371,19 @@ def main():
         {'type': 'random', 'coverage': 10, 'threshold': 0.4},       
         {'type': 'random', 'coverage': 10, 'threshold': 0.6},
         
-
-        {'type': 'perimeter', 'coverage': 10, 'threshold': 0.4},
-        {'type': 'perimeter', 'coverage': 10, 'threshold': 0.6},
+        {'type': 'perimeter', 'coverage': 10, 'threshold': 0.4, "buffer_distance":10},
+        {'type': 'perimeter', 'coverage': 10, 'threshold': 0.6, "buffer_distance":25},
         
-        {'type': 'clustered', 'coverage': 100, 'threshold': 0.4},
-        {'type': 'clustered', 'coverage': 100, 'threshold': 0.6},
-        {'type': 'clustered', 'coverage': 100, 'threshold': 0.8},
+        {'type': 'clustered', 'coverage': 100, 'threshold': 0.4, "w_border":0.5, "w_roads":0.25, "w_plantation":0.25, "w_dem":0, "w_slope":0},
+        {'type': 'clustered', 'coverage': 100, 'threshold': 0.6, "w_border":0, "w_roads":1, "w_plantation":0, "w_dem":0, "w_slope":0},
+        {'type': 'clustered', 'coverage': 100, 'threshold': 0.8, "w_border":0.25, "w_roads":0.25, "w_plantation":0.5, "w_dem":0, "w_slope":0},
     ]
-    
-    planner.make_policies(configurations, output_dir)
-    
-if __name__ == "__main__":
-    main()
+
+    for configuration in configurations:
+        planner.make_policies(configuration, output_dir)
+
+        planner.save_raster(
+                output_path=os.path.join(output_dir, "deterrent_policy.tif"),
+                reference_raster_path=landuse_path, 
+                dtype=rasterio.int8
+            )

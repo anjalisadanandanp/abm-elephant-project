@@ -172,7 +172,7 @@ class Experiment:
             elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
 
-            data_folder = os.path.join(os.getcwd(), "model_runs", "water-availability-simulations", "water-source-scenario-01", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+            data_folder = os.path.join(os.getcwd(), "model_runs", "water-availability-simulations", "water-source-scenario-02", experiment_name, starting_location, elephant_category, landscape_food_probability, 
                                                 water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                                 elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,

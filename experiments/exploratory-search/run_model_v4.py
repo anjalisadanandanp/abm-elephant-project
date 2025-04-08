@@ -20,16 +20,16 @@ from mesageo_elephant_project.elephant_project.model.abm_model_HEC_v4 import bat
 
 model_params_all = {
     "year": 2010,
-    "month": ["Mar"],
+    "month": ["Mar", "Aug"],
     "num_bull_elephants": 1, 
     "area_size": 1100,              
     "spatial_resolution": 30, 
     "max_food_val_cropland": 100,
-    "max_food_val_forest": [10],
+    "max_food_val_forest": [10, 20, 30],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [0.01],
-    "thermoregulation_threshold": [28],
+    "prob_water_sources": [0.0001, 0.001, 0.01],
+    "thermoregulation_threshold": [28, 32],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
     "prob_crop_damage": 0.05,           
@@ -41,8 +41,8 @@ model_params_all = {
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
     "slope_tolerance": [30],
-    "num_processes": 1,
-    "iterations": 1,
+    "num_processes": 8,
+    "iterations": 32,
     "max_time_steps": 288*30,
     "aggression_threshold_enter_cropland": 1.0,
     "human_habituation_tolerance": 1.0,
@@ -55,10 +55,19 @@ model_params_all = {
     "elephant_starting_location": "user_input",
     "elephant_starting_latitude": 1049237,
     "elephant_starting_longitude": 8570917,
-    "elephant_aggression_value": [0.8],
+    "elephant_aggression_value": [0.2, 0.8],
     "elephant_crop_habituation": False,
     "num_guards": 0,
-    "ranger_visibility_radius": 500
+    "ranger_visibility_radius": 500,
+    'deterrant_matrix_configuration': ["random"],
+    "deterrant_matrix_coverage": [0, 2, 4, 6, 8, 10],
+    "suitability_threshold": [0.5],
+    "forest_fringe_buffer_for_deterrant_matrix": [12],
+    "w_border": [0.0],
+    "w_roads": [0.0],
+    "w_plantation": [0.0],
+    "w_dem": [0.0],
+    "w_slope": [0.0]
     }
 
 
@@ -76,6 +85,16 @@ def generate_parameter_combinations(model_params_all):
     num_days_agent_survives_in_deprivation = model_params_all["num_days_agent_survives_in_deprivation"]
     slope_tolerance = model_params_all["slope_tolerance"]
     elephant_aggression_value = model_params_all["elephant_aggression_value"]
+    deterrant_matrix_configuration = model_params_all["deterrant_matrix_configuration"]
+    deterrant_matrix_coverage = model_params_all["deterrant_matrix_coverage"]
+    suitability_threshold = model_params_all["suitability_threshold"]
+    forest_fringe_buffer_for_deterrant_matrix = model_params_all["forest_fringe_buffer_for_deterrant_matrix"]
+    w_border = model_params_all["w_border"]
+    w_roads = model_params_all["w_roads"]
+    w_plantation = model_params_all["w_plantation"]
+    w_dem = model_params_all["w_dem"]
+    w_slope = model_params_all["w_slope"]
+
 
     combinations = list(itertools.product(
         month,
@@ -88,7 +107,16 @@ def generate_parameter_combinations(model_params_all):
         prob_water_sources,
         num_days_agent_survives_in_deprivation,
         slope_tolerance,
-        elephant_aggression_value
+        elephant_aggression_value,
+        deterrant_matrix_configuration,
+        deterrant_matrix_coverage,
+        suitability_threshold,
+        forest_fringe_buffer_for_deterrant_matrix,
+        w_border,
+        w_roads,
+        w_plantation,
+        w_dem,
+        w_slope
     ))
 
     all_param_dicts = []
@@ -106,7 +134,16 @@ def generate_parameter_combinations(model_params_all):
             "prob_water_sources": combo[7],
             "num_days_agent_survives_in_deprivation": combo[8],
             "slope_tolerance": combo[9],
-            "elephant_aggression_value": combo[10]
+            "elephant_aggression_value": combo[10],
+            "deterrant_matrix_configuration": combo[11],
+            "deterrant_matrix_coverage": combo[12],
+            "suitability_threshold": combo[13],
+            "forest_fringe_buffer_for_deterrant_matrix": combo[14],
+            "w_border": combo[15],
+            "w_roads": combo[16],
+            "w_plantation": combo[17],
+            "w_dem": combo[18],
+            "w_slope": combo[19]
         })
         
         all_param_dicts.append(params_dict)
@@ -130,11 +167,16 @@ def run_model(experiment_name, model_params):
     num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
     elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
+    deterrent_matrix_configuration = "deterrant_matrix_configuration-" + str(model_params["deterrant_matrix_configuration"]) + "-coverage-" + str(model_params["deterrant_matrix_coverage"]) + "-suitability_threshold-" + str(model_params["suitability_threshold"])
+    forest_fringe_buffer_for_deterrant_matrix = "forest_fringe_buffer_for_deterrant_matrix-" + str(model_params["forest_fringe_buffer_for_deterrant_matrix"])
+    weights = "w_border_" + str(model_params["w_border"]) + "-w_roads_" + str(model_params["w_roads"]) + "-w_plantation_" + str(model_params["w_plantation"]) +  "-w_dem_" + str(model_params["w_dem"]) + "-w_slope_" + str(model_params["w_slope"]) 
+
     output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
                                  water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                  elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                  slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
-                                 str(model_params["year"]), str(model_params["month"]), "abm-runs-with-guard-agents")
+                                 str(model_params["year"]), str(model_params["month"]), "abm-runs-without-guard-agents", 
+                                 deterrent_matrix_configuration, forest_fringe_buffer_for_deterrant_matrix, weights)
     
     path = pathlib.Path(output_folder)
     path.mkdir(parents=True, exist_ok=True)

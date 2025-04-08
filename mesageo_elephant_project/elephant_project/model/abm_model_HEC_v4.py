@@ -2302,7 +2302,16 @@ class conflict_model(Model):
         elephant_aggression_value,
         elephant_crop_habituation,
         num_guards,
-        ranger_visibility_radius
+        ranger_visibility_radius,
+        deterrant_matrix_configuration,
+        deterrant_matrix_coverage,
+        suitability_threshold,
+        forest_fringe_buffer_for_deterrant_matrix,
+        w_border,
+        w_roads,
+        w_plantation,
+        w_dem,
+        w_slope
         ):
 
 
@@ -2429,9 +2438,17 @@ class conflict_model(Model):
                                          os.path.join(self.folder_root, "env", "DEM.tif"), 
                                          os.path.join(self.folder_root, "env", "slope_matrix.tif"), 
                                          "deterrent_measures/outputs/road_raster.tif", 
-                                         10)
+                                         forest_fringe_buffer_for_deterrant_matrix)
         
-        configuration = {'type': 'random', 'coverage': 100, 'threshold': 0.5}
+        configuration = {'type': deterrant_matrix_configuration, 
+                         'coverage': deterrant_matrix_coverage, 
+                         'threshold': suitability_threshold,
+                         'buffer_distance': forest_fringe_buffer_for_deterrant_matrix,
+                         'w_border': w_border,
+                         'w_roads': w_roads,
+                         'w_plantation': w_plantation, 
+                         'w_dem': w_dem,
+                         'w_slope': w_slope}
 
         planner.make_policies(configuration, os.path.join(self.folder_root, "env"))
 

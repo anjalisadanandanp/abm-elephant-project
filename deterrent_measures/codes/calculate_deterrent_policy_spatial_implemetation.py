@@ -371,8 +371,7 @@ if __name__ == "__main__":
         {'type': 'random', 'coverage': 10, 'threshold': 0.4},       
         {'type': 'random', 'coverage': 10, 'threshold': 0.6},
         
-        {'type': 'perimeter', 'coverage': 10, 'threshold': 0.4, "buffer_distance":10},
-        {'type': 'perimeter', 'coverage': 10, 'threshold': 0.6, "buffer_distance":25},
+        {'type': 'perimeter', 'coverage': 10, 'threshold': 0.4, "buffer_distance":forest_agricultural_boundary_buffer},
         
         {'type': 'clustered', 'coverage': 100, 'threshold': 0.4, "w_border":0.5, "w_roads":0.25, "w_plantation":0.25, "w_dem":0, "w_slope":0},
         {'type': 'clustered', 'coverage': 100, 'threshold': 0.6, "w_border":0, "w_roads":1, "w_plantation":0, "w_dem":0, "w_slope":0},

@@ -105,6 +105,7 @@ class Elephant(GeoAgent):
         self.distance_to_target = None
         self.danger_to_life = False
         self.conflict_with_humans = False
+        self.relative_food_abundance = None
 
         self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
@@ -1205,7 +1206,6 @@ class Elephant(GeoAgent):
         row_end = self.ROW + radius//2 + 1
         col_end = self.COL + radius//2 + 1
 
-        #To handle edge cases
         if self.ROW < radius:
             row_start = 0
 
@@ -1219,81 +1219,64 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         food_memory_array = np.array(self.food_memory)
-        lulc_array = np.array(self.model.LULC)
+        lulc_array = np.array(self.model.LANDUSE)
 
-        mask = (lulc_array == 10)
+        plantation_mask = (lulc_array == 10)
+        forest_mask = (lulc_array == 15)
 
-        sum_food_where_lulc_10 = np.sum(food_memory_array[mask])
+        sum_food_where_lulc_10 = np.sum(food_memory_array[plantation_mask])
+        num_cells_with_lulc_10 = np.count_nonzero(lulc_array == 10)
+        sum_food_where_lulc_15 = np.sum(food_memory_array[forest_mask])
+        num_cells_with_lulc_15 = np.count_nonzero(lulc_array == 15)
 
-        print(f"Sum of food values where LULC = 10: {sum_food_where_lulc_10}")
+        forest_food_density = sum_food_where_lulc_15/num_cells_with_lulc_15
+        cropland_food_density = sum_food_where_lulc_10/num_cells_with_lulc_10
+
+        self.relative_food_abundance = cropland_food_density/forest_food_density
 
         if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation:
 
+            if cropland_food_density > self.model.density_factor*forest_food_density:
 
-
-            if np.random.uniform(0,1) < self.aggression:
-
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                            if self.food_memory[i][j] > 0:
-                                coord_list.append([i,j])
-                                # print("target is a food cell closer to plantations")     
-
-                if coord_list == []:
+                if np.random.uniform(0,1) < self.aggression:
 
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
                             if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
 
-                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
-                                    coord_list.append([i,j]) 
-                                    # print("target is a food proximity cell closer to plantations")  
+                                if self.food_memory[i][j] > 0:
+                                    coord_list.append([i,j])
+                                    # print("target is a food cell closer to plantations")     
 
-            else:
+                    if coord_list == []:
 
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if i == self.ROW and j == self.COL:
-                            pass
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
+                                if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
 
-                        elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
-                            coord_list.append([i,j])
-                            # print("target is a food cell")  
+                                    if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
+                                        coord_list.append([i,j]) 
+                                        # print("target is a food proximity cell closer to plantations")  
 
-                if coord_list == []:
-                    
+                else:
+
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
+                            if i == self.ROW and j == self.COL:
+                                pass
 
-                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                                 coord_list.append([i,j])
-                                # print("target is a food proximity cell")
+                                # print("target is a food cell")  
 
-        elif self.crop_habituated == True:
+                    if coord_list == []:
+                        
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
 
-            # print("trying condition 02")
-
-            if np.random.uniform(0,1) < self.aggression:
-
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                            if self.food_memory[i][j] > 0:
-                                coord_list.append([i,j])   
-                                # print("target is a food cell closer to plantations")   
-
-                if coord_list == []:
-
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
-                                    coord_list.append([i,j]) 
-                                    # print("target is a food proximity cell closer to plantations") 
+                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j])
+                                    # print("target is a food proximity cell")
 
             else:
 
@@ -1306,18 +1289,79 @@ class Elephant(GeoAgent):
                             coord_list.append([i,j])
                             # print("target is a food cell")
 
-                if coord_list == []: 
-                    
+                if coord_list == []:
+
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
 
                             if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                                     coord_list.append([i,j])
-                                    # print("target is a food proximity cell")
-                        
-        else:
+                                    # print("target is a food proximity cell") 
 
-            # print("trying condition 03")
+        elif self.crop_habituated == True:
+
+            if cropland_food_density > self.model.density_factor*forest_food_density:
+
+                if np.random.uniform(0,1) < self.aggression:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                                if self.food_memory[i][j] > 0:
+                                    coord_list.append([i,j])   
+                                    # print("target is a food cell closer to plantations")   
+
+                    if coord_list == []:
+
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
+                                if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                                    if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
+                                        coord_list.append([i,j]) 
+                                        # print("target is a food proximity cell closer to plantations") 
+
+                else:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if i == self.ROW and j == self.COL:
+                                pass
+
+                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                                coord_list.append([i,j])
+                                # print("target is a food cell")
+
+                    if coord_list == []: 
+                        
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
+
+                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                        coord_list.append([i,j])
+                                        # print("target is a food proximity cell")
+
+            else:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if i == self.ROW and j == self.COL:
+                            pass
+
+                        elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                            coord_list.append([i,j])
+                            # print("target is a food cell")
+
+                if coord_list == []:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j])
+                                    # print("target is a food proximity cell")             
+        else:
 
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
@@ -1939,6 +1983,8 @@ class Elephant(GeoAgent):
 
         """Function to simulate the cognition of the elephant agent"""
 
+        self.relative_food_abundance = None
+
         if (self.model.model_time%288) == 0 and self.model.model_day > 0:         #start of a new day
 
             self.update_fitness_thermoregulation(self.num_thermoregulation_steps, self.num_steps_thermoregulated)
@@ -2308,7 +2354,17 @@ class conflict_model(Model):
         elephant_aggression_value,
         elephant_crop_habituation,
         num_guards,
-        ranger_visibility_radius
+        ranger_visibility_radius,
+        deterrant_matrix_configuration,
+        deterrant_matrix_coverage,
+        suitability_threshold,
+        forest_fringe_buffer_for_deterrant_matrix,
+        w_border,
+        w_roads,
+        w_plantation,
+        w_dem,
+        w_slope,
+        density_factor
         ):
 
 
@@ -2363,6 +2419,7 @@ class conflict_model(Model):
         self.elephant_crop_habituation = elephant_crop_habituation
         self.num_guards = num_guards
         self.ranger_visibility_radius = ranger_visibility_radius
+        self.density_factor = density_factor
         #-------------------------------------------------------------------
 
 
@@ -2435,9 +2492,17 @@ class conflict_model(Model):
                                          os.path.join(self.folder_root, "env", "DEM.tif"), 
                                          os.path.join(self.folder_root, "env", "slope_matrix.tif"), 
                                          "deterrent_measures/outputs/road_raster.tif", 
-                                         10)
+                                         forest_fringe_buffer_for_deterrant_matrix)
         
-        configuration = {'type': 'random', 'coverage': 100, 'threshold': 0.5}
+        configuration = {'type': deterrant_matrix_configuration, 
+                         'coverage': deterrant_matrix_coverage, 
+                         'threshold': suitability_threshold,
+                         'buffer_distance': forest_fringe_buffer_for_deterrant_matrix,
+                         'w_border': w_border,
+                         'w_roads': w_roads,
+                         'w_plantation': w_plantation, 
+                         'w_dem': w_dem,
+                         'w_slope': w_slope}
 
         planner.make_policies(configuration, os.path.join(self.folder_root, "env"))
 
@@ -2570,8 +2635,8 @@ class conflict_model(Model):
                                                 "num_thermoregulation_steps": "num_thermoregulation_steps",
                                                 "num_steps_thermoregulated": "num_steps_thermoregulated",
                                                 "current_proximity_to_plantations": "current_proximity_to_plantations",
-                                                "current_proximity_to_water_sources": "current_proximity_to_water_sources"
-
+                                                "current_proximity_to_water_sources": "current_proximity_to_water_sources",
+                                                "relative_food_abundance": "relative_food_abundance"
                                                 })
 
         self.datacollector.collect(self)
@@ -3294,7 +3359,7 @@ class conflict_model(Model):
     #----------------------------------------------------------------------------------------------------
     def step(self):
 
-        print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
+        # print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
 
         self.update_hourly_temp()
         self.update_season()

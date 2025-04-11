@@ -24,11 +24,11 @@ model_params_all = {
     "num_bull_elephants": 1, 
     "area_size": 1100,              
     "spatial_resolution": 30, 
-    "max_food_val_cropland": [5, 25, 50, 75, 100],
+    "max_food_val_cropland": [5, 10, 15, 20, 25],
     "max_food_val_forest": [5, 25],
     "prob_food_forest": [0.10],
-    "prob_food_cropland": [0.01, 0.05, 0.10],
-    "prob_water_sources": [0.01],
+    "prob_food_cropland": [0.10],
+    "prob_water_sources": [0.0001, 0.001, 0.01],
     "thermoregulation_threshold": [28, 32],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
@@ -41,8 +41,8 @@ model_params_all = {
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
     "slope_tolerance": [30],
-    "num_processes": 8,
-    "iterations": 4,
+    "num_processes": 32,
+    "iterations": 64,
     "max_time_steps": 288*30,
     "aggression_threshold_enter_cropland": 1.0,
     "human_habituation_tolerance": 1.0,
@@ -60,7 +60,7 @@ model_params_all = {
     "num_guards": 0,
     "ranger_visibility_radius": 500,
     'deterrant_matrix_configuration': ["random"],
-    "deterrant_matrix_coverage": [0],
+    "deterrant_matrix_coverage": [0, 10, 20],
     "suitability_threshold": [0.5],
     "forest_fringe_buffer_for_deterrant_matrix": [12],
     "w_border": [0.0],
@@ -68,7 +68,7 @@ model_params_all = {
     "w_plantation": [0.0],
     "w_dem": [0.0],
     "w_slope": [0.0],
-    "density_factor": [0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
+    "density_factor": [0.0, 1.0, 2.5]
     }
 
 
@@ -77,6 +77,7 @@ def generate_parameter_combinations(model_params_all):
 
     month = model_params_all["month"]
     max_food_val_forest = model_params_all["max_food_val_forest"]
+    max_food_val_cropland = model_params_all["max_food_val_cropland"]
     prob_food_forest = model_params_all["prob_food_forest"]
     prob_food_cropland = model_params_all["prob_food_cropland"]
     thermoregulation_threshold = model_params_all["thermoregulation_threshold"]
@@ -101,6 +102,7 @@ def generate_parameter_combinations(model_params_all):
     combinations = list(itertools.product(
         month,
         max_food_val_forest,
+        max_food_val_cropland,
         prob_food_forest,
         prob_food_cropland,
         thermoregulation_threshold,
@@ -129,25 +131,26 @@ def generate_parameter_combinations(model_params_all):
         params_dict.update({
             "month": combo[0],
             "max_food_val_forest": combo[1],
-            "prob_food_forest": combo[2],
-            "prob_food_cropland": combo[3],
-            "thermoregulation_threshold": combo[4],
-            "threshold_days_of_food_deprivation": combo[5],
-            "threshold_days_of_water_deprivation": combo[6],
-            "prob_water_sources": combo[7],
-            "num_days_agent_survives_in_deprivation": combo[8],
-            "slope_tolerance": combo[9],
-            "elephant_aggression_value": combo[10],
-            "deterrant_matrix_configuration": combo[11],
-            "deterrant_matrix_coverage": combo[12],
-            "suitability_threshold": combo[13],
-            "forest_fringe_buffer_for_deterrant_matrix": combo[14],
-            "w_border": combo[15],
-            "w_roads": combo[16],
-            "w_plantation": combo[17],
-            "w_dem": combo[18],
-            "w_slope": combo[19],
-            "density_factor": combo[20]
+            "max_food_val_cropland": combo[2],
+            "prob_food_forest": combo[3],
+            "prob_food_cropland": combo[4],
+            "thermoregulation_threshold": combo[5],
+            "threshold_days_of_food_deprivation": combo[6],
+            "threshold_days_of_water_deprivation": combo[7],
+            "prob_water_sources": combo[8],
+            "num_days_agent_survives_in_deprivation": combo[9],
+            "slope_tolerance": combo[10],
+            "elephant_aggression_value": combo[11],
+            "deterrant_matrix_configuration": combo[12],
+            "deterrant_matrix_coverage": combo[13],
+            "suitability_threshold": combo[14],
+            "forest_fringe_buffer_for_deterrant_matrix": combo[15],
+            "w_border": combo[16],
+            "w_roads": combo[17],
+            "w_plantation": combo[18],
+            "w_dem": combo[19],
+            "w_slope": combo[20],
+            "density_factor": combo[21]
         })
         
         all_param_dicts.append(params_dict)
@@ -164,6 +167,7 @@ def run_model(experiment_name, model_params):
     memory_matrix_type = "random-memory-matrix-model"
     num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
     maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
+    maximum_food_in_a_cropland_cell = "maximum-food-in-a-cropland-cell-" + str(model_params["max_food_val_cropland"])
     elephant_thermoregulation_threshold = "thermoregulation-threshold-temperature-" + str(model_params["thermoregulation_threshold"])
     threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(model_params["threshold_days_of_food_deprivation"])
     threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(model_params["threshold_days_of_water_deprivation"])
@@ -179,7 +183,7 @@ def run_model(experiment_name, model_params):
 
     output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, landscape_food_probability, 
                                  water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
-                                 elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
+                                 maximum_food_in_a_cropland_cell, elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                  slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,
                                  str(model_params["year"]), str(model_params["month"]), "abm-runs-without-guard-agents", 
                                  deterrent_matrix_configuration, forest_fringe_buffer_for_deterrant_matrix, weights, density_factor)

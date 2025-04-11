@@ -3449,13 +3449,15 @@ def batch_run_model(model_params, experiment_name, output_folder):
     if model_params["track_in_mlflow"] == True:
         mlflow.set_experiment(experiment_name)
 
-    batch_run(model_cls = conflict_model, 
+    res = batch_run(model_cls = conflict_model, 
                 parameters = model_params, 
                 number_processes = model_params["num_processes"], 
                 iterations = model_params["iterations"],
                 max_steps = model_params["max_time_steps"], 
-                data_collection_period=1, 
+                data_collection_period=-1, 
                 display_progress=True)
+    
+    del res
 
     return
 

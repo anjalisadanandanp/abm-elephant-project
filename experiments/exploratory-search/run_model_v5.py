@@ -24,11 +24,11 @@ model_params_all = {
     "num_bull_elephants": 1, 
     "area_size": 1100,              
     "spatial_resolution": 30, 
-    "max_food_val_cropland": [5, 10, 15, 20, 25],
-    "max_food_val_forest": [5, 25],
+    "max_food_val_cropland": [10],
+    "max_food_val_forest": [10],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [0.0001, 0.001, 0.01],
+    "prob_water_sources": [0.001],
     "thermoregulation_threshold": [28, 32],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
@@ -60,7 +60,7 @@ model_params_all = {
     "num_guards": 0,
     "ranger_visibility_radius": 500,
     'deterrant_matrix_configuration': ["random"],
-    "deterrant_matrix_coverage": [0, 10, 20],
+    "deterrant_matrix_coverage": [0, 25, 50, 75, 100],
     "suitability_threshold": [0.5],
     "forest_fringe_buffer_for_deterrant_matrix": [12],
     "w_border": [0.0],
@@ -68,7 +68,7 @@ model_params_all = {
     "w_plantation": [0.0],
     "w_dem": [0.0],
     "w_slope": [0.0],
-    "density_factor": [0.0, 1.0, 2.5]
+    "density_factor": [0.5, 1.5]
     }
 
 
@@ -213,7 +213,7 @@ class Experiment:
 
         start = time.time()
 
-        experiment_name = "attractant-management-model"
+        experiment_name = "attractant-and-deterrent-management-model"
 
         if model_params_all["track_in_mlflow"] == True:
             try:

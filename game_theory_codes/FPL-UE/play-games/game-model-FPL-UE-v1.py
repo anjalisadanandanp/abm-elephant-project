@@ -676,7 +676,7 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
             # print("Simulation folder:", simulation_folder)
 
             df = pd.read_csv(os.path.join(output_folder, simulation_folder, "output_files/agent_data.csv"))
-        
+            df.dropna(subset=['ROW', 'COL'], inplace=True)
         
             rows = df['ROW'].astype(int).values
             cols = df['COL'].astype(int).values
@@ -689,6 +689,27 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
         
         except Exception as e:
             pass
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    
+    cmap = mcolors.ListedColormap(["white", "red"])
+    
+    im = ax.imshow(matrix, cmap=cmap, vmin=0, vmax=1)
+    
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    legend_elements = [
+        Patch(facecolor="red", edgecolor='black', label='attacked'),
+        Patch(facecolor="white", edgecolor='black', label='not attacked')
+    ]
+    ax.legend(handles=legend_elements, loc="upper right")
+
+    plt.savefig(
+        os.path.join(output_folder, "attacker_strategy_matrix.png"),
+        bbox_inches="tight",
+        dpi=300,
+    )
 
     lulc_data = gdal.Open("game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix.tif").ReadAsArray()
     plantation_rows, plantation_cols = np.where(lulc_data == 10)

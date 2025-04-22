@@ -99,6 +99,9 @@ class Elephant(GeoAgent):
         self.danger_to_life = False
         self.conflict_with_humans = False
 
+        self.strategy_row = None
+        self.strategy_col = None
+
         self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
@@ -363,6 +366,9 @@ class Elephant(GeoAgent):
 
         i = int(np.floor((self.model.ymax_coverage_matrix-self.shape.y) / -self.model.yres_coverage_matrix))
         j = int(np.floor((self.shape.x-self.model.xmin_coverage_matrix) / self.model.xres_coverage_matrix))
+
+        self.strategy_row = i
+        self.strategy_col = j
 
         if self.model.COVERAGE_MATRIX[i][j] == 1:    
             self.danger_to_life = True
@@ -2015,8 +2021,8 @@ class conflict_model(Model):
                                                 "longitude": "shape.x", 
                                                 "latitude": "shape.y",
                                                 "mode": "mode",
-                                                "ROW": "ROW",
-                                                "COL": "COL",
+                                                "ROW": "strategy_row",
+                                                "COL": "strategy_col",
                                                 "fitness": "fitness",
                                                 "daily_dry_matter_intake": "daily_dry_matter_intake",
                                                 "food_consumed": "food_consumed",

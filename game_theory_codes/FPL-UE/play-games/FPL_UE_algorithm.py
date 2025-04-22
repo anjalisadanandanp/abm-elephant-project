@@ -7,7 +7,6 @@ from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import pandas as pd
-from matplotlib import colors
 import random
 
 
@@ -690,7 +689,6 @@ def plot_defender_regret(defender_regret_values):
     regret_values = np.array(defender_regret_values)
     steps = np.arange(1, len(regret_values) + 1)
     
-
     plt.figure(figsize=(6, 6))
     plt.plot(steps, regret_values, 'b-', label='FPL-UE')
     
@@ -857,7 +855,7 @@ if __name__ == "__main__":
     for i, strategy in enumerate(list(E)[:5]):  
         print(f"Strategy {i + 1}: {strategy}")
 
-    # run_single_play(MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targets_df)
+    run_single_play(MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targets_df)
 
     num_plays = 10 
     average_regret, std_regret = run_multiple_plays(

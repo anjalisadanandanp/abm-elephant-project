@@ -26,9 +26,6 @@ import uuid                             # for generating unique ids
 from scipy.ndimage import distance_transform_edt   # for distance transformations     
 import mlflow     
 import random
-import yaml
-import pathlib
-from copy import deepcopy
 #---------------imports-------------------#
 
 
@@ -335,8 +332,8 @@ class Elephant(GeoAgent):
         elif self.mode == "EscapeMode":
 
             if self.target_present == False or (self.target_name and "escaping" not in self.target_name):   
-                filter = self.return_direction_for_escape_v1(self.conflict_neighbor[0].shape.x, self.conflict_neighbor[0].shape.y)   
-                self.target_for_escape_v2(filter)  
+                filter = self.return_feasible_direction_to_move_v2()
+                self.target_for_escape_v1(filter)  
                 self.target_name = "forest:escaping"
 
             else:
@@ -364,22 +361,18 @@ class Elephant(GeoAgent):
     def update_danger_to_life(self):
         """Update danger_to_life"""
 
-        if len(self.conflict_neighbor) > 0:    
-            if self.human_habituation < self.model.human_habituation_tolerance:  
-                for agent in self.conflict_neighbor:
-                    self.danger_to_life = True
-                    self.conflict_with_humans = True 
-                    return  
+        i = int(np.floor((self.model.ymax_coverage_matrix-self.shape.y) / -self.model.yres_coverage_matrix))
+        j = int(np.floor((self.shape.x-self.model.xmin_coverage_matrix) / self.model.xres_coverage_matrix))
 
-            else: 
-                for agent in self.conflict_neighbor:
-                    self.danger_to_life = False 
-                    self.conflict_with_humans = True
-                    return 
+        if self.model.COVERAGE_MATRIX[i][j] == 1:    
+            self.danger_to_life = True
+            self.conflict_with_humans = True 
+            return  
+
         else:
             self.danger_to_life = False   
             self.conflict_with_humans = False
-            return 
+            return  
     #--------------------------------------------------------------------------------------------------
     def current_mode_of_the_agent(self):
         """function returns the mode of the agent depending on its energy levels and interaction with human agents"""
@@ -394,19 +387,6 @@ class Elephant(GeoAgent):
         self.prob_thermoregulation = self.model.temp[ROW,COL]
         if  self.prob_thermoregulation > 0.5:
             self.num_thermoregulation_steps += 1
-        
-        if self.model.elephant_agent_visibility_radius != None:
-            conflict_neighbors = []
-            for agent in self.model.schedule.agents:
-                if isinstance(agent,  Humans):
-                    distance = agent.distance_calculator_epsg3857(self.shape.y, agent.shape.y, self.shape.x, agent.shape.x)
-                    if distance <= self.model.elephant_agent_visibility_radius:
-                        conflict_neighbors.append(agent)
-
-            if len(conflict_neighbors) > 0:
-                self.conflict_neighbor = conflict_neighbors
-            else:
-                self.conflict_neighbor = []
 
         self.update_danger_to_life()
 
@@ -1278,7 +1258,7 @@ class Elephant(GeoAgent):
                 if i == self.ROW and j == self.COL:
                     pass
 
-                elif self.model.LANDUSE[i][j] == 15 and self.model.ranger_coverage[i,j] < 0.5:
+                elif self.model.LANDUSE[i][j] == 15:
                     coord_list.append([i, j])
 
         if coord_list==[]:
@@ -1295,7 +1275,7 @@ class Elephant(GeoAgent):
                 i = self.model.random.randint(row_start, row_end)
                 j = self.model.random.randint(col_start, col_end)
 
-                if self.proximity_to_forests[i][j] <= self.proximity_to_forests[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1 and self.model.ranger_coverage[i - row_start,j - col_end] < 0.5:
+                if self.proximity_to_forests[i][j] <= self.proximity_to_forests[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                     coord_list.append([i,j])
 
         x, y = self.model.random.choice(coord_list)
@@ -1565,13 +1545,13 @@ class Elephant(GeoAgent):
         
         self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
 
-        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
-        with rio.open(source) as src:
-            ras_meta = src.profile
+        # source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+        # with rio.open(source) as src:
+        #     ras_meta = src.profile
 
-        proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
-        with rio.open(proximity_loc, 'w', **ras_meta) as dst:
-            dst.write(np.array(self.proximity_to_food_sources).astype('float32'), 1)
+        # proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
+        # with rio.open(proximity_loc, 'w', **ras_meta) as dst:
+        #     dst.write(np.array(self.proximity_to_food_sources).astype('float32'), 1)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1653,14 +1633,6 @@ class Elephant(GeoAgent):
 
         self.elephant_cognition()
     #----------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
 
 
@@ -1785,7 +1757,6 @@ class conflict_model(Model):
     Model class: Elephant-Human interaction model
     """
 
-    #Model Initialization
     def __init__(self,
         year,
         month,
@@ -1927,6 +1898,7 @@ class conflict_model(Model):
         shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(self.folder_root, "env"))
+        shutil.copy(os.path.join("game_theory_codes/FPL-UE/outputs/coverage_matrix.tif"), os.path.join(self.folder_root, "env"))
 
 
 
@@ -1937,6 +1909,7 @@ class conflict_model(Model):
         self.WATER = self.WATER_MATRIX()
         self.LANDSCAPE_STATUS = self.LANDSCAPE_CELL_STATUS()
         self.AGRICULTURAL_PLOTS, self.INFRASTRUCTURE_MATRIX = self.PROPERTY_MATRIX()
+        self.COVERAGE_MATRIX = self.COVERAGE_MATRIX()
         #-------------------------------------------------------------------
 
 
@@ -2042,6 +2015,8 @@ class conflict_model(Model):
                                                 "longitude": "shape.x", 
                                                 "latitude": "shape.y",
                                                 "mode": "mode",
+                                                "ROW": "ROW",
+                                                "COL": "COL",
                                                 "fitness": "fitness",
                                                 "daily_dry_matter_intake": "daily_dry_matter_intake",
                                                 "food_consumed": "food_consumed",
@@ -2238,6 +2213,27 @@ class conflict_model(Model):
         fid = os.path.join(self.folder_root , "env", "water_matrix_"+ str(self.prob_water_sources) + "_.tif")
         WATER = gdal.Open(fid).ReadAsArray()  
         return WATER.tolist() 
+    #-----------------------------------------------------------------------------------------------------
+    def COVERAGE_MATRIX(self):
+        """ Returns the water matrix model of the study area"""
+        fid = os.path.join(self.folder_root , "env", "coverage_matrix.tif")
+        coverage_matrix = gdal.Open(fid).ReadAsArray()  
+
+        geotransform = gdal.Open(fid).GetGeoTransform()
+        
+        xmin = geotransform[0]
+        ymax = geotransform[3]  
+        xres = geotransform[1]   
+        yres = geotransform[5]   
+
+        self.xmin_coverage_matrix = xmin
+        self.ymax_coverage_matrix = ymax
+        self.xres_coverage_matrix = xres
+        self.yres_coverage_matrix = yres
+                               
+        # print("xmin, ymax, xres, yres", xmin, ymax, xres, yres)
+
+        return coverage_matrix.tolist() 
     #-----------------------------------------------------------------------------------------------------
     def LANDSCAPE_CELL_STATUS(self):
         """ Returns the slope model of the study area"""
@@ -2474,27 +2470,6 @@ class conflict_model(Model):
         
         ax.scatter(x_new[0], y_new[0], 25, marker='o', color='blue', zorder=2) 
         ax.scatter(x_new[-1], y_new[-1], 25, marker='^', color='red', zorder=2) 
-
-        # try:
-        #     filtered_longitude = longitude[conflict_steps.tolist()]
-        #     filtered_latitude = latitude[conflict_steps.tolist()]
-        #     for lon, lat in zip(filtered_longitude, filtered_latitude):
-        #         ax.scatter(lon, lat, 25, marker='x', color='white', zorder=2)
-        #         radius = self.elephant_agent_visibility_radius/(111*1000) 
-        #         circle = plt.Circle((lon, lat), radius, facecolor='yellow', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
-        #         ax.add_artist(circle) 
-        # except:
-        #     pass  
-
-        for ranger in self.ranger_locations:
-            longitude, latitude = transform(inProj, outProj, ranger[0], ranger[1])
-            x_new, y_new = map(longitude,latitude)
-
-            ax.scatter(x_new, y_new, 25, marker='x', color='white', zorder=2)
-
-            radius = self.ranger_visibility_radius/(111*1000)  
-            circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
-            ax.add_artist(circle)
 
         plt.title("Elephant agent trajectory: " + agent_id)
         plt.savefig(os.path.join(folder, self.now, "output_files", "trajectory_on_LULC_" + agent_id + "_v1.png"), dpi = 300, bbox_inches = 'tight')

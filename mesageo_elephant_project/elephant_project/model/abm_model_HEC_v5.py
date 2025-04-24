@@ -29,6 +29,7 @@ import random
 import yaml
 import pathlib
 from copy import deepcopy
+import rasterio
 #---------------imports-------------------#
 
 
@@ -61,6 +62,9 @@ from mesageo_elephant_project.elephant_project.experiment_setup_files.datacollec
 
 # from mesageo_elephant_project.elephant_project.experiment_setup_files.batch_runner_codes.Mesa_BatchRunner_class_v1_1 import batch_run      #runnning multiple simulations
 from mesa.batchrunner import batch_run
+
+
+from deterrent_measures.codes.calculate_deterrent_policy_spatial_implemetation import DeterrentPolicyPlanner
 #-------------------------------------------------#
 
 
@@ -75,89 +79,54 @@ class Elephant(GeoAgent):
     def __init__(self,unique_id,model,shape):
         super().__init__(unique_id,model,shape) 
 
-        if self.model.restart == False:
-            #-------------------------------------------------------------------
-            self.mode = self.model.random.choice(["RandomWalk", "TargetedWalk"])  
-            self.fitness = 1
-            self.aggression = self.model.elephant_aggression_value
-            self.crop_habituated = self.model.elephant_crop_habituation
-            self.disturbance_tolerance = 0.5
-            self.human_habituation = 0
-            self.food_consumed = 0                      
-            self.visit_water_source = False            
-            self.heading = self.model.random.uniform(0,360)
-            self.ROW, self.COL = self.update_grid_index()  
-            self.target_present = False                
-            self.target_lat = None                     
-            self.target_lon = None                      
-            self.target_name = None
-            self.radius_food_search = self.model.radius_food_search
-            self.radius_water_search = self.model.radius_water_search
-            self.num_days_water_source_visit = 0        
-            self.num_days_food_depreceation = 0 
-            self.num_thermoregulation_steps = 0
-            self.num_steps_thermoregulated = 0
-            self.distance_to_target = None
-            self.danger_to_life = False
-            self.conflict_with_humans = False
 
-            self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
-            self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
+        #-------------------------------------------------------------------
+        self.mode = self.model.random.choice(["RandomWalk", "TargetedWalk"])  
+        self.fitness = 1
+        self.aggression = self.model.elephant_aggression_value
+        self.crop_habituated = self.model.elephant_crop_habituation
 
-            #----------------choose the type of memory matrix initialization-------------------#
-            # self.initialize_memory_matrix_only_forest()
-            self.initialize_memory_matrix_random()
-            # self.initialize_memory_matrix_with_knowledge_from_fringe()
-            #---------------------------------------------------------------------------------#
+        self.disturbance_tolerance = 0.5
+        self.human_habituation = 0
+        self.food_consumed = 0                      
+        self.visit_water_source = False            
+        self.heading = self.model.random.uniform(0,360)
+        self.ROW, self.COL = self.update_grid_index()  
+        self.target_present = False                
+        self.target_lat = None                     
+        self.target_lon = None                      
+        self.target_name = None
+        self.radius_food_search = self.model.radius_food_search
+        self.radius_water_search = self.model.radius_water_search
+        self.num_days_water_source_visit = 0        
+        self.num_days_food_depreceation = 0 
+        self.num_thermoregulation_steps = 0
+        self.num_steps_thermoregulated = 0
+        self.distance_to_target = None
+        self.danger_to_life = False
+        self.conflict_with_humans = False
+        self.relative_food_abundance = None
 
-            self.proximity_to_water_sources = self.model.calculate_proximity_map(landscape_matrix=self.model.WATER, target_class=1, name="water_sources")
-            self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
+        self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
+        self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
-            self.crop_damage_matrix = np.zeros_like(self.model.LANDUSE)
-            self.infrastructure_damage_matrix = np.zeros_like(self.model.LANDUSE)
+        #----------------hoose the type of memory matrix initialization-------------------#
+        # self.initialize_food_memory_matrix_only_forest()
+        self.initialize_food_memory_matrix_random()
+        # self.initialize_food_memory_matrix_with_knowledge_from_fringe()
+        #---------------------------------------------------------------------------------#
+        # self.initialize_water_memory_matrix_only_forest()
+        self.initialize_water_memory_matrix_forest_and_croplands()
+        #---------------------------------------------------------------------------------#
 
-            self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
-            self.current_proximity_to_water_sources = self.proximity_to_plantations[self.ROW][self.COL]
-        
-        else:
+        self.proximity_to_water_sources = self.model.calculate_proximity_map(landscape_matrix=self.water_memory_cells, target_class=1, name="water_sources")
+        self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
 
-            self.mode = self.model.elephant_mode
-            self.fitness = self.model.elephant_fitness
-            self.aggression = self.model.elephant_aggression_value
-            self.crop_habituated = self.model.elephant_crop_habituation
-            self.disturbance_tolerance = 0.5
-            self.human_habituation = 0
-            self.food_consumed = self.model.food_consumed
-            self.visit_water_source = self.model.visit_water_source
-            self.heading = self.model.random.uniform(0,360)
-            self.ROW, self.COL = self.update_grid_index()  
-            self.target_present = False                
-            self.target_lat = None                     
-            self.target_lon = None                      
-            self.target_name = None
-            self.radius_food_search = self.model.radius_food_search
-            self.radius_water_search = self.model.radius_water_search
-            self.num_days_water_source_visit = self.model.num_days_water_source_visit
-            self.num_days_food_depreceation = self.model.num_days_food_depreceation
-            self.num_thermoregulation_steps = 0
-            self.num_steps_thermoregulated = 0
-            self.distance_to_target = None
-            self.danger_to_life = False
-            self.conflict_with_humans = False
+        self.crop_damage_matrix = np.zeros_like(self.model.LANDUSE)
+        self.infrastructure_damage_matrix = np.zeros_like(self.model.LANDUSE)
 
-            self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
-            self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
-
-            self.read_memory_matrix()
-
-            self.proximity_to_water_sources = self.model.calculate_proximity_map(landscape_matrix=self.model.WATER, target_class=1, name="water_sources")
-            self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
-
-            self.crop_damage_matrix = np.zeros_like(self.model.LANDUSE)
-            self.infrastructure_damage_matrix = np.zeros_like(self.model.LANDUSE)
-
-            self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
-            self.current_proximity_to_water_sources = self.proximity_to_plantations[self.ROW][self.COL]
+        self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
+        self.current_proximity_to_water_sources = self.proximity_to_water_sources[self.ROW][self.COL]
     #-------------------------------------------------------------------
     def move_point(self,xnew,ynew): 
         """
@@ -168,23 +137,9 @@ class Elephant(GeoAgent):
         #ynew: latitude
         return Point(xnew,ynew)
     #-----------------------------------------------------------------------------------------------------
-    def read_memory_matrix(self):
-
-        fid = os.path.join(self.model.folder_root, "env", "food_memory_" + str(self.unique_id) + ".tif")
-        food_memory = gdal.Open(fid).ReadAsArray()  
-
-        fid = os.path.join(self.model.folder_root, "env", "food_memory_cells_" + str(self.unique_id) + ".tif")
-        food_memory_cells = gdal.Open(fid).ReadAsArray()  
- 
-        self.food_memory = food_memory.tolist() 
-        self.food_memory_cells = food_memory_cells.tolist()
-    
-        return
-    #-----------------------------------------------------------------------------------------------------
-    def initialize_memory_matrix_random(self):
+    def initialize_food_memory_matrix_random(self):
         """ Function that assigns memory matrix to elephants"""
 
-        #food_memory, water_memory
         food_memory=np.zeros_like(self.model.FOOD)
         food_memory_cells=np.zeros_like(self.model.FOOD)
 
@@ -208,10 +163,9 @@ class Elephant(GeoAgent):
 
         return 
     #-----------------------------------------------------------------------------------------------------
-    def initialize_memory_matrix_with_knowledge_from_fringe(self):
+    def initialize_food_memory_matrix_with_knowledge_from_fringe(self):
         """ Function that assigns memory matrix to elephants. The elephant agent has knowledge of the fringe areas."""
 
-        #self.knowlege_from_fringe : unit is in metres
         no_of_cells = self.model.random.randint(0, int(self.model.knowledge_from_fringe/self.model.xres))     #spatial resolution 
         
         food_memory=np.zeros_like(self.model.LANDUSE)
@@ -249,7 +203,7 @@ class Elephant(GeoAgent):
 
         return 
     #-----------------------------------------------------------------------------------------------------
-    def initialize_memory_matrix_only_forest(self):
+    def initialize_food_memory_matrix_only_forest(self):
         """ Function that assigns memory matrix to elephants."""
 
         food_memory=np.zeros_like(self.model.LANDUSE)
@@ -258,6 +212,7 @@ class Elephant(GeoAgent):
         for i in range(0,self.model.row_size):
             for j in range(0,self.model.col_size):
                 if self.model.random.uniform(0,1) < self.model.percent_memory_elephant and self.proximity_to_plantations[i][j] > 1:
+                    food_memory[i,j] = self.model.FOOD[i][j]
                     if self.model.FOOD[i][j] > 0:
                         food_memory_cells[i,j] = 1
                     
@@ -271,6 +226,51 @@ class Elephant(GeoAgent):
         memory_loc = os.path.join(self.model.folder_root, "env", "food_memory_" + str(self.unique_id) + ".tif")
         with rio.open(memory_loc, 'w', **ras_meta) as dst:
             dst.write(food_memory_cells.astype('float32'), 1)
+
+        return
+    #-------------------------------------------------------------------------------------------
+    def initialize_water_memory_matrix_only_forest(self):
+        """ Function that assigns memory matrix to elephants."""
+
+        water_memory_cells=np.zeros_like(self.model.WATER)
+
+        for i in range(0,self.model.row_size):
+            for j in range(0,self.model.col_size):
+                if self.proximity_to_plantations[i][j] > 50:
+                    if self.model.WATER[i][j] > 0:
+                        water_memory_cells[i,j] = 1
+                    
+        self.water_memory_cells = water_memory_cells.tolist()
+
+        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+
+        memory_loc = os.path.join(self.model.folder_root, "env", "water_memory_" + str(self.unique_id) + ".tif")
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(water_memory_cells.astype('float32'), 1)
+
+        return
+    #-------------------------------------------------------------------------------------------
+    def initialize_water_memory_matrix_forest_and_croplands(self):
+        """ Function that assigns memory matrix to elephants."""
+
+        water_memory_cells=np.zeros_like(self.model.WATER)
+
+        for i in range(0,self.model.row_size):
+            for j in range(0,self.model.col_size):
+                if self.model.WATER[i][j] > 0:
+                    water_memory_cells[i,j] = 1
+                    
+        self.water_memory_cells = water_memory_cells.tolist()
+
+        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+
+        memory_loc = os.path.join(self.model.folder_root, "env", "water_memory_" + str(self.unique_id) + ".tif")
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(water_memory_cells.astype('float32'), 1)
 
         return
     #-------------------------------------------------------------------------------------------
@@ -301,7 +301,7 @@ class Elephant(GeoAgent):
     def next_step_to_move_v1(self):
         """how the elephant agent moves from the current co-ordinates to the next"""
 
-        self.mode = self.current_mode_of_the_agent()  
+        self.mode = self.current_mode_of_the_agent()   
 
         if self.mode == "RandomWalk":
             next_lon, next_lat = self.correlated_random_walk_without_terrain_factor()
@@ -413,9 +413,149 @@ class Elephant(GeoAgent):
                 
         return 
     #--------------------------------------------------------------------------------------------------
+    def next_step_to_move_v2(self):
+        """how the elephant agent moves from the current co-ordinates to the next"""
+
+        self.mode = self.current_mode_of_the_agent_v2()   
+
+        if self.mode == "RandomWalk":
+            next_lon, next_lat = self.correlated_random_walk_without_terrain_factor()
+
+            row, col = self.model.get_indices(next_lon, next_lat)
+
+            if self.aggression < self.model.aggression_threshold_enter_cropland:
+
+                if self.model.LANDUSE[self.ROW][self.COL] == 10 or self.model.LANDUSE[row][col] == 10: 
+
+                    if self.model.human_disturbance < self.disturbance_tolerance:
+
+                        self.shape = self.move_point(next_lon, next_lat)
+                        self.target_name = None 
+
+                    else:
+                        filter = self.return_feasible_direction_to_move_v2()
+                        self.target_for_escape_v3()  
+                        next_lon, next_lat = self.targeted_walk_v0()
+                        self.shape = self.move_point(next_lon, next_lat)
+                        self.target_name = "forest:escaping"
+                        self.mode = "ForagingMode"
+
+                else:
+                    self.shape = self.move_point(next_lon, next_lat)
+                    self.target_name = None
+
+            else:
+                self.shape = self.move_point(next_lon, next_lat)
+                self.target_name = None       
+
+        elif self.mode == "ForagingMode":
+
+            if self.target_present == False:
+                filter = self.return_feasible_direction_to_move_v2()
+                self.target_for_foraging_v1(filter)     
+                self.target_name = "food:foraging" 
+
+            else:
+
+                row, col = self.model.get_indices(self.target_lon, self.target_lat)
+
+                if self.aggression < self.model.aggression_threshold_enter_cropland:
+
+                    if self.model.LANDUSE[self.ROW][self.COL] == 10 or self.model.LANDUSE[row][col] == 10: 
+
+                        if self.model.human_disturbance < self.disturbance_tolerance:   
+
+                            next_lon, next_lat = self.targeted_walk_v0()
+                            self.shape = self.move_point(next_lon, next_lat)
+                            self.target_name = "cropland:foraging"
+
+                        else:
+                            self.target_for_escape_v3()    
+                            self.target_name = "forest:escaping"
+                            next_lon, next_lat = self.targeted_walk_v0()
+                            self.shape = self.move_point(next_lon, next_lat)
+
+                    else:
+                        next_lon, next_lat = self.targeted_walk_v0()
+                        self.shape = self.move_point(next_lon, next_lat)
+                        self.target_name = "forest:foraging"
+
+                else:
+
+                    next_lon, next_lat = self.targeted_walk_v0()
+                    self.shape = self.move_point(next_lon, next_lat)
+                    self.target_name = "food:foraging"
+
+        elif self.mode == "Thermoregulation":
+
+            if self.target_present == False:
+                filter = self.return_feasible_direction_to_move_v2()
+                self.target_thermoregulation_v1(filter)
+                self.target_name = "thermoregulation"
+            
+            else:
+                next_lon, next_lat = self.targeted_walk_v0()
+                self.shape = self.move_point(next_lon, next_lat)
+
+        elif self.mode == "EscapeMode":
+
+            if self.target_present == False or (self.target_name and "escaping" not in self.target_name):  
+                self.target_for_escape_v3()  
+                self.target_name = "forest:escaping"
+                next_lon, next_lat = self.targeted_walk_v0()
+                self.shape = self.move_point(next_lon, next_lat)
+                self.target_name = "forest:escaping"
+
+            else:
+                next_lon, next_lat = self.targeted_walk_v0()
+                self.shape = self.move_point(next_lon, next_lat)
+                self.target_name = "forest:escaping"
+            
+        elif self.mode == "InflictDamage":     
+            self.InflictDamage()   
+
+        self.eat_food()
+        self.drink_water()
+
+        self.crop_and_infrastructure_damage() 
+
+        self.update_fitness_value(-1/(288*self.model.num_days_agent_survives_in_deprivation))
+
+        if  self.prob_thermoregulation > 0.5:
+            # print("water source proximity (number of cells):", self.proximity_to_water_sources[self.ROW][self.COL])
+            if self.proximity_to_water_sources[self.ROW][self.COL]*33.33 < self.model.radius_water_search:
+                self.num_steps_thermoregulated += 1
+                
+        return 
+    #--------------------------------------------------------------------------------------------------
     def update_danger_to_life(self):
         """Update danger_to_life"""
 
+        if len(self.conflict_neighbor) > 0:    
+            if self.human_habituation < self.model.human_habituation_tolerance:  
+                for agent in self.conflict_neighbor:
+                    self.danger_to_life = True
+                    self.conflict_with_humans = True 
+                    return  
+
+            else: 
+                for agent in self.conflict_neighbor:
+                    self.danger_to_life = False 
+                    self.conflict_with_humans = True
+                    return 
+        else:
+            self.danger_to_life = False   
+            self.conflict_with_humans = False
+            return 
+    #--------------------------------------------------------------------------------------------------
+    def update_danger_to_life_v2(self):
+        """Update danger_to_life"""
+
+        if self.model.DETERRENT_POLICY[self.ROW][self.COL] > 0:
+            self.danger_to_life = True
+            self.conflict_with_humans = True 
+            return         
+    
         if len(self.conflict_neighbor) > 0:    
             if self.human_habituation < self.model.human_habituation_tolerance:  
                 for agent in self.conflict_neighbor:
@@ -451,7 +591,7 @@ class Elephant(GeoAgent):
             conflict_neighbors = []
             for agent in self.model.schedule.agents:
                 if isinstance(agent,  Humans):
-                    distance = self.distance_calculator_epsg3857(self.shape.y, agent.shape.y, self.shape.x, agent.shape.x)
+                    distance = agent.distance_calculator_epsg3857(self.shape.y, agent.shape.y, self.shape.x, agent.shape.x)
                     if distance <= self.model.elephant_agent_visibility_radius:
                         conflict_neighbors.append(agent)
 
@@ -461,6 +601,71 @@ class Elephant(GeoAgent):
                 self.conflict_neighbor = []
 
         self.update_danger_to_life()
+
+        if (self.danger_to_life==True and self.conflict_with_humans==True):      
+            #Supercedes all other requirements --> This state is encountered when in conflict with Human agents
+            mode="EscapeMode"
+
+        elif self.danger_to_life==True and self.conflict_with_humans==False:
+            #Supercedes all other requirements --> This state is encountered when in conflict with Human agents
+            mode="InflictDamage"
+
+        elif self.fitness < self.model.fitness_threshold:
+            mode = "ForagingMode"
+
+        elif  self.prob_thermoregulation > 0.5:
+            mode = "Thermoregulation"
+
+        else:
+
+            num = self.model.random.uniform(0,1)
+
+            if self.mode == "RandomWalk":
+                if num <= state1:
+                    mode = "RandomWalk"
+                else:
+                    mode = "ForagingMode"
+            
+            elif self.mode == "ForagingMode":
+
+                if num <= state2:
+                        mode = "ForagingMode"
+                else:
+                    mode = "RandomWalk"
+
+            else:
+                mode = self.model.random.choice(["ForagingMode", "RandomWalk"])
+
+        return mode
+    #-------------------------------------------------------------------------------------------------
+    def current_mode_of_the_agent_v2(self):
+        """function returns the mode of the agent depending on its energy levels and interaction with human agents"""
+
+        #From the transition probability matrix 
+        state1 = 0.8775307
+        state2 = 0.9096085
+        state1_to_state2 = 0.1224693
+        state2_to_state1 = 0.0903915
+
+        ROW, COL = self.model.return_indices_temperature_matrix(self.shape.y, self.shape.x)
+        self.prob_thermoregulation = self.model.temp[ROW,COL]
+        if  self.prob_thermoregulation > 0.5:
+            self.num_thermoregulation_steps += 1
+        
+        if self.model.elephant_agent_visibility_radius != None:
+            conflict_neighbors = []
+            for agent in self.model.schedule.agents:
+                if isinstance(agent,  Humans):
+                    distance = agent.distance_calculator_epsg3857(self.shape.y, agent.shape.y, self.shape.x, agent.shape.x)
+                    if distance <= self.model.elephant_agent_visibility_radius:
+                        conflict_neighbors.append(agent)
+
+            if len(conflict_neighbors) > 0:
+                self.conflict_neighbor = conflict_neighbors
+            else:
+                self.conflict_neighbor = []
+
+        self.update_danger_to_life_v2()
 
         if (self.danger_to_life==True and self.conflict_with_humans==True):      
             #Supercedes all other requirements --> This state is encountered when in conflict with Human agents
@@ -1001,7 +1206,6 @@ class Elephant(GeoAgent):
         row_end = self.ROW + radius//2 + 1
         col_end = self.COL + radius//2 + 1
 
-        #To handle edge cases
         if self.ROW < radius:
             row_start = 0
 
@@ -1014,76 +1218,65 @@ class Elephant(GeoAgent):
         elif self.COL > self.model.col_size-radius-1:
             col_end = self.model.col_size-1
 
-        # print("-----choosing food target-----", str(self.model.schedule.steps))
-        # print("number of days of food deprivation:", self.num_days_food_depreceation, "number of days of water deprivation:", self.num_days_water_source_visit, "crop habituated:", self.crop_habituated)
+        food_memory_array = np.array(self.food_memory)
+        lulc_array = np.array(self.model.LANDUSE)
+
+        plantation_mask = (lulc_array == 10)
+        forest_mask = (lulc_array == 15)
+
+        sum_food_where_lulc_10 = np.sum(food_memory_array[plantation_mask])
+        num_cells_with_lulc_10 = np.count_nonzero(lulc_array == 10)
+        sum_food_where_lulc_15 = np.sum(food_memory_array[forest_mask])
+        num_cells_with_lulc_15 = np.count_nonzero(lulc_array == 15)
+
+        forest_food_density = sum_food_where_lulc_15/num_cells_with_lulc_15
+        cropland_food_density = sum_food_where_lulc_10/num_cells_with_lulc_10
+
+        self.relative_food_abundance = cropland_food_density/forest_food_density
 
         if self.num_days_food_depreceation >= self.model.threshold_days_of_food_deprivation:
 
-            # print("trying condition 01")
+            if cropland_food_density > self.model.density_factor*forest_food_density:
 
-            if np.random.uniform(0,1) < self.aggression:
-
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                            if self.food_memory[i][j] > 0:
-                                coord_list.append([i,j])
-                                # print("target is a food cell closer to plantations")     
-
-                if coord_list == []:
+                if np.random.uniform(0,1) < self.aggression:
 
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
                             if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
 
-                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
+                                if self.food_memory[i][j] > 0:
+                                    coord_list.append([i,j])
+                                    # print("target is a food cell closer to plantations")     
+
+                    if coord_list == []:
+
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
+                                if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                                    if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
                                         coord_list.append([i,j]) 
                                         # print("target is a food proximity cell closer to plantations")  
 
-            else:
+                else:
 
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if i == self.ROW and j == self.COL:
-                            pass
-
-                        elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
-                            coord_list.append([i,j])
-                            # print("target is a food cell")  
-
-                if coord_list == []:
-                    
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
+                            if i == self.ROW and j == self.COL:
+                                pass
 
-                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
                                 coord_list.append([i,j])
-                                # print("target is a food proximity cell")
+                                # print("target is a food cell")  
 
-        elif self.crop_habituated == True:
+                    if coord_list == []:
+                        
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
 
-            # print("trying condition 02")
-
-            if np.random.uniform(0,1) < self.aggression:
-
-                for i in range(row_start,row_end):
-                    for j in range(col_start,col_end):
-                        if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                            if self.food_memory[i][j] > 0:
-                                coord_list.append([i,j])   
-                                # print("target is a food cell closer to plantations")   
-
-                if coord_list == []:
-
-                    for i in range(row_start,row_end):
-                        for j in range(col_start,col_end):
-                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
-
-                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
-                                    coord_list.append([i,j]) 
-                                    # print("target is a food proximity cell closer to plantations") 
+                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j])
+                                    # print("target is a food proximity cell")
 
             else:
 
@@ -1096,18 +1289,79 @@ class Elephant(GeoAgent):
                             coord_list.append([i,j])
                             # print("target is a food cell")
 
-                if coord_list == []: 
-                    
+                if coord_list == []:
+
                     for i in range(row_start,row_end):
                         for j in range(col_start,col_end):
 
                             if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
                                     coord_list.append([i,j])
-                                    # print("target is a food proximity cell")
-                        
-        else:
+                                    # print("target is a food proximity cell") 
 
-            # print("trying condition 03")
+        elif self.crop_habituated == True:
+
+            if cropland_food_density > self.model.density_factor*forest_food_density:
+
+                if np.random.uniform(0,1) < self.aggression:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                                if self.food_memory[i][j] > 0:
+                                    coord_list.append([i,j])   
+                                    # print("target is a food cell closer to plantations")   
+
+                    if coord_list == []:
+
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
+                                if self.proximity_to_plantations[i][j] < self.proximity_to_plantations[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+
+                                    if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL]:
+                                        coord_list.append([i,j]) 
+                                        # print("target is a food proximity cell closer to plantations") 
+
+                else:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+                            if i == self.ROW and j == self.COL:
+                                pass
+
+                            elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                                coord_list.append([i,j])
+                                # print("target is a food cell")
+
+                    if coord_list == []: 
+                        
+                        for i in range(row_start,row_end):
+                            for j in range(col_start,col_end):
+
+                                if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                        coord_list.append([i,j])
+                                        # print("target is a food proximity cell")
+
+            else:
+
+                for i in range(row_start,row_end):
+                    for j in range(col_start,col_end):
+                        if i == self.ROW and j == self.COL:
+                            pass
+
+                        elif self.food_memory[i][j] > 0 and filter[i - row_start][j - col_start] == 1:
+                            coord_list.append([i,j])
+                            # print("target is a food cell")
+
+                if coord_list == []:
+
+                    for i in range(row_start,row_end):
+                        for j in range(col_start,col_end):
+
+                            if self.proximity_to_food_sources[i][j] < self.proximity_to_food_sources[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                                    coord_list.append([i,j])
+                                    # print("target is a food proximity cell")             
+        else:
 
             for i in range(row_start,row_end):
                 for j in range(col_start,col_end):
@@ -1323,10 +1577,8 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         coord_list=[]
-
         for i in range(row_start, row_end):
             for j in range(col_start, col_end):
-
                 if i == self.ROW and j == self.COL:
                     pass
 
@@ -1524,6 +1776,72 @@ class Elephant(GeoAgent):
 
         return
     #---------------------------------------------------------------------------------------------------
+    def target_for_escape_v3(self):
+        """ Function returns the target for the elephant agent to move in case of danger to life. """
+
+        try:
+            if self.target_present == True and "escaping" in self.target_name:   
+                return
+        except:
+            pass
+        
+        radius = int(self.model.radius_forest_search*2/self.model.xres)     
+        row_start = self.ROW - radius//2
+        col_start = self.COL - radius//2
+        row_end = self.ROW + radius//2 + 1
+        col_end = self.COL + radius//2 + 1
+
+        if self.ROW < radius:
+            row_start = 0
+
+        elif self.ROW > self.model.row_size-1-radius:
+            row_end = self.model.row_size-1
+
+        if self.COL < radius:
+            col_start = 0
+
+        elif self.COL > self.model.col_size-radius-1:
+            col_end = self.model.col_size-1
+
+        coord_list=[]
+
+        for i in range(row_start, row_end):
+            for j in range(col_start, col_end):
+
+                if i == self.ROW and j == self.COL:
+                    pass
+
+                elif self.model.LANDUSE[i][j] == 15:
+                    coord_list.append([i, j])
+
+        if coord_list==[]:
+            coord_list.append([self.ROW, self.COL])
+            for _ in range(25):
+
+                radius = int(self.model.terrain_radius*2/self.model.xres)   
+
+                row_start = self.ROW - radius//2
+                col_start = self.COL - radius//2
+                row_end = self.ROW + radius//2 + 1
+                col_end = self.COL + radius//2 + 1
+
+                i = self.model.random.randint(row_start, row_end)
+                j = self.model.random.randint(col_start, col_end)
+
+                if self.proximity_to_forests[i][j] <= self.proximity_to_forests[self.ROW][self.COL]:
+                    coord_list.append([i,j])
+
+        x, y = self.model.random.choice(coord_list)
+        lon = self.model.xres * 0.5  + self.model.xmin + y * self.model.xres
+        lat = self.model.yres * 0.5  + self.model.ymax + x * self.model.yres
+        self.target_lon, self.target_lat = lon, lat
+        self.target_present = True
+
+        if self.danger_to_life==True and self.conflict_with_humans==True and self.model.plot_stepwise_target_selection == True:    
+            self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "escape_target_v3", filter, x, y)
+
+        return
+    #---------------------------------------------------------------------------------------------------
     def drink_water(self):
         """ The elephant agent consumes water from the current cell it is located in"""
 
@@ -1562,22 +1880,6 @@ class Elephant(GeoAgent):
                 if self.food_memory_cells[row][col] == 1:
                     self.food_memory_cells[row][col] = 0
                     self.update_food_memory_proximity_map()
-
-            source = os.path.join(self.model.folder_root, "env", "LULC.tif")
-            with rio.open(source) as src:
-                ras_meta = src.profile
-
-            food_memory_loc = os.path.join(self.model.folder_root, "env", "food_memory_" + str(self.unique_id) + ".tif")
-            with rio.open(food_memory_loc, 'w', **ras_meta) as dst:
-                dst.write(np.array(self.food_memory).astype('float32'), 1)
-
-            food_memory_cells_loc = os.path.join(self.model.folder_root, "env", "food_memory_cells_" + str(self.unique_id) + ".tif")
-            with rio.open(food_memory_cells_loc, 'w', **ras_meta) as dst:
-                dst.write(np.array(self.food_memory_cells).astype('float32'), 1)
-
-            food_loc = os.path.join(self.model.folder_root, "env", "food_" + str(self.unique_id) + ".tif")
-            with rio.open(food_loc, 'w', **ras_meta) as dst:
-                dst.write(np.array(self.model.FOOD).astype('float32'), 1)
 
             self.update_memory_matrix()
             
@@ -1681,6 +1983,8 @@ class Elephant(GeoAgent):
 
         """Function to simulate the cognition of the elephant agent"""
 
+        self.relative_food_abundance = None
+
         if (self.model.model_time%288) == 0 and self.model.model_day > 0:         #start of a new day
 
             self.update_fitness_thermoregulation(self.num_thermoregulation_steps, self.num_steps_thermoregulated)
@@ -1708,7 +2012,7 @@ class Elephant(GeoAgent):
             self.num_steps_thermoregulated = 0
             self.num_thermoregulation_steps = 0
 
-        self.next_step_to_move_v1()
+        self.next_step_to_move_v2()
         self.ROW, self.COL = self.update_grid_index()
 
         self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
@@ -1877,7 +2181,7 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix(self):
+    def initialize_water_matrix_v1(self):
         
         """The function initializes water matrix based on the simulation parameters"""
         #Prob_water: probability of water being available in a given cell 
@@ -1918,10 +2222,83 @@ class environment():
         return
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
+    def initialize_water_matrix_only_rivers(self):
+        
+        """The function initializes water matrix based on the simulation parameters"""
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        LULC = gdal.Open(fid).ReadAsArray()
+        rowmax, colmax = LULC.shape
+
+        water_matrix = np.zeros_like(LULC)
+
+        for i in range(0,rowmax):
+            for j in range(0,colmax):
+                if LULC[i,j]==9:
+                    if np.random.uniform(0,1) < self.prob_water_sources:
+                        water_matrix[i,j]=1
+
+        #saving the water matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        # make any necessary changes to raster properties, e.g.:
+        ras_meta['dtype'] = "int32"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(water_matrix.astype(int), 1)
+
+        return
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
+    def initialize_water_matrix_only_water_holes(self):
+        
+        """The function initializes water matrix based on the simulation parameters"""
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        LULC = gdal.Open(fid).ReadAsArray()
+        rowmax, colmax = LULC.shape
+
+        water_matrix = np.zeros_like(LULC)
+
+        for i in range(0,rowmax):
+            for j in range(0,colmax):
+                if np.random.uniform(0,1) < self.prob_water_sources:
+                    water_matrix[i,j]=1
+
+        #saving the water matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        # make any necessary changes to raster properties, e.g.:
+        ras_meta['dtype'] = "int32"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(water_matrix.astype(int), 1)
+        return
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def main(self):
 
         self.initialize_food_matrix()
-        self.initialize_water_matrix()
+        # self.initialize_water_matrix_only_rivers()
+        self.initialize_water_matrix_only_water_holes()
 
         return
     #---------------------------------------------------------------------------------------------------------
@@ -1978,20 +2355,21 @@ class conflict_model(Model):
         elephant_crop_habituation,
         num_guards,
         ranger_visibility_radius,
-        restart=False,
-        elephant_fitness=None,
-        elephant_mode=None,
-        daily_dry_matter_intake=None,
-        food_consumed=None,
-        visit_water_source=None,
-        num_days_water_source_visit=None,
-        num_days_food_depreceation=None
+        deterrant_matrix_configuration,
+        deterrant_matrix_coverage,
+        suitability_threshold,
+        forest_fringe_buffer_for_deterrant_matrix,
+        w_border,
+        w_roads,
+        w_plantation,
+        w_dem,
+        w_slope,
+        density_factor
         ):
 
 
 
         self.MAP_COORDS=[9.3245, 76.9974]   
-        self.restart = restart
 
 
 
@@ -2041,21 +2419,9 @@ class conflict_model(Model):
         self.elephant_crop_habituation = elephant_crop_habituation
         self.num_guards = num_guards
         self.ranger_visibility_radius = ranger_visibility_radius
+        self.density_factor = density_factor
         #-------------------------------------------------------------------
 
-
-
-
-        if self.restart:
-            self.elephant_fitness = elephant_fitness
-            self.elephant_mode = elephant_mode
-            self.daily_dry_matter_intake = daily_dry_matter_intake
-            self.food_consumed = food_consumed
-            self.visit_water_source = visit_water_source
-            self.num_days_water_source_visit = num_days_water_source_visit
-            self.num_days_food_depreceation = num_days_food_depreceation
-        else:
-            pass
 
 
 
@@ -2093,25 +2459,25 @@ class conflict_model(Model):
         os.mkdir(os.path.join(folder, self.now, "env"))
         os.mkdir(os.path.join(folder, self.now, "output_files"))
         
-        if self.restart == False:
-            environment(prob_food_in_forest = self.prob_food_forest,
-                                prob_food_in_cropland = self.prob_food_cropland,
-                                prob_water_sources = self.prob_water_sources,
-                                max_food_val_forest = self.max_food_val_forest,
-                                max_food_val_cropland = self.max_food_val_cropland,
-                                output_folder=os.path.join(self.folder_root, "env")).main()
-        else:
-            shutil.copy(os.path.join(run_folder, "env", "food_bull_0.tif"), os.path.join(self.folder_root, "env"))
-            shutil.copy(os.path.join(run_folder, "env", "landscape_cell_status.tif"), os.path.join(self.folder_root, "env"))
-            shutil.copy(os.path.join(run_folder, "env", "food_memory_bull_0.tif"), os.path.join(self.folder_root, "env"))
-            shutil.copy(os.path.join(run_folder, "env", "food_memory_cells_bull_0.tif"), os.path.join(self.folder_root, "env"))
-            shutil.copy(os.path.join(run_folder, "env", "water_matrix_" + str(self.prob_water_sources) +"_.tif"), os.path.join(self.folder_root, "env"))
-
-
+        environment(prob_food_in_forest = self.prob_food_forest,
+                            prob_food_in_cropland = self.prob_food_cropland,
+                            prob_water_sources = self.prob_water_sources,
+                            max_food_val_forest = self.max_food_val_forest,
+                            max_food_val_cropland = self.max_food_val_cropland,
+                            output_folder=os.path.join(self.folder_root, "env")).main()
+        
         env_folder_seethathode = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode", "Raster_Files_Seethathode_Derived", self.area[area_size], self.reso[spatial_resolution])
         shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(self.folder_root, "env"))
+
+        os.makedirs(os.path.dirname(os.path.join(self.folder_root, "env", "ranger_strategy")), exist_ok=True)
+        target_folder = os.path.join(str(pathlib.Path(folder).parent.parent), "guard_agent_placement_optimisation")
+        if os.path.exists(target_folder):
+            ranger_strategy_files_source = target_folder
+        else:
+            ranger_strategy_files_source = os.path.join("trajectory_analysis/ranger-locations")
+        shutil.copytree(ranger_strategy_files_source, os.path.join(self.folder_root, "env", "ranger_strategy"))
 
         self.DEM = self.DEM_study_area()
         self.SLOPE = self.SLOPE_study_area()
@@ -2120,6 +2486,33 @@ class conflict_model(Model):
         self.WATER = self.WATER_MATRIX()
         self.LANDSCAPE_STATUS = self.LANDSCAPE_CELL_STATUS()
         self.AGRICULTURAL_PLOTS, self.INFRASTRUCTURE_MATRIX = self.PROPERTY_MATRIX()
+
+
+        planner = DeterrentPolicyPlanner(os.path.join(self.folder_root, "env", "LULC.tif"), 
+                                         os.path.join(self.folder_root, "env", "DEM.tif"), 
+                                         os.path.join(self.folder_root, "env", "slope_matrix.tif"), 
+                                         "deterrent_measures/outputs/road_raster.tif", 
+                                         forest_fringe_buffer_for_deterrant_matrix)
+        
+        configuration = {'type': deterrant_matrix_configuration, 
+                         'coverage': deterrant_matrix_coverage, 
+                         'threshold': suitability_threshold,
+                         'buffer_distance': forest_fringe_buffer_for_deterrant_matrix,
+                         'w_border': w_border,
+                         'w_roads': w_roads,
+                         'w_plantation': w_plantation, 
+                         'w_dem': w_dem,
+                         'w_slope': w_slope}
+
+        planner.make_policies(configuration, os.path.join(self.folder_root, "env"))
+
+        planner.save_raster(
+                output_path=os.path.join(os.path.join(self.folder_root, "env"), "deterrent_policy.tif"),
+                reference_raster_path=os.path.join(self.folder_root, "env", "LULC.tif"), 
+                dtype=rasterio.int8
+            )
+        
+        self.DETERRENT_POLICY = self.DETERRENT_POLICY()
         #-------------------------------------------------------------------
 
 
@@ -2218,13 +2611,9 @@ class conflict_model(Model):
         #-------------------------------------------------------------------
 
         self.initialize_bull_elephants()
- 
-        if self.restart:
-            self.initialize_ranger_agents()
-        else:
-            pass
 
-        self.find_ranger_coverage()
+        if self.num_guards != 0:
+            self.initialize_human_agents()
 
         #-------------------------------------------------------------------
         self.datacollector = DataCollector(model_reporters={},
@@ -2246,8 +2635,8 @@ class conflict_model(Model):
                                                 "num_thermoregulation_steps": "num_thermoregulation_steps",
                                                 "num_steps_thermoregulated": "num_steps_thermoregulated",
                                                 "current_proximity_to_plantations": "current_proximity_to_plantations",
-                                                "current_proximity_to_water_sources": "current_proximity_to_water_sources"
-
+                                                "current_proximity_to_water_sources": "current_proximity_to_water_sources",
+                                                "relative_food_abundance": "relative_food_abundance"
                                                 })
 
         self.datacollector.collect(self)
@@ -2334,7 +2723,7 @@ class conflict_model(Model):
 
         plt.close()
     #-------------------------------------------------------------------
-    def initialize_ranger_agents(self):
+    def initialize_human_agents(self):
         """ The function initializes human agents"""
 
         def read_experiment_data(yaml_file_path):
@@ -2342,15 +2731,28 @@ class conflict_model(Model):
                 with open(yaml_file_path, 'r') as file:
                     data = yaml.safe_load(file)
                     
+                for experiment in data:
+                    experiment['ranger_locations'] = np.array(experiment['ranger_locations'])
+                    experiment['ranger_payoffs'] = np.array(experiment['ranger_payoffs'])
+                    
                 return data
             
             except Exception as e:
-                print(f"Error reading YAML file: {e}")
+                # print(f"Error reading YAML file: {e}")
                 return None
 
-        experiments = read_experiment_data(os.path.join(os.getcwd(), "model_runs/", _experiment_name_, "guard_agent_placement_optimisation", "without_rangers", 'ranger_strategies_' + str(self.num_guards) + 'rangers.yaml'))
-
-        self.ranger_locations = experiments['ranger_locations']
+        try:
+            # print("reading ranger strategies from file")
+            experiments = read_experiment_data(os.path.join(str(pathlib.Path(folder).parent.parent), "guard_agent_placement_optimisation", "ranger_strategies_" + str(self.num_guards) + "rangers.yaml"))
+            converged_experiments = [exp for exp in experiments if exp['convergence']]
+            best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
+            self.ranger_locations = best_experiment['ranger_locations']
+        except Exception as e:
+            # print("using default ranger strategies")
+            experiments = read_experiment_data(os.path.join("trajectory_analysis/ranger-locations/random_ranger_strategies_" + str(self.num_guards) + "guards.yaml"))
+            converged_experiments = [exp for exp in experiments if exp['convergence']]
+            best_experiment = min(converged_experiments, key=lambda x: x['total_cost'])
+            self.ranger_locations = best_experiment['ranger_locations']
 
         ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
         data = ds.ReadAsArray()
@@ -2414,58 +2816,10 @@ class conflict_model(Model):
         plt.title("Guard agent initialisation")
         plt.savefig(os.path.join(folder, self.now, "output_files", "guard_agent_placement.png"), dpi = 300, bbox_inches = 'tight')
 
-        
+        newagent.find_ranger_coverage()
+
         return
     #----------------------------------------------------------------------------------------------------
-    def find_ranger_coverage(self):
-
-        fid = os.path.join(self.folder_root, "env", "LULC.tif")
-
-        ds = gdal.Open(fid)
-        row_size, col_size = ds.ReadAsArray().shape
-
-        lat_grid, lon_grid = np.mgrid[self.LAT_MIN_epsg3857:self.LAT_MAX_epsg3857:row_size*1j, 
-                                      self.LON_MIN_epsg3857:self.LON_MAX_epsg3857:col_size*1j]
-
-        ranger_coverage = np.zeros_like(ds.ReadAsArray())
-        
-        try:
-            for i, ranger in enumerate(self.ranger_locations):
-                distances = np.sqrt((lon_grid - ranger[0])**2 + (lat_grid - ranger[1])**2)
-                coverage = np.exp(-0.5 * (distances / self.ranger_visibility_radius)**2)
-                ranger_coverage = np.maximum(ranger_coverage, coverage)
-        except:
-            pass
-
-        self.ranger_coverage = np.flipud(ranger_coverage)
-        fig, ax = plt.subplots(figsize=(6.8, 6.8))
-        map = Basemap(llcrnrlon= self.LON_MIN,llcrnrlat=self.LAT_MIN,urcrnrlon=self.LON_MAX,urcrnrlat=self.LAT_MAX, epsg=4326, resolution='l')
-        img = map.imshow(np.flipud(self.ranger_coverage), 
-                        cmap='coolwarm', 
-                        alpha=0.75,  
-                        extent=[self.LON_MIN, self.LON_MAX, self.LAT_MIN, self.LAT_MAX],
-                        zorder=1)
-        
-        plt.colorbar(img, ax=ax, orientation='vertical', shrink=0.5)
-
-        try:
-            for ranger in self.ranger_locations:
-                outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
-                longitude, latitude = transform(inProj, outProj, ranger[0], ranger[1])
-                x_new, y_new = map(longitude,latitude)
-                ax.scatter(x_new, y_new, 25, marker='x', color='white', zorder=2)
-
-                radius = self.ranger_visibility_radius/(111*1000)  
-                circle = plt.Circle((x_new, y_new), radius, facecolor='purple', fill=True, alpha=0.5, edgecolor='black', linewidth=1)
-                ax.add_artist(circle)
-        except:
-            pass
-
-        plt.savefig(os.path.join(folder, self.now, "output_files", 'ranger_coverages.png'), dpi=300, bbox_inches='tight')
-        plt.close()
-
-        return
-    #----------------------------------------------------------------------------------------------------- 
     def elephant_distribution_random_init_forest(self):
         """ Function to return the distribution of elephants within the study area"""
 
@@ -2551,10 +2905,7 @@ class conflict_model(Model):
     #-----------------------------------------------------------------------------------------------------
     def FOOD_MATRIX(self):
         """ Returns the food matrix model of the study area"""
-        if self.restart:
-            fid = os.path.join(self.folder_root, "env", "food_bull_0.tif")
-        else:
-            fid = os.path.join(self.folder_root, "env", "food_matrix_"+ str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif")
+        fid = os.path.join(self.folder_root, "env", "food_matrix_"+ str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif")
         FOOD = gdal.Open(fid).ReadAsArray()  
         return FOOD.tolist()  
     #-----------------------------------------------------------------------------------------------------
@@ -2604,6 +2955,14 @@ class conflict_model(Model):
             dst.write(agricultural_plots, 1)
 
         return agricultural_plots.tolist(), infrastructure.tolist()
+    #-----------------------------------------------------------------------------------------------------
+    def DETERRENT_POLICY(self):
+        """ Returns the digital elevation model of the study area"""
+
+        fid = os.path.join(self.folder_root, "env", "deterrent_policy.tif")
+
+        policy = gdal.Open(fid).ReadAsArray()  
+        return policy.tolist() 
     #-----------------------------------------------------------------------------------------------------
     def calculate_proximity_map(self, landscape_matrix, target_class, name):
         """
@@ -3080,36 +3439,25 @@ class conflict_model(Model):
 
 
 
-def batch_run_model(model_params, experiment_name, output_folder, step=None, strategy=None, run_folder_name=None):
+def batch_run_model(model_params, experiment_name, output_folder):
 
     freeze_support()
-    print(experiment_name)
 
     global folder 
     folder = output_folder
 
-    global step_id
-    step_id = step
-
-    global strategy_id
-    strategy_id = strategy
-
-    global run_folder
-    run_folder = run_folder_name
-
-    global _experiment_name_
-    _experiment_name_ = experiment_name
-
     if model_params["track_in_mlflow"] == True:
         mlflow.set_experiment(experiment_name)
 
-    batch_run(model_cls = conflict_model, 
+    res = batch_run(model_cls = conflict_model, 
                 parameters = model_params, 
                 number_processes = model_params["num_processes"], 
                 iterations = model_params["iterations"],
                 max_steps = model_params["max_time_steps"], 
-                data_collection_period=1, 
+                data_collection_period=-1, 
                 display_progress=True)
+    
+    del res
 
     return
 

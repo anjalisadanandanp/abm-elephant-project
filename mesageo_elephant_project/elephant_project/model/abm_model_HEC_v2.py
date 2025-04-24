@@ -102,19 +102,22 @@ class Elephant(GeoAgent):
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
         #----------------hoose the type of memory matrix initialization-------------------#
-        # self.initialize_memory_matrix_only_forest()
-        self.initialize_memory_matrix_random()
-        # self.initialize_memory_matrix_with_knowledge_from_fringe()
+        # self.initialize_food_memory_matrix_only_forest()
+        self.initialize_food_memory_matrix_random()
+        # self.initialize_food_memory_matrix_with_knowledge_from_fringe()
+        #---------------------------------------------------------------------------------#
+        # self.initialize_water_memory_matrix_only_forest()
+        self.initialize_water_memory_matrix_forest_and_croplands()
         #---------------------------------------------------------------------------------#
 
-        self.proximity_to_water_sources = self.model.calculate_proximity_map(landscape_matrix=self.model.WATER, target_class=1, name="water_sources")
+        self.proximity_to_water_sources = self.model.calculate_proximity_map(landscape_matrix=self.water_memory_cells, target_class=1, name="water_sources")
         self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
 
         self.crop_damage_matrix = np.zeros_like(self.model.LANDUSE)
         self.infrastructure_damage_matrix = np.zeros_like(self.model.LANDUSE)
 
         self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
-        self.current_proximity_to_water_sources = self.proximity_to_plantations[self.ROW][self.COL]
+        self.current_proximity_to_water_sources = self.proximity_to_water_sources[self.ROW][self.COL]
     #-------------------------------------------------------------------
     def move_point(self,xnew,ynew): 
         """
@@ -125,10 +128,9 @@ class Elephant(GeoAgent):
         #ynew: latitude
         return Point(xnew,ynew)
     #-----------------------------------------------------------------------------------------------------
-    def initialize_memory_matrix_random(self):
+    def initialize_food_memory_matrix_random(self):
         """ Function that assigns memory matrix to elephants"""
 
-        #food_memory, water_memory
         food_memory=np.zeros_like(self.model.FOOD)
         food_memory_cells=np.zeros_like(self.model.FOOD)
 
@@ -152,10 +154,9 @@ class Elephant(GeoAgent):
 
         return 
     #-----------------------------------------------------------------------------------------------------
-    def initialize_memory_matrix_with_knowledge_from_fringe(self):
+    def initialize_food_memory_matrix_with_knowledge_from_fringe(self):
         """ Function that assigns memory matrix to elephants. The elephant agent has knowledge of the fringe areas."""
 
-        #self.knowlege_from_fringe : unit is in metres
         no_of_cells = self.model.random.randint(0, int(self.model.knowledge_from_fringe/self.model.xres))     #spatial resolution 
         
         food_memory=np.zeros_like(self.model.LANDUSE)
@@ -193,7 +194,7 @@ class Elephant(GeoAgent):
 
         return 
     #-----------------------------------------------------------------------------------------------------
-    def initialize_memory_matrix_only_forest(self):
+    def initialize_food_memory_matrix_only_forest(self):
         """ Function that assigns memory matrix to elephants."""
 
         food_memory=np.zeros_like(self.model.LANDUSE)
@@ -202,6 +203,7 @@ class Elephant(GeoAgent):
         for i in range(0,self.model.row_size):
             for j in range(0,self.model.col_size):
                 if self.model.random.uniform(0,1) < self.model.percent_memory_elephant and self.proximity_to_plantations[i][j] > 1:
+                    food_memory[i,j] = self.model.FOOD[i][j]
                     if self.model.FOOD[i][j] > 0:
                         food_memory_cells[i,j] = 1
                     
@@ -215,6 +217,51 @@ class Elephant(GeoAgent):
         memory_loc = os.path.join(self.model.folder_root, "env", "food_memory_" + str(self.unique_id) + ".tif")
         with rio.open(memory_loc, 'w', **ras_meta) as dst:
             dst.write(food_memory_cells.astype('float32'), 1)
+
+        return
+    #-------------------------------------------------------------------------------------------
+    def initialize_water_memory_matrix_only_forest(self):
+        """ Function that assigns memory matrix to elephants."""
+
+        water_memory_cells=np.zeros_like(self.model.WATER)
+
+        for i in range(0,self.model.row_size):
+            for j in range(0,self.model.col_size):
+                if self.proximity_to_plantations[i][j] > 50:
+                    if self.model.WATER[i][j] > 0:
+                        water_memory_cells[i,j] = 1
+                    
+        self.water_memory_cells = water_memory_cells.tolist()
+
+        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+
+        memory_loc = os.path.join(self.model.folder_root, "env", "water_memory_" + str(self.unique_id) + ".tif")
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(water_memory_cells.astype('float32'), 1)
+
+        return
+    #-------------------------------------------------------------------------------------------
+    def initialize_water_memory_matrix_forest_and_croplands(self):
+        """ Function that assigns memory matrix to elephants."""
+
+        water_memory_cells=np.zeros_like(self.model.WATER)
+
+        for i in range(0,self.model.row_size):
+            for j in range(0,self.model.col_size):
+                if self.model.WATER[i][j] > 0:
+                    water_memory_cells[i,j] = 1
+                    
+        self.water_memory_cells = water_memory_cells.tolist()
+
+        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+
+        memory_loc = os.path.join(self.model.folder_root, "env", "water_memory_" + str(self.unique_id) + ".tif")
+        with rio.open(memory_loc, 'w', **ras_meta) as dst:
+            dst.write(water_memory_cells.astype('float32'), 1)
 
         return
     #-------------------------------------------------------------------------------------------
@@ -1240,7 +1287,6 @@ class Elephant(GeoAgent):
         row_end = self.ROW + radius//2 + 1
         col_end = self.COL + radius//2 + 1
 
-        #To handle edge cases
         if self.ROW < radius:
             row_start = 0
 
@@ -1254,7 +1300,6 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         coord_list=[]
-        
         for i in range(row_start, row_end):
             for j in range(col_start, col_end):
                 if i == self.ROW and j == self.COL:
@@ -1264,7 +1309,7 @@ class Elephant(GeoAgent):
                     coord_list.append([i, j])
 
         if coord_list==[]:
-            coord_list.append([self.ROW,self.COL])
+            coord_list.append([self.ROW, self.COL])
             for _ in range(25):
 
                 radius = int(self.model.terrain_radius*2/self.model.xres)   
@@ -1385,9 +1430,9 @@ class Elephant(GeoAgent):
         with rio.open(source) as src:
             ras_meta = src.profile
 
-        proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
-        with rio.open(proximity_loc, 'w', **ras_meta) as dst:
-            dst.write(np.array(self.proximity_to_food_sources).astype('float32'), 1)
+        # proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
+        # with rio.open(proximity_loc, 'w', **ras_meta) as dst:
+        #     dst.write(np.array(self.proximity_to_food_sources).astype('float32'), 1)
 
         return
     #----------------------------------------------------------------------------------------------------
@@ -1553,7 +1598,7 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix(self):
+    def initialize_water_matrix_v1(self):
         
         """The function initializes water matrix based on the simulation parameters"""
         #Prob_water: probability of water being available in a given cell 
@@ -1594,10 +1639,83 @@ class environment():
         return
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
+    def initialize_water_matrix_only_rivers(self):
+        
+        """The function initializes water matrix based on the simulation parameters"""
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        LULC = gdal.Open(fid).ReadAsArray()
+        rowmax, colmax = LULC.shape
+
+        water_matrix = np.zeros_like(LULC)
+
+        for i in range(0,rowmax):
+            for j in range(0,colmax):
+                if LULC[i,j]==9:
+                    if np.random.uniform(0,1) < self.prob_water_sources:
+                        water_matrix[i,j]=1
+
+        #saving the water matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        # make any necessary changes to raster properties, e.g.:
+        ras_meta['dtype'] = "int32"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(water_matrix.astype(int), 1)
+
+        return
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
+    def initialize_water_matrix_only_water_holes(self):
+        
+        """The function initializes water matrix based on the simulation parameters"""
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        LULC = gdal.Open(fid).ReadAsArray()
+        rowmax, colmax = LULC.shape
+
+        water_matrix = np.zeros_like(LULC)
+
+        for i in range(0,rowmax):
+            for j in range(0,colmax):
+                if np.random.uniform(0,1) < self.prob_water_sources:
+                    water_matrix[i,j]=1
+
+        #saving the water matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        # make any necessary changes to raster properties, e.g.:
+        ras_meta['dtype'] = "int32"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(water_matrix.astype(int), 1)
+        return
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def main(self):
 
         self.initialize_food_matrix()
-        self.initialize_water_matrix()
+        # self.initialize_water_matrix_only_rivers()
+        self.initialize_water_matrix_only_water_holes()
 
         return
     #---------------------------------------------------------------------------------------------------------
@@ -1625,7 +1743,7 @@ class conflict_model(Model):
         prob_food_cropland,                         #probability of food in the cropland
         prob_water_sources,                         #probability of water holes in the landscape
         thermoregulation_threshold,                 #threshold temperature for thermoregulation for the elephant agents
-        num_days_agent_survives_in_deprivation,          
+        num_days_agent_survives_in_deprivation,     #number of days an agent survives without food and water     
         knowledge_from_fringe,                      #distance from the fringe where elephants knows food availability within the crop fields
         prob_crop_damage,                           #probability of damaging crop if entered an agricultural field
         prob_infrastructure_damage,                 #probability of damaging infrastructure if entered a settlement area
@@ -1635,22 +1753,22 @@ class conflict_model(Model):
         radius_forest_search,                       #radius within which the elephant agent searches for forest
         fitness_threshold,                          #fitness threshold below which the elephant agent engages only in foraging activities
         terrain_radius,                             #parameter in terrain cost function
-        slope_tolerance,                                  #parameter in terrain cost function
+        slope_tolerance,                            #parameter in terrain cost function
         num_processes,                              #number of processes to run the simulation
         iterations,                                 #number of iterations to run the simulation
         max_time_steps,                             #maximum simulation time (in ticks)
         aggression_threshold_enter_cropland,        #aggression threshold for entering a cropland cell
-        elephant_agent_visibility_radius,           
-        plot_stepwise_target_selection,
-        threshold_days_of_food_deprivation,
-        threshold_days_of_water_deprivation,
-        number_of_feasible_movement_directions,
-        track_in_mlflow,
-        elephant_starting_location,
-        elephant_starting_latitude,
-        elephant_starting_longitude,
-        elephant_aggression_value,
-        elephant_crop_habituation
+        elephant_agent_visibility_radius,           #elephant agent visibility radius
+        plot_stepwise_target_selection,             #plot stepwise target selection
+        threshold_days_of_food_deprivation,         #threshold days of food deprivation
+        threshold_days_of_water_deprivation,        #threshold days of water deprivation
+        number_of_feasible_movement_directions,     #number of feasible movement directions
+        track_in_mlflow,                            #track the simulation in MLFlow
+        elephant_starting_location,                 #starting location of the elephant agents
+        elephant_starting_latitude,                 #starting latitude of the elephant agents
+        elephant_starting_longitude,                #starting longitude of the elephant agents
+        elephant_aggression_value,                  #aggression value of the elephant agents
+        elephant_crop_habituation                   #elephant crop habituation value
         ):
 
 

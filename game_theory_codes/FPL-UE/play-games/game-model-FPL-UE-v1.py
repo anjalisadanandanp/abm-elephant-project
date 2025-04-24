@@ -584,7 +584,7 @@ def generate_defender_strategies_v1(num_landscape_cells: int, budget_k: int) -> 
     for num_protected in range(budget_k, budget_k + 1):
 
         for protected_cells in combinations(range(num_landscape_cells), num_protected):
-            strategy = np.zeros(num_landscape_cells, dtype=np.int8)
+            strategy = np.zeros(num_landscape_cells, dtype=np.uint0)
             strategy[list(protected_cells)] = 1
             strategies.add(tuple(strategy)) 
 
@@ -958,7 +958,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
 
     assign_rewards_and_penalties = LandUseRewards(raster_path)
 
-    shape_of_coverage_matrix = (50, 50)
+    shape_of_coverage_matrix = (100, 100)
 
     interpolated = assign_rewards_and_penalties.interpolate_matrix(shape_of_coverage_matrix)
 
@@ -979,7 +979,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
 
     NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
     # print(f"Number of landscape cells: {NUM_LANDSCAPE_CELLS}")
-    BUDGET_K = 1  # Maximum number of cells that can be protected by the defenders at every time-step
+    BUDGET_K = 25  # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 25  # Maximum number of time-steps in the game
     gamma = 0.25  # Exploration/Exploitation Trade-off parameter
     eta = 10  #reward perturbation parameter
@@ -988,7 +988,9 @@ def optimise_strategy(model_params, experiment_name, output_folder):
     print(f"Generating all strategies for the defender for {NUM_LANDSCAPE_CELLS} landscape cells and {BUDGET_K} budget")
 
     # Generate all valid defender strategies
-    # E = generate_defender_strategies_v2(NUM_LANDSCAPE_CELLS, BUDGET_K)
+    E = generate_defender_strategies_v1(NUM_LANDSCAPE_CELLS, BUDGET_K)
+
+    print(len(E))
 
     # print("Example strategies:")
     # for i, strategy in enumerate(E):  

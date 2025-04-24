@@ -17,6 +17,8 @@ from scipy.ndimage import distance_transform_edt
 from tqdm import tqdm
 import multiprocessing as mp
 from functools import partial
+import time
+import random
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -69,7 +71,7 @@ class LandUseRewards:
         except Exception as e:
             raise Exception(f"Error reading raster: {str(e)}")
 
-    def _detect_forest_plantation_border(self, data, buffer=1, border_x=30,  border_y=35):
+    def _detect_forest_plantation_border(self, data, buffer=1, border_x=40,  border_y=40):
         forest_mask = (data == 15)  | (data == 5) | (data == 4) 
         plantation_mask = data == 10
         
@@ -596,6 +598,27 @@ def plot_and_save_defender_coverage(coverage_matrix, figsize=(8, 8),
 
     return 
 
+def generate_defender_strategies_v1(num_samples, num_landscape_cells: int, budget_k: int) -> Iterator[np.ndarray]:
+
+    samples = []
+    for _ in range(num_samples):
+        sample = sorted(random.sample(range(num_landscape_cells), budget_k))
+        samples.append(tuple(sample))
+    
+    unique_samples = list(set(samples))
+
+    strategy = []
+    for sample in unique_samples:
+        strategy.append(combination_to_binary_vector(sample, num_landscape_cells))
+        
+    return strategy
+
+def combination_to_binary_vector(combination, num_landscape_cells):
+
+    binary_vector = np.zeros(num_landscape_cells, dtype=int)
+    binary_vector[list(combination)] = 1
+    return binary_vector
+
 def generate_defender_strategies_v2(num_landscape_cells: int, budget_k: int) -> Iterator[np.ndarray]:
     """
     Generates all possible defender pure strategies given the landscape constraints.
@@ -619,6 +642,7 @@ def generate_defender_strategies_v2(num_landscape_cells: int, budget_k: int) -> 
             yield strategy   # Yield each strategy instead of storing in a set
 
 def select_defender_strategy_V1(
+    NUM_TEST_STRATEGIES,
     NUM_LANDSCAPE_CELLS, 
     BUDGET_K,
     estimated_reward: np.ndarray,  # Current estimated reward vector
@@ -629,7 +653,7 @@ def select_defender_strategy_V1(
     Selects a strategy based on the exploration-exploitation trade-off.
     """
 
-    strategies = generate_defender_strategies_v2(NUM_LANDSCAPE_CELLS, BUDGET_K)
+    strategies = generate_defender_strategies_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
     flag = np.random.random() < gamma 
 
@@ -647,6 +671,8 @@ def select_defender_strategy_V1(
         max_reward = float('-inf')
         best_strategy = None
         
+        strategies = list(strategies)
+
         for v in tqdm(strategies):
 
             v = np.array(v)
@@ -666,29 +692,43 @@ def evaluate_strategy(strategy, perturbed_reward):
     total_reward = np.dot(strategy, perturbed_reward)
     return (total_reward, strategy)
 
-def find_best_strategy_parallel(strategies, perturbed_reward, n_processes=8):
+def find_best_strategy_parallel(strategies, perturbed_reward, n_processes=32):
 
     if n_processes is None:
         n_processes = mp.cpu_count()
     
-    pool = mp.Pool(processes=n_processes)
-    
     eval_func = partial(evaluate_strategy, perturbed_reward=perturbed_reward)
     
+    # max_reward = float('-inf')
+    # best_strategy = None
+
+    # for reward, strategy in tqdm(
+    #     pool.imap_unordered(eval_func, strategies),
+    #     desc=f"Processing on {n_processes} CPUs",
+    # ):
+    #     if reward > max_reward:
+    #         max_reward = reward
+    #         best_strategy = strategy
+    
+    # pool.close()
+    # pool.join()
+
+    start = time.time()
+    with mp.Pool(processes=n_processes) as pool:
+        results = pool.map_async(eval_func, strategies).get()
+    end = time.time()
+
+    print(f"Time taken for parallel processing: {end - start:.2f} seconds")
+
     max_reward = float('-inf')
     best_strategy = None
-    
-    for reward, strategy in tqdm(
-        pool.imap_unordered(eval_func, strategies, chunksize=512),
-        desc=f"Processing on {n_processes} CPUs",
-    ):
+    for reward, strategy in tqdm(results):
         if reward > max_reward:
             max_reward = reward
             best_strategy = strategy
-    
+
     pool.close()
-    pool.join()
-    
+
     return best_strategy
 
 def select_defender_strategy_V2(
@@ -702,16 +742,17 @@ def select_defender_strategy_V2(
     Selects a strategy based on the exploration-exploitation trade-off.
     """
 
-    strategies = generate_defender_strategies_v2(NUM_LANDSCAPE_CELLS, BUDGET_K)
+    strategies = generate_defender_strategies_v1(NUM_LANDSCAPE_CELLS, BUDGET_K)
 
     flag = np.random.random() < gamma 
 
     if flag:  # Exploration of strategies
+        print("Exploration")
         strategies = list(strategies)
         v_t = strategies[np.random.randint(len(strategies))]
 
     else:  # Exploitation of learned strategies
-
+        print("Exploitation")
         n = len(estimated_reward)
         z = np.random.exponential(scale=1/eta, size=n)
         
@@ -776,14 +817,17 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
     )
 
     lulc_data = gdal.Open("game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix.tif").ReadAsArray()
+    coverage_matrix = gdal.Open("game_theory_codes/FPL-UE/outputs/coverage_matrix.tif").ReadAsArray()
+
     plantation_rows, plantation_cols = np.where(lulc_data == 10)
 
     attacker_strategy = []
     for row, col in zip(plantation_rows, plantation_cols):
-        if matrix[row, col] == 1:
-            attacker_strategy.append(1)
-        else:
-            attacker_strategy.append(0)
+        if coverage_matrix[row, col] == 1:
+            if matrix[row, col] == 1:
+                attacker_strategy.append(1)
+            else:
+                attacker_strategy.append(0)
 
     return attacker_strategy
 
@@ -800,14 +844,14 @@ def step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df):
 
     return reward_01 + reward_02
 
-def calculate_best_strategy_v1(NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy, targets_df):
+def calculate_best_strategy_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy, targets_df):
 
     max_reward = float('-inf')
     best_strategy = None
 
     attacker_strategy = np.array(attacker_strategy)
     
-    for v in generate_defender_strategies_v2(NUM_LANDSCAPE_CELLS, BUDGET_K):
+    for v in generate_defender_strategies_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K):
 
         v = np.array(v)
 
@@ -819,7 +863,7 @@ def calculate_best_strategy_v1(NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy,
     
     return best_strategy
 
-def calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy_history, targets_df):
+def calculate_best_strategy_v2(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy_history, targets_df):
 
     max_reward = float('-inf')
     best_strategy = None
@@ -828,7 +872,7 @@ def calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy_
     for strategy in attacker_strategy_history:
         attack_counts += np.array(strategy)
 
-    for v in generate_defender_strategies_v2(NUM_LANDSCAPE_CELLS, BUDGET_K):
+    for v in generate_defender_strategies_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K):
 
         v = np.array(v)
 
@@ -860,7 +904,7 @@ def GR_algorithm(NUM_LANDSCAPE_CELLS: int,
     
     while k <= M:
 
-        v_tilde = select_defender_strategy_V2(NUM_LANDSCAPE_CELLS, BUDGET_K, estimated_reward, gamma, eta)
+        v_tilde = select_defender_strategy_V1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K, estimated_reward, gamma, eta)
         
         for i in range(n):
             if k < M and v_tilde[i] == 1 and K[i] == 0:
@@ -955,7 +999,7 @@ def calculate_defender_regret(defender_strategy_history, attacker_strategy_histo
 
     return REGRET
      
-def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df, shape_of_coverage_matrix):
+def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df, shape_of_coverage_matrix, NUM_TEST_STRATEGIES):
 
     estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
 
@@ -968,9 +1012,10 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
         print("\n----- GameStep", i + 1,"-----")
 
-        defender_strategy_i = select_defender_strategy_V2(NUM_LANDSCAPE_CELLS, BUDGET_K, estimated_reward, gamma, eta)
+        defender_strategy_i = select_defender_strategy_V1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K, estimated_reward, gamma, eta)
 
-        coverage_matrix = create_defender_coverage_matrix(defender_strategy_i, shape_of_coverage_matrix)
+        # coverage_matrix = create_defender_coverage_matrix(defender_strategy_i, shape_of_coverage_matrix)
+        coverage_matrix = gdal.Open("game_theory_codes/FPL-UE/outputs/coverage_matrix.tif").ReadAsArray()
 
         plot_and_save_defender_coverage(coverage_matrix)
 
@@ -984,15 +1029,15 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         defender_strategy_history.append(defender_strategy_i)
         attacker_strategy_history.append(attacker_strategy_i)
 
-        best_defender_strategy_i = calculate_best_strategy_v1(NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy_i, targets_df)
+        best_defender_strategy_i = calculate_best_strategy_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy_i, targets_df)
 
         print("Best strategy for defender for the current step:", best_defender_strategy_i)
 
-        best_defender_strategy_t = calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy_history, targets_df)
+        best_defender_strategy_t = calculate_best_strategy_v2(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K, attacker_strategy_history, targets_df)
 
         print("Best strategy for defender considering all attacker histories:", best_defender_strategy_t)
 
-        K = GR_algorithm(NUM_LANDSCAPE_CELLS, BUDGET_K, eta, M, estimated_reward, gamma=gamma)
+        K = GR_algorithm(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K, eta, M, estimated_reward, gamma=gamma)
 
         estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
 
@@ -1035,6 +1080,11 @@ def optimise_strategy(model_params, experiment_name, output_folder):
 
     assign_rewards_and_penalties._detect_forest_plantation_border(interpolated, buffer=1)
 
+    assign_rewards_and_penalties.save_interpolated_matrix(
+        assign_rewards_and_penalties.forest_agriculture_fringe, "game_theory_codes/FPL-UE/outputs/coverage_matrix.tif",
+        shape_of_coverage_matrix
+    )
+
     targets_df = assign_rewards_and_penalties.assign_target_rewards_and_penalties_random(
         target_value=10, interpolated=interpolated
     )
@@ -1044,25 +1094,25 @@ def optimise_strategy(model_params, experiment_name, output_folder):
     )
 
     NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
-    # print(f"Number of landscape cells: {NUM_LANDSCAPE_CELLS}")
+    print(f"Number of landscape cells: {NUM_LANDSCAPE_CELLS}")
     BUDGET_K = 5  # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 25  # Maximum number of time-steps in the game
     gamma = 0.25  # Exploration/Exploitation Trade-off parameter
     eta = 10  #reward perturbation parameter
     M = 10      #PARAMETER IN THE ALGORITHM
+    NUM_TEST_STRATEGIES = 1000
 
-    print(f"Generating all strategies for the defender for {NUM_LANDSCAPE_CELLS} landscape cells and {BUDGET_K} budget")
+    print(f"Generating strategies for the defender for {NUM_LANDSCAPE_CELLS} landscape cells and {BUDGET_K} budget")
 
-    # Generate all valid defender strategies
-    E = generate_defender_strategies_v2(NUM_LANDSCAPE_CELLS, BUDGET_K)
+    E = generate_defender_strategies_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
     print("Example strategies:")
     for i, strategy in enumerate(E):  
         if i >= 5:
             break
-        print(f"Strategy {i + 1}: {tuple(strategy)}")
+        print(f"Strategy {i + 1}:", strategy)
 
-    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df, shape_of_coverage_matrix)
+    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df, shape_of_coverage_matrix, NUM_TEST_STRATEGIES)
 
 
 

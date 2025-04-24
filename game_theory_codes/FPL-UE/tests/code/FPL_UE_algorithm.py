@@ -565,6 +565,39 @@ def select_random_strategy(E: Set[np.ndarray]) -> np.ndarray:
     strategies = list(E)
     return np.array(strategies[np.random.randint(len(strategies))])
 
+def select_best_response_strategy_to_defender_history(
+    E: Set[np.ndarray],
+    defender_strategy_history: list
+    ) -> np.ndarray:
+
+    if defender_strategy_history == []:
+        return(select_random_strategy(E))
+    
+    else:
+
+        attacker_strategy = list(E)
+
+        attack_counts = np.array(defender_strategy_history).sum(axis=0)
+        sum_attack_counts = np.sum(attack_counts)
+        defender_strategy_average = attack_counts/sum_attack_counts
+
+        print("Defender strategy (history average): ", defender_strategy_average)
+
+        expected_utilities = np.zeros(len(attacker_strategy))
+        
+        for j in range(len(attacker_strategy)):
+            attacker_strategy_i = attacker_strategy[j]
+            utility = 0
+            for t in range(NUM_LANDSCAPE_CELLS):
+                if attacker_strategy_i[t] == 1:
+                    utility += defender_strategy_average[t] * targets_df['reward'][t] + (1 - defender_strategy_average[t]) * targets_df['penalty'][t]
+            expected_utilities[j] = -utility
+        
+        best_response_idx = np.argmax(expected_utilities)
+        best_response = attacker_strategy[best_response_idx]
+
+        return best_response
+
 def GR_algorithm(eta: float, 
                  M: int, 
                  estimated_reward: np.ndarray, 
@@ -783,10 +816,11 @@ def run_single_play(MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targe
         print("\n----- GameStep", i + 1,"-----")
 
         attacker_strategy_i = select_random_strategy(E)
+        # attacker_strategy_i = select_best_response_strategy_to_defender_history(E, defender_strategy_history)
         print("Attacker strategy:", attacker_strategy_i)
         
         defender_strategy_i = select_defender_strategy(E, estimated_reward, gamma, eta)
-        print(f"Selected strategy: {defender_strategy_i}")
+        print(f"Defender strategy: {defender_strategy_i}")
 
         print(f"Number of cells protected: {int(sum(defender_strategy_i))}")
         print(f"Protected target IDs: {targets_df['targetID'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
@@ -829,33 +863,35 @@ if __name__ == "__main__":
         "mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif"
     )
 
-    assign_rewards_and_penalties = LandUseRewards(raster_path)
+    # assign_rewards_and_penalties = LandUseRewards(raster_path)
 
-    interpolated = assign_rewards_and_penalties.interpolate_matrix((8, 8))
-    assign_rewards_and_penalties.plot_matrices(interpolated)
+    # interpolated = assign_rewards_and_penalties.interpolate_matrix((8, 8))
+    # assign_rewards_and_penalties.plot_matrices(interpolated)
 
-    targets_df = assign_rewards_and_penalties.assign_target_rewards_and_penalties_random(
-        target_value=10, interpolated=interpolated
-    )
-    assign_rewards_and_penalties.plot_with_rewards(
-        targets_df, interpolated, name="defender"
-    )
+    # targets_df = assign_rewards_and_penalties.assign_target_rewards_and_penalties_random(
+    #     target_value=10, interpolated=interpolated
+    # )
+    # assign_rewards_and_penalties.plot_with_rewards(
+    #     targets_df, interpolated, name="defender"
+    # )
 
-    # NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
-    # BUDGET_K = 1  # Maximum number of cells that can be protected by the defenders at every time-step
-    # MAX_GAME_STEPS = 1000  # Maximum number of time-steps in the game
-    # gamma = 0.25  # Exploration/Exploitation Trade-off parameter
-    # eta = 10  #reward perturbation parameter
-    # M = 10
+    targets_df = pd.read_csv("game_theory_codes/FPL-UE/tests/target_rewards_penalties.csv")
+
+    NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
+    BUDGET_K = 3  # Maximum number of cells that can be protected by the defenders at every time-step
+    MAX_GAME_STEPS = 1000  # Maximum number of time-steps in the game
+    gamma = 0.05  # Exploration/Exploitation Trade-off parameter
+    eta = 10  #reward perturbation parameter
+    M = 10
 
     # # Generate all valid defender strategies
-    # E = generate_defender_strategies(NUM_LANDSCAPE_CELLS, BUDGET_K)
+    E = generate_defender_strategies(NUM_LANDSCAPE_CELLS, BUDGET_K)
 
-    # print("Example strategies:")
-    # for i, strategy in enumerate(list(E)[:5]):  
-    #     print(f"Strategy {i + 1}: {strategy}")
+    print("Example strategies:")
+    for i, strategy in enumerate(list(E)[:5]):  
+        print(f"Strategy {i + 1}: {strategy}")
 
-    # run_single_play(MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targets_df)
+    run_single_play(MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, E, M, gamma, eta, targets_df)
 
     # num_plays = 10 
     # average_regret, std_regret = run_multiple_plays(

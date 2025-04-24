@@ -19,7 +19,6 @@ class SecurityGame:
         self.attacker_pure_strategies = self._generate_attacker_strategies()
         self.num_attacker_strategies = len(self.attacker_pure_strategies)
         self.defender_pure_strategies = self._generate_defender_strategies()
-
         self.num_defender_strategies = len(self.defender_pure_strategies)
 
         print(f"Number of targets: {self.num_targets}", 
@@ -81,46 +80,90 @@ class SecurityGame:
 
         payoff_matrix = self.compute_payoff_matrix()
 
-        print("payoff matrix: \n", payoff_matrix)
+        # print("payoff matrix: \n", payoff_matrix)
 
         c = np.zeros(self.num_defender_strategies + 1)
-        c[-1] = 1
+        c[-1] = -1
 
-        print("cost:", c)
+        # print("cost:", c)
         
         A_ub = np.zeros((self.num_attacker_strategies, self.num_defender_strategies + 1))
 
         for i in range(self.num_attacker_strategies):
-            A_ub[i, :-1] = payoff_matrix[:, i]
-            A_ub[i, -1] = -1
+            A_ub[i, :-1] = -payoff_matrix[:, i]
+            A_ub[i, -1] = 1
 
-        print("A_ub:", A_ub)
+        # print("A_ub:", A_ub)
         
         b_ub = np.zeros(self.num_attacker_strategies)
 
-        print("b_ub:", b_ub)
+        # print("b_ub:", b_ub)
         
         A_eq = np.zeros((1, self.num_defender_strategies + 1))
         A_eq[0, :-1] = 1
         b_eq = np.ones(1)
 
-        print("A_eq:", A_eq, "b_eq:", b_eq)
+        # print("A_eq:", A_eq, "b_eq:", b_eq)
 
         bounds = [(0,1) for val in range(self.num_defender_strategies)]
         bounds.append((None,None))
 
-        print("bounds:", bounds)
+        # print("bounds:", bounds)
         
         result = linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=bounds)
         
         if result.success:
-            attacker_mixed_strategy = result.x[:-1] 
+            defender_mixed_strategy = result.x
+            return defender_mixed_strategy
+        
+        else:
+            print("Linear programming solution failed!")
+            return None
+
+    def minimax_mixed_strategy(self):
+
+        payoff_matrix = self.compute_payoff_matrix()
+
+        # print("payoff matrix: \n", payoff_matrix)
+
+        c = np.zeros(self.num_defender_strategies + 1)
+        c[-1] = 1
+
+        # print("cost:", c)
+        
+        A_ub = np.zeros((self.num_defender_strategies, self.num_attacker_strategies + 1))
+
+        for i in range(self.num_defender_strategies):
+            A_ub[i, :-1] = payoff_matrix[i, :]
+            A_ub[i, -1] = -1
+
+        # print("A_ub:", A_ub)
+        
+        b_ub = np.zeros(self.num_defender_strategies)
+
+        # print("b_ub:", b_ub)
+        
+        A_eq = np.zeros((1, self.num_attacker_strategies + 1))
+        A_eq[0, :-1] = 1
+        b_eq = np.ones(1)
+
+        # print("A_eq:", A_eq, "b_eq:", b_eq)
+
+        bounds = [(0,1) for val in range(self.num_attacker_strategies)]
+        bounds.append((None,None))
+
+        # print("bounds:", bounds)
+        
+        result = linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=bounds)
+        
+        if result.success:
+            attacker_mixed_strategy = result.x
             return attacker_mixed_strategy
         
         else:
             print("Linear programming solution failed!")
             return None
-    
+
     def get_optimal_strategy_for_defender(self):
 
         mixed_strategy = self.maximin_mixed_strategy()
@@ -128,6 +171,16 @@ class SecurityGame:
         return {
             'mixed_strategy': mixed_strategy
         }
+
+
+    def get_optimal_strategy_for_attacker(self):
+
+        mixed_strategy = self.minimax_mixed_strategy()
+        
+        return {
+            'mixed_strategy': mixed_strategy
+        }
+     
     
 
 
@@ -136,16 +189,28 @@ class SecurityGame:
 if __name__ == "__main__":
 
 
-    k = 2  # defender resources to protect the targets
-    m = 2  # number of targets attacker can attack in one game round
+    k = 1  # defender resources to protect the targets
+    m = 1  # number of targets attacker can attack in one game round
     game = SecurityGame("game_theory_codes/attacker-strategies/adversarial/code/target_rewards_penalties.csv", k, m)
     
+    # print("x-----------------------------------------------------x")
+
     optimal_strategy = game.get_optimal_strategy_for_defender()
 
-    print(optimal_strategy)
+    payoff_matrix = game.compute_payoff_matrix()
 
-    for probability,strategy in zip(optimal_strategy["mixed_strategy"], game.defender_pure_strategies):
-        if probability > 0:
-            print(strategy, probability)
+    print("payoff matrix: \n", payoff_matrix)
 
+    print("optimal strategy for defender (maximize minimum possible payoff):",optimal_strategy)
 
+    print("x-----------------------------------------------------x")
+
+    optimal_strategy = game.get_optimal_strategy_for_attacker()
+
+    payoff_matrix = game.compute_payoff_matrix()
+
+    print("payoff matrix: \n", payoff_matrix)
+    
+    print("optimal strategy for attacker (minimize maximum possible loss):",optimal_strategy)
+
+    print("x-----------------------------------------------------x")

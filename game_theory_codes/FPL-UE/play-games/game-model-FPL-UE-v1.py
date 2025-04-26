@@ -19,6 +19,7 @@ import multiprocessing as mp
 from functools import partial
 import time
 import random
+from math import comb
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -645,7 +646,7 @@ def generate_defender_strategies_v1(num_landscape_cells: int, budget_k: int) -> 
             strategy[list(protected_cells)] = 1
             yield strategy
 
-def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, output_folder, probability_threshold=0.5) -> Iterator[np.ndarray]:
+def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, output_folder, probability_threshold=0.0) -> Iterator[np.ndarray]:
 
     potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif")).ReadAsArray()
 
@@ -685,6 +686,8 @@ def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, ou
     flat_idx_map = {}
     for i, (row, col) in enumerate(zip(*np.where(mask))):
         flat_idx_map[(row, col)] = i
+
+    print("Total number of potential strategies:", comb(len(attack_locations), budget_k))
     
     for selected_locations in combinations(attack_locations, budget_k):
         strategy_vector = np.zeros(total_potential_targets, dtype=int)

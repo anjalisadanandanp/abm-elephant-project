@@ -710,10 +710,11 @@ def select_defender_strategy_V1(
     flag = np.random.random() < gamma 
 
     if flag:  # Exploration of strategies
+        print("exploration")
         v_t = strategies[np.random.randint(len(strategies))]
 
     else:  # Exploitation of learned strategies
-
+        print("exploitation")
         n = len(estimated_reward)
         z = np.random.exponential(scale=1/eta, size=n)
         
@@ -725,7 +726,7 @@ def select_defender_strategy_V1(
         for v in strategies:
 
             v = np.array(v)
-            
+
             total_reward = np.dot(v, perturbed_reward) 
 
             if total_reward > max_reward:

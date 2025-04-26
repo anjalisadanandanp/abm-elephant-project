@@ -646,7 +646,7 @@ def generate_defender_strategies_v1(num_landscape_cells: int, budget_k: int) -> 
             strategy[list(protected_cells)] = 1
             yield strategy
 
-def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, output_folder, N=1500) -> Iterator[np.ndarray]:
+def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, output_folder, N=20) -> Iterator[np.ndarray]:
 
     potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif")).ReadAsArray()
 
@@ -1335,7 +1335,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
 
 
     NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
-    BUDGET_K = 25  # Maximum number of cells that can be protected by the defenders at every time-step
+    BUDGET_K = 10  # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 250  # Maximum number of time-steps in the game
     gamma = 0.25  # Exploration/Exploitation Trade-off parameter
     eta = 10  #reward perturbation parameter

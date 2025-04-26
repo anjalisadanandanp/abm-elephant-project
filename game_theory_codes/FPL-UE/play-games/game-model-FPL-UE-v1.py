@@ -646,7 +646,7 @@ def generate_defender_strategies_v1(num_landscape_cells: int, budget_k: int) -> 
             strategy[list(protected_cells)] = 1
             yield strategy
 
-def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, output_folder, probability_threshold=0.0) -> Iterator[np.ndarray]:
+def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, output_folder, N=1500) -> Iterator[np.ndarray]:
 
     potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif")).ReadAsArray()
 
@@ -664,15 +664,20 @@ def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, ou
             mask = potential_coverage_matrix == 1
             attacker_strategy_matrix_history[mask] += attacker_strategy_matrix[mask]
 
-        nonzero_probs = attacker_strategy_matrix_history[mask & (attacker_strategy_matrix_history > 0)]
-        sorted_probs = np.sort(nonzero_probs)[::-1] 
-        cumulative_prob = np.cumsum(sorted_probs)
-        total_prob = np.sum(nonzero_probs)
-        idx = np.searchsorted(cumulative_prob, total_prob * probability_threshold)
-        threshold = sorted_probs[idx] if idx < len(sorted_probs) else 0
-        nonzero_attack_indices = np.where((attacker_strategy_matrix_history > threshold) & mask)
+        attacker_strategy_matrix_history = attacker_strategy_matrix_history / np.sum(attacker_strategy_matrix_history)
+        
+        nonzero_attack_indices = np.where(attacker_strategy_matrix_history > 0)
 
-        attack_locations = list(zip(nonzero_attack_indices[0], nonzero_attack_indices[1]))
+        nonzero_probs = attacker_strategy_matrix_history[attacker_strategy_matrix_history > 0]
+ 
+        attack_locations_with_probs = [(row, col, prob) for (row, col), prob in 
+                                    zip(zip(nonzero_attack_indices[0], nonzero_attack_indices[1]), nonzero_probs)]
+
+        attack_locations_with_probs.sort(key=lambda x: x[2], reverse=True)
+
+        top_attack_locations = attack_locations_with_probs[:N]
+
+        attack_locations = [(row, col) for row, col, _ in top_attack_locations]
 
         return attack_locations
     
@@ -697,8 +702,6 @@ def generate_defender_strategies_using_attack_probabilities_v1(budget_k: int, ou
             strategy_vector[vector_idx] = 1
             
         yield strategy_vector
-
-    return
 
 def select_defender_strategy_V1(
     strategies,
@@ -1332,7 +1335,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
 
 
     NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
-    BUDGET_K = 5  # Maximum number of cells that can be protected by the defenders at every time-step
+    BUDGET_K = 25  # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 250  # Maximum number of time-steps in the game
     gamma = 0.25  # Exploration/Exploitation Trade-off parameter
     eta = 10  #reward perturbation parameter

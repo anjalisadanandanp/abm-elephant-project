@@ -1092,18 +1092,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
         targets_df, interpolated, name="defender"
     )
 
-    NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
-    print(f"Number of landscape cells: {NUM_LANDSCAPE_CELLS}")
-    BUDGET_K = 5  # Maximum number of cells that can be protected by the defenders at every time-step
-    MAX_GAME_STEPS = 250  # Maximum number of time-steps in the game
-    gamma = 0.25  # Exploration/Exploitation Trade-off parameter
-    eta = 10  #reward perturbation parameter
-    M = 25      #PARAMETER IN THE ALGORITHM
-    NUM_TEST_STRATEGIES = 250000
 
-    print(f"Generating strategies for the defender for {NUM_LANDSCAPE_CELLS} landscape cells and {BUDGET_K} budget")
-
-    E = generate_defender_strategies_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
     # print("Example strategies:")
     # for i, strategy in enumerate(E):  
@@ -1111,7 +1100,150 @@ def optimise_strategy(model_params, experiment_name, output_folder):
     #         break
     #     print(f"Strategy {i + 1}:", strategy)
 
-    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df, shape_of_coverage_matrix, NUM_TEST_STRATEGIES)
+    output_folder_step_0 = os.path.join(output_folder, "game_step_0")
+
+
+    #------------------create the coverage matrix------------------#
+    path = pathlib.Path(output_folder_step_0)
+    path.mkdir(parents=True, exist_ok=True)
+
+    with open(os.path.join(output_folder_step_0, "model_parameters.yaml"), "w") as configfile:
+        yaml.dump(model_params, configfile, default_flow_style=False)
+
+    coverage_matrix = np.zeros(shape_of_coverage_matrix, dtype=np.int8)
+    #------------------create the coverage matrix------------------#
+
+
+
+    #------------------plot the coverage matrix------------------#
+    fig, ax = plt.subplots(figsize=(8, 8))
+    
+    cmap = mcolors.ListedColormap(["white", "red"])
+    
+    im = ax.imshow(coverage_matrix, cmap=cmap, vmin=0, vmax=1)
+    
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    legend_elements = [
+        Patch(facecolor="red", edgecolor='black', label='Protected'),
+        Patch(facecolor="white", edgecolor='black', label='Unprotected')
+    ]
+    ax.legend(handles=legend_elements, loc="upper right")
+
+    plt.savefig(
+        "game_theory_codes/FPL-UE/outputs/defender_coverage_matrix.png",
+        bbox_inches="tight",
+        dpi=300,
+    )
+    #------------------plot the coverage matrix------------------#
+
+
+    #------------------save the coverage matrix------------------#  
+    source_file = gdal.Open("game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix.tif")
+
+    cols = source_file.RasterXSize
+    rows = source_file.RasterYSize
+    projection = source_file.GetProjection()
+    geotransform = source_file.GetGeoTransform()
+
+    output_file = "game_theory_codes/FPL-UE/outputs/coverage_matrix.tif"
+
+    driver = gdal.GetDriverByName("GTiff")
+    output_dataset = driver.Create(output_file, cols, rows, 1, gdal.GDT_Byte)
+
+    output_dataset.SetProjection(projection)
+    output_dataset.SetGeoTransform(geotransform)
+
+    output_band = output_dataset.GetRasterBand(1)
+    output_band.WriteArray(coverage_matrix.astype(np.uint8))
+
+    source_file = None
+    output_dataset = None
+    #------------------save the coverage matrix------------------#  
+
+
+
+
+    batch_run_model(model_params, experiment_name, output_folder_step_0)
+
+
+
+
+    #------------------find the attacker strategy------------------#
+    matrix = np.zeros(shape_of_coverage_matrix, dtype=np.uint8)
+
+    for simulation_folder in os.listdir(output_folder_step_0):
+
+        try:
+
+            df = pd.read_csv(os.path.join(output_folder_step_0, simulation_folder, "output_files/agent_data.csv"))
+            df.dropna(subset=['ROW', 'COL'], inplace=True)
+        
+            rows = df['ROW'].astype(int).values
+            cols = df['COL'].astype(int).values
+        
+            mask = (0 <= rows) & (0 <= cols)
+            valid_rows = rows[mask]
+            valid_cols = cols[mask]
+            
+            matrix[valid_rows, valid_cols] += 1
+        
+        except Exception as e:
+            pass
+
+    mask = interpolated != 10
+    coverage_matrix[mask] = 0
+
+    total_attacks = np.sum(matrix)
+    matrix = matrix/total_attacks
+
+
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    
+    # cmap = mcolors.ListedColormap(["white", "red"])
+
+    cmap = 'Reds'
+    
+    im = ax.imshow(matrix, cmap=cmap, vmin=0, vmax=1)
+    
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    plt.colorbar(shrink=0.5)
+
+    # legend_elements = [
+    #     Patch(facecolor="red", edgecolor='black', label='attacked'),
+    #     Patch(facecolor="white", edgecolor='black', label='not attacked')
+    # ]
+    # ax.legend(handles=legend_elements, loc="upper right")
+
+    plt.savefig(
+        os.path.join(output_folder_step_0, "attacker_strategy_matrix.png"),
+        bbox_inches="tight",
+        dpi=300,
+    )
+
+
+
+
+
+
+    # NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
+    # print(f"Number of landscape cells: {NUM_LANDSCAPE_CELLS}")
+    # BUDGET_K = 5  # Maximum number of cells that can be protected by the defenders at every time-step
+    # MAX_GAME_STEPS = 250  # Maximum number of time-steps in the game
+    # gamma = 0.25  # Exploration/Exploitation Trade-off parameter
+    # eta = 10  #reward perturbation parameter
+    # M = 25      #PARAMETER IN THE ALGORITHM
+    # NUM_TEST_STRATEGIES = 250000
+
+    # print(f"Generating strategies for the defender for {NUM_LANDSCAPE_CELLS} landscape cells and {BUDGET_K} budget")
+
+    # E = generate_defender_strategies_v1(NUM_TEST_STRATEGIES, NUM_LANDSCAPE_CELLS, BUDGET_K)
+
+    # run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df, shape_of_coverage_matrix, NUM_TEST_STRATEGIES)
 
 
 
@@ -1149,8 +1281,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 30,
-            "num_processes": 32,
-            "iterations": 32,
+            "num_processes": 8,
+            "iterations": 8,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,

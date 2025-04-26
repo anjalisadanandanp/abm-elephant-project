@@ -1211,7 +1211,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
     ax.set_xticks([])
     ax.set_yticks([])
 
-    plt.colorbar(shrink=0.5)
+    plt.colorbar(im, shrink=0.5)
 
     # legend_elements = [
     #     Patch(facecolor="red", edgecolor='black', label='attacked'),

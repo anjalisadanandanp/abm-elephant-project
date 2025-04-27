@@ -1659,6 +1659,8 @@ class environment():
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
+        np.random.seed(42)
+
         folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
         fid = os.path.join(folder_path, "LULC.tif")
 
@@ -1708,6 +1710,8 @@ class environment():
         
         """The function initializes water matrix based on the simulation parameters"""
         #Prob_water: probability of water being available in a given cell 
+
+        np.random.seed(42)
         
         #Reading the LULC and storing the plantation area details
         folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")

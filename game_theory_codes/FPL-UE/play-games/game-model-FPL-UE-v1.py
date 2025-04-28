@@ -833,34 +833,37 @@ def step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df):
 
     return reward_01 + reward_02
 
-def calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, attack_locations, attacker_strategy_history, targets_df, budget_k):
+def calculate_reward_for_strategy_best(location, NUM_LANDSCAPE_CELLS, attacker_strategy_history, targets_df):
 
+    v = combination_to_binary_vector(location, NUM_LANDSCAPE_CELLS)
+    v = np.array(v)
+    
+    total_strategy_utility = 0
+    for attacker_strategy in attacker_strategy_history:
+        step_utility = step_utility_defender(attacker_strategy, v, targets_df)
+        total_strategy_utility += step_utility
+    
+    return total_strategy_utility, v
+    
+def calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, attack_locations, attacker_strategy_history, targets_df, budget_k, n_processes=16):
+
+    process_func = partial(
+        calculate_reward_for_strategy_best,
+        NUM_LANDSCAPE_CELLS=NUM_LANDSCAPE_CELLS,
+        attacker_strategy_history=attacker_strategy_history,
+        targets_df=targets_df
+    )
+    
     max_reward = float('-inf')
     best_strategy = None
     
-    attack_counts = np.zeros(len(targets_df))
-
-    for strategy in attacker_strategy_history:
-
-        attack_counts += np.array(strategy)
-
-    combination_generator = combinations(attack_locations, budget_k)
-
-    for location in combination_generator:
-
-        v = combination_to_binary_vector(location, NUM_LANDSCAPE_CELLS)
-        v = np.array(v)
-
-        total_strategy_utilty = 0
-
-        for attacker_strategy in attacker_strategy_history:
-
-            step_utility_defender_i = step_utility_defender(attacker_strategy, v, targets_df)
-            total_strategy_utilty += step_utility_defender_i
+    with mp.Pool(processes=n_processes) as pool:
+        combination_generator = combinations(attack_locations, budget_k)
         
-        if total_strategy_utilty > max_reward:
-            max_reward = total_strategy_utilty
-            best_strategy = v
+        for total_reward, v in tqdm(pool.imap(process_func, combination_generator, chunksize=512)):
+            if total_reward > max_reward:
+                max_reward = total_reward
+                best_strategy = v
     
     return best_strategy
 
@@ -983,7 +986,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
         print("\n----- GameStep", i + 1,"-----")
 
-        attack_locations = list(generate_defender_strategies_using_attack_probabilities(output_folder, 2*BUDGET_K))
+        attack_locations = list(generate_defender_strategies_using_attack_probabilities(output_folder, BUDGET_K))
 
         print("Attack locations:", attack_locations)
         
@@ -1179,8 +1182,11 @@ def optimise_strategy(model_params, experiment_name, output_folder):
             pass
 
 
-    mask = interpolated != 10
+    potential_targets = gdal.Open("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif").ReadAsArray()
+
+    mask = potential_targets != 1
     matrix[mask] = 0
+
 
     total_attacks = np.sum(matrix)
     matrix = matrix/total_attacks
@@ -1234,7 +1240,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
 
 
     NUM_LANDSCAPE_CELLS = len(targets_df)  # Total number of landscape cells within the simulation extent
-    BUDGET_K = 10  # Maximum number of cells that can be protected by the defenders at every time-step
+    BUDGET_K = 5  # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 100  # Maximum number of time-steps in the game
     gamma = 0.25  # Exploration/Exploitation Trade-off parameter
     eta = 10  #reward perturbation parameter
@@ -1278,8 +1284,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 30,
-            "num_processes": 1,
-            "iterations": 1,
+            "num_processes": 4,
+            "iterations": 4,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,

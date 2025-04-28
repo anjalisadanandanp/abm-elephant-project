@@ -903,8 +903,7 @@ def update_estimated_reward(
     K: np.ndarray,
     attacker_strategy: np.ndarray,
     defender_strategy: np.ndarray,
-    targets_df: pd.DataFrame
-) -> np.ndarray:
+    targets_df: pd.DataFrame) -> np.ndarray:
 
     attacker_strategy = np.array(attacker_strategy)
     defender_strategy = np.array(defender_strategy)

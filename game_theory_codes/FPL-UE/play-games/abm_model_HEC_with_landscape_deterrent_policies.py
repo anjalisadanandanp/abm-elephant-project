@@ -101,6 +101,7 @@ class Elephant(GeoAgent):
 
         self.strategy_row = None
         self.strategy_col = None
+        self.target_attacked = None
 
         self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
@@ -370,14 +371,16 @@ class Elephant(GeoAgent):
         self.strategy_row = i
         self.strategy_col = j
 
-        if self.model.COVERAGE_MATRIX[i][j] == 1:    
+        if self.model.COVERAGE_MATRIX[i][j] > 0:    
             self.danger_to_life = True
             self.conflict_with_humans = True 
+            self.target_attacked = self.model.COVERAGE_MATRIX[i][j] 
             return  
 
         else:
             self.danger_to_life = False   
             self.conflict_with_humans = False
+            self.target_attacked = None
             return  
     #--------------------------------------------------------------------------------------------------
     def current_mode_of_the_agent(self):
@@ -2027,6 +2030,7 @@ class conflict_model(Model):
                                                 "mode": "mode",
                                                 "ROW": "strategy_row",
                                                 "COL": "strategy_col",
+                                                "target_attacked" : "target_attacked",
                                                 "fitness": "fitness",
                                                 "daily_dry_matter_intake": "daily_dry_matter_intake",
                                                 "food_consumed": "food_consumed",
@@ -2042,7 +2046,6 @@ class conflict_model(Model):
                                                 "num_steps_thermoregulated": "num_steps_thermoregulated",
                                                 "current_proximity_to_plantations": "current_proximity_to_plantations",
                                                 "current_proximity_to_water_sources": "current_proximity_to_water_sources"
-
                                                 })
 
         self.datacollector.collect(self)

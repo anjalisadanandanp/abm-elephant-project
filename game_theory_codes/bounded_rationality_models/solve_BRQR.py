@@ -24,6 +24,7 @@ def expected_utility_adversary(
 
 def adversary_quantal_response(lamda, U, num_targets_to_protect):
     # returns the quantal response of the adversary for attacking each target
+    # lamda is a rationality parameter (λ=0 means random choice, λ→∞ means perfectly rational)
 
     Q = np.zeros(num_targets_to_protect)
 
@@ -287,7 +288,9 @@ if __name__ == "__main__":
     plt.figure(figsize=(15, 5))
 
     plt.subplot(1, 3, 1)
+
     for i in range(num_starts):
+        
         plt.scatter(
             range(num_targets_to_protect),
             all_starts[i],
@@ -357,6 +360,7 @@ if __name__ == "__main__":
     U_final = expected_utility_adversary(
         global_x_opt, adversary_payoffs, adversary_penaltys, num_targets_to_protect
     )
+
     Q_final = adversary_quantal_response(lamda, U_final, num_targets_to_protect)
     print("\nAdversary's expected utilities under best strategy:", sum(U_final))
     print("\nAdversary's attack probabilities under best strategy:", Q_final)

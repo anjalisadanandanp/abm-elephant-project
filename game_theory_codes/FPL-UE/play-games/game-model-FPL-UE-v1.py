@@ -47,487 +47,21 @@ module = importlib.import_module('game_theory_codes.FPL-UE.play-games.abm_model_
 batch_run_model = module.batch_run_model
 
 
+
+
+
+
+def create_defender_coverage_matrix(defender_strategy):
+
+    potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif")).ReadAsArray()
     
+    coverage_matrix = np.zeros_like(potential_coverage_matrix)
 
+    target_ids = [index + 1 for index, value in enumerate(defender_strategy) if value != 0]
 
-class LandUseRewards:
-
-    def __init__(self, raster_path):
-        self.raster_path = raster_path
-        self.lulc_data = None
-        self.geotransform = None
-        self.load_raster()
-
-    def load_raster(self):
-        """Read and store LULC raster data"""
-        try:
-            ds = gdal.Open(self.raster_path)
-            if ds is None:
-                raise ValueError("Could not open raster file")
-
-            self.lulc_data = ds.ReadAsArray()
-            self.geotransform = ds.GetGeoTransform()
-            self.projection = ds.GetProjection()
-            ds = None
-
-        except Exception as e:
-            raise Exception(f"Error reading raster: {str(e)}")
-
-    def _detect_forest_plantation_border(self, data, buffer=1, border_x=25,  border_y=25):
-        forest_mask = (data == 15)  | (data == 5) | (data == 4) 
-        plantation_mask = data == 10
-        
-        distance_from_forest = distance_transform_edt(~forest_mask)
-        
-        self.forest_agriculture_fringe = plantation_mask & (distance_from_forest <= buffer)
-
-        #st all the values below and above a row value as zero
-        self.forest_agriculture_fringe[:border_y, :] = 0
-        self.forest_agriculture_fringe[-border_y:, :] = 0
-        self.forest_agriculture_fringe[:, :border_x] = 0
-        self.forest_agriculture_fringe[:, -border_x:] = 0
-
-        fig, ax = plt.subplots(figsize=(8, 8))
-
-        img = ax.imshow(self.forest_agriculture_fringe, cmap="Greys_r", alpha=1)
-
-        plt.colorbar(img, ax=ax, shrink=0.5)
-        
-        ax.set_axis_off()
-
-        fig.savefig(os.path.join("game_theory_codes/FPL-UE/outputs/forest-agricultural-fringe.png"), dpi=300, bbox_inches='tight')
-
-        return
-    
-    def interpolate_matrix(self, target_shape):
-        """Interpolate matrix to new dimensions"""
-        if self.lulc_data is None:
-            raise ValueError("Raster data not loaded")
-
-        y, x = np.mgrid[0 : self.lulc_data.shape[0], 0 : self.lulc_data.shape[1]]
-        points = np.column_stack((y.flat, x.flat))
-        values = self.lulc_data.flat
-
-        grid_y, grid_x = np.mgrid[0 : target_shape[0], 0 : target_shape[1]]
-        scaling_y = self.lulc_data.shape[0] / target_shape[0]
-        scaling_x = self.lulc_data.shape[1] / target_shape[1]
-
-        grid_y = grid_y * scaling_y
-        grid_x = grid_x * scaling_x
-
-        return griddata(points, values, (grid_y, grid_x), method="nearest")
-
-    def save_interpolated_matrix(self, interpolated_data, output_path, target_shape):
-        """
-        Save interpolated matrix as a GeoTIFF file
-        
-        Parameters:
-        interpolated_data: numpy.ndarray - The interpolated data to save
-        output_path: str - Path where the file will be saved
-        target_shape: tuple - Target shape (rows, cols) used for interpolation
-        """
-
-        new_geotransform = list(self.geotransform)
-        
-        scaling_x = self.lulc_data.shape[1] / target_shape[1]
-        scaling_y = self.lulc_data.shape[0] / target_shape[0]
-        
-        new_geotransform[1] = self.geotransform[1] * scaling_x  # Pixel width
-        new_geotransform[5] = self.geotransform[5] * scaling_y  # Pixel height 
-        
-        driver = gdal.GetDriverByName("GTiff")
-        out_ds = driver.Create(
-            output_path, 
-            target_shape[1],  # Width (cols)
-            target_shape[0],  # Height (rows)
-            1,                # Number of bands
-            gdal.GDT_Float32  # Data type (change as needed)
-        )
-        
-        if out_ds is None:
-            raise ValueError("Could not create output file")
-        
-        out_ds.SetGeoTransform(tuple(new_geotransform))
-        out_ds.SetProjection(self.projection)
-        
-        out_band = out_ds.GetRasterBand(1)
-        out_band.WriteArray(interpolated_data)
-        
-        out_ds = None
-        # print(f"Interpolated matrix saved to {output_path}")
-
-    def get_cell_value(self, row, col):
-        """Get LULC code for specific cell"""
-        if self.lulc_data is None:
-            raise ValueError("Raster data not loaded")
-        return self.lulc_data[row, col]
-
-    def plot_matrices(self, interpolated=None):
-        """Plot original and interpolated matrices side by side"""
-
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
-
-        data_value_map = {1: 1, 2: 3, 3: 4, 4: 5, 5: 6, 6: 9, 7: 10, 8: 14, 9: 15}
-
-        data_LULC = self.lulc_data.copy()
-
-        for i in range(1, 10):
-            data_LULC[data_LULC == data_value_map[i]] = i
-
-        levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
-        clrs = [
-            "greenyellow",
-            "mediumpurple",
-            "turquoise",
-            "plum",
-            "black",
-            "blue",
-            "yellow",
-            "mediumseagreen",
-            "forestgreen",
-        ]
-        cmap, norm = colors.from_levels_and_colors(levels, clrs)
-
-        im1 = ax1.imshow(data_LULC, cmap=cmap, norm=norm)
-        ax1.set_title(f"Original Matrix {data_LULC.shape}")
-        ax1.set_xticks([])
-        ax1.set_yticks([])
-
-        cbar = plt.colorbar(
-            im1, ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9], fraction=0.046, pad=0.04, ax=ax1
-        )
-        cbar.ax.set_yticks(ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9])
-        cbar.ax.set_yticklabels(
-            [
-                "Deciduous Broadleaf Forest",
-                "Built-up Land",
-                "Mixed Forest",
-                "Shrubland",
-                "Barren Land",
-                "Water Bodies",
-                "Plantations",
-                "Grassland",
-                "Broadleaf evergreen forest",
-            ]
-        )
-
-        if interpolated is not None:
-
-            interpolated_data = interpolated.copy()
-
-            for i in range(1, 10):
-                interpolated_data[interpolated_data == data_value_map[i]] = i
-
-        if interpolated_data is not None:
-            im2 = ax2.imshow(interpolated_data, cmap=cmap, norm=norm)
-            ax2.set_title(f"Interpolated Matrix {interpolated_data.shape}")
-            ax2.set_xticks([])
-            ax2.set_yticks([])
-
-            cbar = plt.colorbar(
-                im2, ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9], fraction=0.046, pad=0.04, ax=ax2
-            )
-            cbar.ax.set_yticks(ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9])
-            cbar.ax.set_yticklabels(
-                [
-                    "Deciduous Broadleaf Forest",
-                    "Built-up Land",
-                    "Mixed Forest",
-                    "Shrubland",
-                    "Barren Land",
-                    "Water Bodies",
-                    "Plantations",
-                    "Grassland",
-                    "Broadleaf evergreen forest",
-                ]
-            )
-
-        plt.tight_layout()
-        plt.savefig(
-            "game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix.png",
-            bbox_inches="tight",
-            dpi=300,
-        )
-        plt.close()
-
-    def get_matrix_indices(self, lat, lon):
-        """Convert lat/lon to matrix indices"""
-        x = int((lon - self.geotransform[0]) / self.geotransform[1])
-        y = int((lat - self.geotransform[3]) / self.geotransform[5])
-        return y, x
-
-    def get_value_at_coords(self, lat, lon, interpolated=None):
-        """Get value from original or interpolated matrix at coordinates"""
-        y, x = self.get_matrix_indices(lat, lon)
-        if interpolated is not None:
-            scale_y = interpolated.shape[0] / self.lulc_data.shape[0]
-            scale_x = interpolated.shape[1] / self.lulc_data.shape[1]
-            y_interp = int(y * scale_y)
-            x_interp = int(x * scale_x)
-            return interpolated[y_interp, x_interp]
-        else:
-            return self.lulc_data[y, x]
-
-    def plot_coords(self, lat, lon, interpolated=None):
-        """Plot matrices with highlighted coordinates"""
-        y, x = self.get_matrix_indices(lat, lon)
-
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
-
-        data_value_map = {1: 1, 2: 3, 3: 4, 4: 5, 5: 6, 6: 9, 7: 10, 8: 14, 9: 15}
-
-        data_LULC = self.lulc_data.copy()
-
-        for i in range(1, 10):
-            data_LULC[data_LULC == data_value_map[i]] = i
-
-        levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
-        clrs = [
-            "greenyellow",
-            "mediumpurple",
-            "turquoise",
-            "plum",
-            "black",
-            "blue",
-            "yellow",
-            "mediumseagreen",
-            "forestgreen",
-        ]
-        cmap, norm = colors.from_levels_and_colors(levels, clrs)
-
-        im1 = ax1.imshow(data_LULC, cmap=cmap, norm=norm)
-        ax1.axhline(y=y, color="r", linestyle="--", alpha=0.5)
-        ax1.axvline(x=x, color="r", linestyle="--", alpha=0.5)
-        ax1.plot(x, y, "r*", markersize=10)
-        ax1.set_title("Original Matrix")
-        ax1.set_xticks([])
-        ax1.set_yticks([])
-
-        cbar = plt.colorbar(
-            im1, ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9], fraction=0.046, pad=0.04, ax=ax1
-        )
-        cbar.ax.set_yticks(ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9])
-        cbar.ax.set_yticklabels(
-            [
-                "Deciduous Broadleaf Forest",
-                "Built-up Land",
-                "Mixed Forest",
-                "Shrubland",
-                "Barren Land",
-                "Water Bodies",
-                "Plantations",
-                "Grassland",
-                "Broadleaf evergreen forest",
-            ]
-        )
-
-        if interpolated is not None:
-
-            interpolated_data = interpolated.copy()
-
-            for i in range(1, 10):
-                interpolated_data[interpolated_data == data_value_map[i]] = i
-
-            scale_y = interpolated_data.shape[0] / self.lulc_data.shape[0]
-            scale_x = interpolated_data.shape[1] / self.lulc_data.shape[1]
-            y_interp = int(y * scale_y)
-            x_interp = int(x * scale_x)
-
-            im2 = ax2.imshow(interpolated_data, cmap=cmap, norm=norm)
-            ax2.axhline(y=y_interp, color="r", linestyle="--", alpha=0.5)
-            ax2.axvline(x=x_interp, color="r", linestyle="--", alpha=0.5)
-            ax2.plot(x_interp, y_interp, "r*", markersize=10)
-            ax2.set_title(f"Interpolated Matrix")
-            ax2.set_xticks([])
-            ax2.set_yticks([])
-
-            cbar = plt.colorbar(
-                im2, ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9], fraction=0.046, pad=0.04, ax=ax2
-            )
-            cbar.ax.set_yticks(ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9])
-            cbar.ax.set_yticklabels(
-                [
-                    "Deciduous Broadleaf Forest",
-                    "Built-up Land",
-                    "Mixed Forest",
-                    "Shrubland",
-                    "Barren Land",
-                    "Water Bodies",
-                    "Plantations",
-                    "Grassland",
-                    "Broadleaf evergreen forest",
-                ]
-            )
-
-        plt.tight_layout()
-        plt.savefig(
-            "game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix_value_at_coordinatex_x_"
-            + str(x)
-            + "_y_"
-            + str(y)
-            + ".png",
-            bbox_inches="tight",
-            dpi=300,
-        )
-        plt.close()
-
-    def assign_target_rewards_and_penalties_random(
-        self, target_value=10, interpolated=None):
-        """
-        Assign targetID, rewards and penalties for landuse cells.
-        Ensures U_c_i > U_u_i for each target i, with values in [-0.5, 0.5]
-        """
-        if interpolated is None:
-            raise ValueError("Interpolated matrix required")
-
-        # target_cells = np.where(interpolated == target_value) 
-
-        target_cells = np.where(self.forest_agriculture_fringe == 1)
-
-        n_targets = len(target_cells[0])
-        
-        uncovered_utilities = np.random.uniform(-0.5, 0.45, n_targets)
-        
-        covered_utilities = np.array([
-            np.random.uniform(uncovered_utilities[i] + 0.0001, 0.5)
-            for i in range(n_targets)
-        ])
-
-        df = pd.DataFrame(
-            {
-                "targetID": range(1, n_targets + 1),
-                "row": target_cells[0],
-                "col": target_cells[1],
-                "reward": covered_utilities,  # U_c_i
-                "penalty": uncovered_utilities,  # U_u_i
-            }
-        )
-
-        df.to_csv(
-            "game_theory_codes/FPL-UE/outputs/target_rewards_penalties.csv",
-            index=False,
-        )
-        return df
-
-    def plot_with_rewards(self, targets_df, interpolated=None, name=None):
-        """Plot matrices with rewards and penalties as text overlays"""
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-
-        if interpolated is not None:
-
-            data_value_map = {1: 1, 2: 3, 3: 4, 4: 5, 5: 6, 6: 9, 7: 10, 8: 14, 9: 15}
-            interpolated_data = interpolated.copy()
-
-            for i in range(1, 10):
-                interpolated_data[interpolated_data == data_value_map[i]] = i
-
-            levels = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
-            clrs = [
-                "greenyellow",
-                "mediumpurple",
-                "turquoise",
-                "plum",
-                "black",
-                "blue",
-                "yellow",
-                "mediumseagreen",
-                "forestgreen",
-            ]
-            cmap, norm = colors.from_levels_and_colors(levels, clrs)
-
-            im1 = ax1.imshow(interpolated_data, cmap=cmap, norm=norm)
-            im2 = ax2.imshow(interpolated_data, cmap=cmap, norm=norm)
-
-            for _, row in targets_df.iterrows():
-                ax1.text(
-                    row["col"],
-                    row["row"],
-                    f'{row["reward"]:.1f}',
-                    ha="center",
-                    va="center",
-                    color="black",
-                    fontsize=4,
-                )
-
-                ax2.text(
-                    row["col"],
-                    row["row"],
-                    f'{row["penalty"]:.1f}',
-                    ha="center",
-                    va="center",
-                    color="black",
-                    fontsize=4,
-                )
-
-            ax1.set_title("Rewards Distribution")
-            ax2.set_title("Penalties Distribution")
-
-            cbar = plt.colorbar(
-                im1, ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9], fraction=0.046, pad=0.04, ax=ax1
-            )
-            cbar.ax.set_yticks(ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9])
-            cbar.ax.set_yticklabels(
-                [
-                    "Deciduous Broadleaf Forest",
-                    "Built-up Land",
-                    "Mixed Forest",
-                    "Shrubland",
-                    "Barren Land",
-                    "Water Bodies",
-                    "Plantations",
-                    "Grassland",
-                    "Broadleaf evergreen forest",
-                ]
-            )
-
-            cbar2 = plt.colorbar(
-                im2, ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9], fraction=0.046, pad=0.04, ax=ax2
-            )
-            cbar2.ax.set_yticks(ticks=[1, 2, 3, 4, 5, 6, 7, 8, 9])
-            cbar2.ax.set_yticklabels(
-                [
-                    "Deciduous Broadleaf Forest",
-                    "Built-up Land",
-                    "Mixed Forest",
-                    "Shrubland",
-                    "Barren Land",
-                    "Water Bodies",
-                    "Plantations",
-                    "Grassland",
-                    "Broadleaf evergreen forest",
-                ]
-            )
-
-            plt.tight_layout()
-            plt.savefig(
-                "game_theory_codes/FPL-UE/outputs/"
-                + name
-                + "_rewards_penalties.png",
-                dpi=300,
-                bbox_inches="tight",
-            )
-            plt.close()
-
-        return
-
-
-
-
-
-
-
-def create_defender_coverage_matrix(defender_strategy, grid_shape):
-
-    coverage_matrix = np.zeros(grid_shape, dtype=np.int8)
-
-    lulc_data = gdal.Open("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif").ReadAsArray()
-    plantation_rows, plantation_cols = np.where(lulc_data == 1)
-
-    for i, (row, col) in enumerate(zip(plantation_rows, plantation_cols)):
-        if defender_strategy[i] == 1:
-            coverage_matrix[row, col] = 1
-        else:   
-            coverage_matrix[row, col] = 0
+    for target_id in target_ids:
+        mask = potential_coverage_matrix == target_id
+        coverage_matrix[mask] = 1
 
     return coverage_matrix
 
@@ -563,7 +97,7 @@ def plot_and_save_defender_coverage(coverage_matrix, output_folder, figsize=(8, 
 
 
 
-    source_file = gdal.Open("game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix.tif")
+    source_file = gdal.Open("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif")
 
     cols = source_file.RasterXSize
     rows = source_file.RasterYSize
@@ -611,7 +145,7 @@ def combination_to_binary_vector(combination, NUM_LANDSCAPE_CELLS):
     binary_vector[indices] = 1
     return binary_vector
 
-def generate_defender_strategies(BUDGET_K, n_processes=8):
+def generate_defender_strategies(BUDGET_K):
 
     potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/create-strategy-set/outputs/low_res_indexed_forest_agricultural_fringe.tif")).ReadAsArray()
     unique_values = np.unique(potential_coverage_matrix)
@@ -623,28 +157,21 @@ def generate_defender_strategies(BUDGET_K, n_processes=8):
 
     total_targets = len(non_zero_unique_values)
 
-    process_func = partial(
-        combination_to_binary_vector,
-        NUM_LANDSCAPE_CELLS=total_targets
-    )
-
-    with mp.Pool(n_processes=8) as pool:
-        for strategy in tqdm(pool.imap(process_func, combinations_of_size_k, chunksize=8192)):
-            defender_strategies.append(strategy)
+    for combination in tqdm(combinations_of_size_k):
+        strategy_vector = combination_to_binary_vector(combination, total_targets)
+        defender_strategies.append(strategy_vector)
 
     return defender_strategies
 
-def calculate_reward_for_strategy(attacked_locations, NUM_LANDSCAPE_CELLS, perturbed_reward):
-    v = combination_to_binary_vector(attacked_locations, NUM_LANDSCAPE_CELLS)
-    v = np.array(v)
+def calculate_reward_for_strategy(defender_strategy, perturbed_reward):
+    v = np.array(defender_strategy)
     total_reward = np.dot(v, perturbed_reward)
     return total_reward, v
 
-def find_best_strategy_parallel(attack_locations, budget_k, NUM_LANDSCAPE_CELLS, perturbed_reward, n_processes=16):
+def find_best_strategy_parallel(defender_strategies, perturbed_reward, n_processes=16):
     
     process_func = partial(
         calculate_reward_for_strategy,
-        NUM_LANDSCAPE_CELLS=NUM_LANDSCAPE_CELLS,
         perturbed_reward=perturbed_reward
     )
     
@@ -653,9 +180,7 @@ def find_best_strategy_parallel(attack_locations, budget_k, NUM_LANDSCAPE_CELLS,
     
     with mp.Pool(processes=n_processes) as pool:
 
-        combination_generator = combinations(attack_locations, budget_k)
-
-        for total_reward, v in tqdm(pool.imap(process_func, combination_generator, chunksize=512)):
+        for total_reward, v in tqdm(pool.imap(process_func, defender_strategies, chunksize=4096)):
             if total_reward > max_reward:
                 max_reward = total_reward
                 best_strategy = v
@@ -663,7 +188,7 @@ def find_best_strategy_parallel(attack_locations, budget_k, NUM_LANDSCAPE_CELLS,
     return best_strategy
 
 def select_defender_strategy(
-    attack_locations,
+    defender_strategies,
     estimated_reward: np.ndarray,
     eta: float,
     gamma,
@@ -674,13 +199,14 @@ def select_defender_strategy(
 
     flag = np.random.random() < gamma 
 
+    flag = True
+
     if flag: 
 
-        potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif")).ReadAsArray()
-        target_location_indices = np.where(potential_coverage_matrix == 1)
-        target_locations = [(row, col) for row, col in zip(target_location_indices[0], target_location_indices[1])]
-
-        random_sample = random.sample(target_locations, budget_k)
+        potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/create-strategy-set/outputs/low_res_indexed_forest_agricultural_fringe.tif")).ReadAsArray()
+        unique_values = np.unique(potential_coverage_matrix)
+        non_zero_unique_values = list(unique_values[unique_values != 0])
+        random_sample = random.sample(non_zero_unique_values, budget_k)
 
         v_t = combination_to_binary_vector(random_sample, NUM_LANDSCAPE_CELLS)
 
@@ -691,16 +217,11 @@ def select_defender_strategy(
         
         perturbed_reward = estimated_reward + z
 
-        v_t = find_best_strategy_parallel(attack_locations, budget_k, NUM_LANDSCAPE_CELLS, perturbed_reward)
+        v_t = find_best_strategy_parallel(defender_strategies, perturbed_reward)
 
     return v_t
 
-def evaluate_strategy(strategy, perturbed_reward):
-    strategy = np.array(strategy)
-    total_reward = np.dot(strategy, perturbed_reward)
-    return (total_reward, strategy)
-
-def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matrix):
+def run_abm(model_params, experiment_name, output_folder):
 
     with open(os.path.join(output_folder, "model_parameters.yaml"), "w") as configfile:
         yaml.dump(model_params, configfile, default_flow_style=False)
@@ -712,8 +233,9 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
 
 
 
-
-    matrix = np.zeros(shape_of_coverage_matrix, dtype=np.uint8)
+    potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif")).ReadAsArray()
+    
+    trajectory_matrix = np.zeros_like(potential_coverage_matrix, dtype=np.uint8)
 
     for simulation_folder in os.listdir(output_folder):
 
@@ -729,18 +251,16 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
             valid_rows = rows[mask]
             valid_cols = cols[mask]
             
-            matrix[valid_rows, valid_cols] += 1
+            trajectory_matrix[valid_rows, valid_cols] += 1
         
         except Exception as e:
             pass
 
-    interpolated = gdal.Open("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif").ReadAsArray()
+    mask = potential_coverage_matrix == 0
+    trajectory_matrix[mask] = 0
 
-    mask = interpolated != 1
-    matrix[mask] = 0
-
-    total_attacks = np.sum(matrix)
-    matrix = matrix/total_attacks
+    total_attacks = np.sum(trajectory_matrix)
+    trajectory_matrix = trajectory_matrix/total_attacks
 
 
 
@@ -748,14 +268,14 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
     
     cmap = 'coolwarm'
     
-    im = ax.imshow(matrix, cmap=cmap, vmin=0, vmax=np.max(matrix))
+    im = ax.imshow(trajectory_matrix, cmap=cmap, vmin=0, vmax=np.max(trajectory_matrix))
     
     ax.set_xticks([])
     ax.set_yticks([])
 
     cbar = plt.colorbar(im, shrink=0.5)
 
-    ticks = np.linspace(0, np.max(matrix), num=5) 
+    ticks = np.linspace(0, np.max(trajectory_matrix), num=5) 
     cbar.set_label("Attack Probability", rotation=90)
     cbar.set_ticks(ticks)
 
@@ -768,7 +288,7 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
 
 
 
-    source_file = gdal.Open("game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix.tif")
+    source_file = gdal.Open("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif")
 
     cols = source_file.RasterXSize
     rows = source_file.RasterYSize
@@ -784,7 +304,7 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
     output_dataset.SetGeoTransform(geotransform)
 
     output_band = output_dataset.GetRasterBand(1)
-    output_band.WriteArray(matrix.astype(np.float32))
+    output_band.WriteArray(trajectory_matrix.astype(np.float32))
 
     source_file = None
     output_dataset = None
@@ -792,18 +312,19 @@ def run_abm(model_params, experiment_name, output_folder, shape_of_coverage_matr
 
 
 
-    lulc_data = gdal.Open("game_theory_codes/FPL-UE/outputs/interpolated_LULC_matrix.tif").ReadAsArray()
-    coverage_matrix = gdal.Open("game_theory_codes/FPL-UE/outputs/potential_targets_matrix.tif").ReadAsArray()
+    coverage_matrix = gdal.Open("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif").ReadAsArray()
+    plantation_rows, plantation_cols = np.where(coverage_matrix != 0)
 
-    plantation_rows, plantation_cols = np.where(lulc_data == 10)
+    targets_matrix = gdal.Open("game_theory_codes/FPL-UE/create-strategy-set/outputs/low_res_indexed_forest_agricultural_fringe.tif").ReadAsArray()
+    unique_values = np.unique(targets_matrix)
+    non_zero_unique_values = unique_values[unique_values != 0]
+    total_targets = len(non_zero_unique_values)
 
-    attacker_strategy = []
+    attacker_strategy = [0 for i in range(total_targets)]
+
     for row, col in zip(plantation_rows, plantation_cols):
-        if coverage_matrix[row, col] == 1:
-            if matrix[row, col] > 0:
-                attacker_strategy.append(1)
-            else:
-                attacker_strategy.append(0)
+        if trajectory_matrix[row, col] > 0:
+            attacker_strategy[int(coverage_matrix[row,col]-1)] = 1
 
     return attacker_strategy
 
@@ -820,10 +341,9 @@ def step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df):
 
     return reward_01 + reward_02
 
-def calculate_reward_for_strategy_best(location, NUM_LANDSCAPE_CELLS, attacker_strategy_history, targets_df):
+def calculate_reward_for_strategy_best(defender_strategy, attacker_strategy_history, targets_df):
 
-    v = combination_to_binary_vector(location, NUM_LANDSCAPE_CELLS)
-    v = np.array(v)
+    v = np.array(defender_strategy)
     
     total_strategy_utility = 0
     for attacker_strategy in attacker_strategy_history:
@@ -832,11 +352,10 @@ def calculate_reward_for_strategy_best(location, NUM_LANDSCAPE_CELLS, attacker_s
     
     return total_strategy_utility, v
     
-def calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, attack_locations, attacker_strategy_history, targets_df, budget_k, n_processes=16):
+def calculate_best_strategy(defender_strategies, attacker_strategy_history, targets_df, n_processes=16):
 
     process_func = partial(
         calculate_reward_for_strategy_best,
-        NUM_LANDSCAPE_CELLS=NUM_LANDSCAPE_CELLS,
         attacker_strategy_history=attacker_strategy_history,
         targets_df=targets_df
     )
@@ -845,16 +364,15 @@ def calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, attack_locations, attacker_s
     best_strategy = None
     
     with mp.Pool(processes=n_processes) as pool:
-        combination_generator = combinations(attack_locations, budget_k)
         
-        for total_reward, v in tqdm(pool.imap(process_func, combination_generator, chunksize=512)):
+        for total_reward, v in tqdm(pool.imap(process_func, defender_strategies, chunksize=512)):
             if total_reward > max_reward:
                 max_reward = total_reward
                 best_strategy = v
     
     return best_strategy
 
-def GR_algorithm(attack_locations,
+def GR_algorithm(defender_strategy,
                  eta: float, 
                  gamma,
                  M: int, 
@@ -870,7 +388,7 @@ def GR_algorithm(attack_locations,
     
     while k <= M:
 
-        v_tilde = select_defender_strategy(attack_locations, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, budget_k)
+        v_tilde = select_defender_strategy(defender_strategy, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, budget_k)
         
         for i in range(n):
             if k < M and v_tilde[i] == 1 and K[i] == 0:
@@ -963,6 +481,8 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
     estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
 
+    defender_strategies = generate_defender_strategies(BUDGET_K)
+    
     defender_strategy_history = []
     attacker_strategy_history = []
 
@@ -972,41 +492,44 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
         print("\n----- GameStep", i + 1,"-----")
 
-        defender_strategies = list(generate_defender_strategies(BUDGET_K))
-        print("defender_strategies:", defender_strategies)
-        
-    #     defender_strategy_i = select_defender_strategy(attack_locations, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K)
+        defender_strategy_i = select_defender_strategy(defender_strategies, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
-    #     coverage_matrix = create_defender_coverage_matrix(defender_strategy_i, shape_of_coverage_matrix)
+        print("Defender strategy:", defender_strategy_i)
 
-    #     path = pathlib.Path(os.path.join(output_folder, "game_step_" + str(i + 1)))
-    #     path.mkdir(parents=True, exist_ok=True)
+        coverage_matrix = create_defender_coverage_matrix(defender_strategy_i)
 
-    #     plot_and_save_defender_coverage(coverage_matrix, os.path.join(output_folder, "game_step_" + str(i + 1)))
+        path = pathlib.Path(os.path.join(output_folder, "game_step_" + str(i + 1)))
+        path.mkdir(parents=True, exist_ok=True)
 
-    #     attacker_strategy_i = run_abm(model_params, experiment_name, os.path.join(output_folder, "game_step_" + str(i + 1)), shape_of_coverage_matrix)
+        plot_and_save_defender_coverage(coverage_matrix, os.path.join(output_folder, "game_step_" + str(i + 1)))
 
-    #     print(f"Protected target IDs: {targets_df['targetID'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
-    #     print(f"Attacked target IDs: {targets_df['targetID'].loc[np.where(np.array(attacker_strategy_i) == 1)[0]].tolist()}")
+        attacker_strategy_i = run_abm(model_params, experiment_name, os.path.join(output_folder, "game_step_" + str(i + 1)))
 
-    #     defender_strategy_history.append(defender_strategy_i)
-    #     attacker_strategy_history.append(attacker_strategy_i)
+        print("Attacker strategy:", attacker_strategy_i)
 
-    #     best_defender_strategy_t = calculate_best_strategy_v2(NUM_LANDSCAPE_CELLS, attack_locations, attacker_strategy_history, targets_df, BUDGET_K)
+        print(f"Protected target IDs: {targets_df['targetID'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
+        print(f"Attacked target IDs: {targets_df['targetID'].loc[np.where(np.array(attacker_strategy_i) == 1)[0]].tolist()}")
 
-    #     K = GR_algorithm(attack_locations, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K)
+        defender_strategy_history.append(defender_strategy_i)
+        attacker_strategy_history.append(attacker_strategy_i)
 
-    #     estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
+        best_defender_strategy_t = calculate_best_strategy(defender_strategies, attacker_strategy_history, targets_df)
 
-    #     print("step utility for defender:", step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df))
+        print("Best defender strategy:", best_defender_strategy_t)
 
-    #     regret_i = calculate_defender_regret(defender_strategy_history, attacker_strategy_history, best_defender_strategy_t, targets_df)
+        K = GR_algorithm(defender_strategies, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
-    #     print("Defender regret:", regret_i)
+        estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
 
-    #     defender_regret_values.append(regret_i)
+        print("step utility for defender:", step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df))
 
-    # plot_defender_regret(defender_regret_values)
+        regret_i = calculate_defender_regret(defender_strategy_history, attacker_strategy_history, best_defender_strategy_t, targets_df)
+
+        print("Defender regret:", regret_i)
+
+        defender_regret_values.append(regret_i)
+
+    plot_defender_regret(defender_regret_values)
 
     return  
 
@@ -1021,7 +544,7 @@ def optimise_strategy(model_params, experiment_name, output_folder):
     targets_df = pd.read_csv("game_theory_codes/FPL-UE/create-strategy-set/outputs/target_rewards_penalties.csv")
 
     NUM_LANDSCAPE_CELLS = len(targets_df)       # Total number of landscape cells within the simulation extent
-    BUDGET_K = 10                               # Maximum number of cells that can be protected by the defenders at every time-step
+    BUDGET_K = 5                               # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 100                        # Maximum number of time-steps in the game
     gamma = 0.25                                # Exploration/Exploitation Trade-off parameter
     eta = 10                                    # reward perturbation parameter
@@ -1065,8 +588,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 30,
-            "num_processes": 4,
-            "iterations": 4,
+            "num_processes": 24,
+            "iterations": 24,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,

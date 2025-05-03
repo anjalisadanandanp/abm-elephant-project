@@ -2433,9 +2433,10 @@ class conflict_model(Model):
 
         return
     #----------------------------------------------------------------------------------------------------
-    def plot_ele_traj_on_LULC(self, longitude, latitude, agent_id, conflict_steps=None):
-
+    def plot_ele_traj_on_LULC(self, longitude, latitude, agent_id):
         ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
+
+        
         data = ds.ReadAsArray()
         data = np.flip(data, axis=0)
         row_size, col_size = data.shape
@@ -2703,7 +2704,7 @@ class conflict_model(Model):
                     ele_data = data_agents[data_agents["AgentID"] == agent]
                     conflict_steps = ele_data[ele_data["mode"] == "EscapeMode"].index
                     self.create_trajectory_shapefile(agent, ele_data["longitude"].values, ele_data["latitude"].values)
-                    self.plot_ele_traj_on_LULC(ele_data["longitude"].values, ele_data["latitude"].values, agent, conflict_steps)
+                    self.plot_ele_traj_on_LULC(ele_data["longitude"].values, ele_data["latitude"].values, agent)
                     self.plot_ele_traj_on_slope(ele_data["longitude"].values, ele_data["latitude"].values, agent)
                     self.plot_ele_traj_on_proximity_to_water_sources(ele_data["longitude"].values, ele_data["latitude"].values, agent)
                     self.plot_ele_traj_on_proximity_to_plantations(ele_data["longitude"].values, ele_data["latitude"].values, agent)

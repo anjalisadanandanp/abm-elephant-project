@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import numpy as np
+from scipy.optimize import linprog
 
 class RepeatedStackelbergGame:
 
@@ -8,308 +10,135 @@ class RepeatedStackelbergGame:
         self,
         num_targets,
         num_defender_resources,
-        adversary_payoffs,
-        adversary_penalties,
         defender_payoffs,
         defender_penalties,
-        lamda=1.0,
-        learning_rate=0.5,
-        exploration_rate=0.25,
-        decay_rate=0.95
+        learning_rate=0.75,
+        exploration_rate=0.5,
+        decay_rate=0.80,
+        eta = 10
     ):
         
         self.num_targets = num_targets
         self.num_defender_resources = num_defender_resources
 
-        self.adversary_payoffs = np.array(adversary_payoffs)
-        self.adversary_penalties = np.array(adversary_penalties)
         self.defender_payoffs = np.array(defender_payoffs)
         self.defender_penalties = np.array(defender_penalties)
 
-        self.lamda = lamda
         self.learning_rate = learning_rate
         self.exploration_rate = exploration_rate
         self.decay_rate = decay_rate
+        self.eta = eta
         
-
         self.defender_strategy_history = []
-        self.attack_history = []
-        self.defender_utility_history = []
-        self.adversary_utility_history = []
-        
-        self.estimated_adversary_payoffs = np.zeros_like(adversary_payoffs)
-        self.estimated_adversary_penalties = np.zeros_like(adversary_penalties)
-        
-        self.current_defender_strategy = np.ones(num_targets) * (num_defender_resources / num_targets)
-        self.current_defender_strategy = self.project_to_simplex(self.current_defender_strategy)
+        self.attacker_strategy_history = []
 
-    def project_to_simplex(self, v):
-        """Project vector to simplex with sum = num_defender_resources"""
-        n = len(v)
-        u = np.sort(v)[::-1]
-        cssv = np.cumsum(u) - self.num_defender_resources
-        rho = np.nonzero(u * np.arange(1, n + 1) > cssv)[0][-1]
-        theta = cssv[rho] / (rho + 1)
-        w = np.maximum(v - theta, 0)
-        return np.clip(w, 0, 1)
-    
-    def expected_utility_adversary(self, defender_coverage):
-        """Calculate expected utility for adversary for each target"""
-        U = defender_coverage * self.estimated_adversary_penalties + \
-            (1 - defender_coverage) * self.estimated_adversary_payoffs
+        self.estimated_adversary_payoffs = np.random.exponential(scale=1/self.eta, size=self.num_targets)
+
+    def adversary_quantal_response(self):
+        mask = self.estimated_adversary_payoffs > 0.5
+        attack_probs = np.zeros_like(self.estimated_adversary_payoffs)
+        attack_probs[mask] = 1.0 if np.any(mask) else 0
+        return attack_probs
+        
+    def expected_step_utility_defender(self, attacker_strategy, defender_strategy):
+
+        r = (self.defender_payoffs + self.defender_penalties).values
+        r_t = [a * b for a, b in zip(attacker_strategy, r)]
+
+        reward_01 = np.dot(defender_strategy, r_t)
+        reward_02 = np.dot(attacker_strategy, self.defender_penalties)
+
+        U = reward_01 + reward_02
+
         return U
     
-    def adversary_quantal_response(self, expected_utilities):
-        """Calculate quantal response (attack probabilities) given expected utilities"""
-        exp_terms = np.exp(self.lamda * expected_utilities)
-        return exp_terms / np.sum(exp_terms)
-    
-    def expected_utility_defender(self, attack_probabilities, defender_coverage):
-        """Calculate expected utility for defender"""
-        U = attack_probabilities * (
-            defender_coverage * self.defender_payoffs + 
-            (1 - defender_coverage) * self.defender_penalties
-        )
-        return U
-    
-    def compute_gradient(self, defender_coverage):
-        """Compute gradient of defender's expected utility"""
+    def update_model_from_observation(self, attacker_strategy):
 
-        adv_utility = self.expected_utility_adversary(defender_coverage)
-        
-        attack_probs = self.adversary_quantal_response(adv_utility)
-
-        print("attack probs:", attack_probs)
-        
-        gradient = np.zeros(self.num_targets)
-        
-        exp_terms = np.exp(self.lamda * adv_utility)
-        sum_exp = np.sum(exp_terms)
-        
         for i in range(self.num_targets):
-
-            direct_effect = attack_probs[i] * (self.adversary_payoffs[i] - self.adversary_penalties[i])
-
-            print("direct_effect:", direct_effect)
             
+            if attacker_strategy[i] == 1:
+                self.estimated_adversary_payoffs[i] -= ((self.defender_penalties[i]) * self.learning_rate )
 
-            # for j in range(self.num_targets):
-            #     dU_adv_j = self.estimated_adversary_penalties[j] - self.estimated_adversary_payoffs[j] if j == i else 0
-                
-            #     dQ_j = (
-            #         self.lamda * exp_terms[j] * 
-            #         (dU_adv_j * sum_exp - exp_terms[j] * dU_adv_j) / 
-            #         (sum_exp * sum_exp)
-            #     )
-                
-            #     indirect_effect += dQ_j * (
-            #         defender_coverage[j] * self.defender_payoffs[j] +
-            #         (1 - defender_coverage[j]) * self.defender_penalties[j]
-            #     )
+            else:
+                self.estimated_adversary_payoffs[i] += ((self.defender_penalties[i]) * self.learning_rate)
 
-            indirect_effect = defender_coverage[i] * (self.defender_payoffs[i] - self.defender_penalties[i])
-
-            print("indirect_effect:", indirect_effect)
-            
-            gradient[i] = direct_effect + indirect_effect
-
-        print("gradient:", gradient)
-        
-        return gradient
+        self.estimated_adversary_payoffs = np.clip(self.estimated_adversary_payoffs, 0, 1)
     
-    def generate_random_strategy(self):
-        """Generate a random strategy for exploration"""
-        return self.project_to_simplex(np.random.random(self.num_targets))
-    
-    def update_model_from_observation(self, defender_strategy, actual_attacks):
+    def take_action(self):
         """
-        Update our model of elephant behavior based on actual observation
-        actual_attacks: Binary vector indicating which targets were attacked
+        Compute the optimal defender strategy using linear programming.
         """
 
-        defender_strategy = np.array(defender_strategy)
-        actual_attacks = np.array(actual_attacks)
+        import numpy as np
+        from itertools import combinations
         
-        model_lr = 1
+        best_utility = float('-inf')
+        best_strategy = np.zeros(self.num_targets)
         
-        # For each target that was attacked, update our understanding of elephant preferences
-        for i in range(self.num_targets):
+        for targets_to_cover in combinations(range(self.num_targets), self.num_defender_resources):
 
-            if actual_attacks[i] == 1:
+            strategy = np.zeros(self.num_targets)
+            strategy[list(targets_to_cover)] = 1
 
-                # If target was attacked 
-                # print("updating reward estimate!", self.estimated_adversary_payoffs[i])
-                self.estimated_adversary_payoffs[i] += model_lr
-                # print("updated reward estimate!", self.estimated_adversary_payoffs[i])
+            attack_probability = self.adversary_quantal_response()
 
-            # else:
-            #     # If target was not attacked despite being unprotected, it may be less valuable
-            #     if defender_strategy[i] > 0:
-            #         self.estimated_adversary_payoffs[i] -= model_lr 
-            #         # self.estimated_adversary_penalties[i] -= model_lr 
-        
-        # Ensure estimated values stay within reasonable bounds
-        self.estimated_adversary_payoffs = np.clip(self.estimated_adversary_payoffs, 0.1, 10)
-        # self.estimated_adversary_penalties = np.clip(self.estimated_adversary_penalties, -10, -0.1)
-    
-    def optimize_br_qr(self, num_iterations=100):
-        """Find the best BR-QR strategy using gradient descent"""
-        coverage = self.current_defender_strategy.copy()
-        
-        for _ in range(num_iterations):
-            gradient = self.compute_gradient(coverage)
-            coverage = coverage + self.learning_rate * gradient
-
-            print("coverage", coverage)
-
-            coverage = self.project_to_simplex(coverage)
+            utility = 0
+            for i in range(self.num_targets):
+                if strategy[i] == 1: 
+                    utility += attack_probability[i] * self.defender_payoffs[i]
+                else: 
+                    utility += attack_probability[i] * self.defender_penalties[i]
             
-            if np.sum(np.abs(coverage - self.current_defender_strategy)) < 1e-5:
-                break
-
-        # print(coverage)
-        
-        return coverage
-    
-    def take_action(self, actual_attacks=None):
-
-        self.defender_strategy_history.append(self.current_defender_strategy.copy())
+            if utility > best_utility:
+                best_utility = utility
+                best_strategy = strategy.copy()
         
         if np.random.random() < self.exploration_rate:
-            strategy = self.generate_random_strategy()
-        else:
-            strategy = self.optimize_br_qr()
-        
-        # If no actual attacks provided, simulate them using our model
-        if actual_attacks is None:
-            adv_utility = self.expected_utility_adversary(strategy)
-            attack_probs = self.adversary_quantal_response(adv_utility)
-            actual_attacks = np.random.binomial(1, attack_probs)
-        
-        # Record observed attacks
-        self.attack_history.append(actual_attacks)
-        
-        # Calculate utilities
-        def_utility = np.sum(self.expected_utility_defender(actual_attacks, strategy))
-        adv_utility = np.sum(self.expected_utility_adversary(strategy) * actual_attacks)
-        
-        self.defender_utility_history.append(def_utility)
-        self.adversary_utility_history.append(adv_utility)
-        
-        self.update_model_from_observation(strategy, actual_attacks)
+            random_indices = np.random.choice(
+                self.num_targets, 
+                size=self.num_defender_resources, 
+                replace=False
+            )
+            
+            random_strategy = np.zeros(self.num_targets)
+            random_strategy[random_indices] = 1
+            
+            best_strategy = random_strategy
         
         self.exploration_rate *= self.decay_rate
         
-        self.current_defender_strategy = strategy
-        
-        return strategy
+        return best_strategy
+
     
     def run_simulation(self, num_steps, elephant_simulator=None):
-        """
-        Run the repeated game for multiple steps
-        elephant_simulator: Function that simulates elephant behavior given defender strategy
-        """
-        all_strategies = []
-        
+
         for step in tqdm(range(num_steps)):
-            if elephant_simulator:
-                strategy = self.current_defender_strategy.copy()
-                actual_attacks = elephant_simulator(strategy, step)
-                strategy = self.take_action(actual_attacks)
-            else:
-                strategy = self.take_action()
-            
-            all_strategies.append(strategy)
+
+            defender_strategy_i = self.take_action()
+            self.defender_strategy_history.append(defender_strategy_i)
+
+            attacker_strategy_i = elephant_simulator()
+            self.attacker_strategy_history.append(attacker_strategy_i)
+
+            self.update_model_from_observation(attacker_strategy_i)
+
+            print(defender_strategy_i, attacker_strategy_i)
         
-        return all_strategies
-    
-    def plot_results(self):
-        """Plot the results of the simulation"""
-        steps = len(self.defender_strategy_history)
-        
-        plt.figure(figsize=(12, 12))
-        
-        plt.subplot(2, 2, 1)
-        strategies = np.array(self.defender_strategy_history)
-        for i in range(self.num_targets):
-            plt.plot(range(steps), strategies[:, i], label=f'Target {i+1}')
-        plt.xlabel('Time Step')
-        plt.ylabel('Coverage Probability')
-        plt.title('Defender Strategy Evolution')
-        plt.legend()
-        plt.grid(alpha=0.3)
-        
-        plt.subplot(2, 2, 2)
-        attack_freq = np.zeros((steps, self.num_targets))
-        window = min(10, steps)
-        for t in range(steps):
-            if t < window:
-                attack_freq[t] = np.mean([self.attack_history[max(0, i)] for i in range(t+1)], axis=0)
-            else:
-                attack_freq[t] = np.mean([self.attack_history[i] for i in range(t-window, t+1)], axis=0)
-        
-        for i in range(self.num_targets):
-            plt.plot(range(steps), attack_freq[:, i], label=f'Target {i+1}')
-        plt.xlabel('Time Step')
-        plt.ylabel('Attack Frequency')
-        plt.title('Attack Pattern Evolution (Moving Average)')
-        plt.legend()
-        plt.grid(alpha=0.3)
-    
-        # plt.subplot(2, 2, 3)
-        # plt.plot(range(steps), self.defender_utility_history, 'b-', label='Defender')
-        # plt.plot(range(steps), self.adversary_utility_history, 'r-', label='Adversary')
-        # plt.xlabel('Time Step')
-        # plt.ylabel('Expected Utility')
-        # plt.title('Utility Evolution')
-        # plt.legend()
-        # plt.grid(alpha=0.3)
-
-        plt.subplot(2, 2, 3)
-        plt.bar(np.arange(self.num_targets) - 0.2, self.adversary_penalties, width=0.4, label='Actual Penalty')
-        plt.bar(np.arange(self.num_targets) + 0.2, self.estimated_adversary_penalties, width=0.4, label='Estimated Penalty')
-        plt.xlabel('Target')
-        plt.ylabel('Payoff Value')
-        plt.title('Actual vs. Estimated Adversary Penalty')
-        plt.legend()
-        plt.grid(alpha=0.3)
-
-        plt.subplot(2, 2, 4)
-        plt.bar(np.arange(self.num_targets) - 0.2, self.adversary_payoffs, width=0.4, label='Actual Payoff')
-        plt.bar(np.arange(self.num_targets) + 0.2, self.estimated_adversary_payoffs, width=0.4, label='Estimated Payoff')
-        plt.xlabel('Target')
-        plt.ylabel('Payoff Value')
-        plt.title('Actual vs. Estimated Adversary Payoffs')
-        plt.legend()
-        plt.grid(alpha=0.3)
-        
-        plt.tight_layout()
-        plt.show()
+        return
 
 
 
-def elephant_strategy_simulator(defender_strategy, time_step):
 
-    num_targets = len(defender_strategy)
-    
-    attack_probs = np.zeros(num_targets)
 
-    for i in range(num_targets):
 
-        base_attraction = 0.3 + 0.5 * np.sin(time_step/10 + i)
-        
-        deterrence = 0.8 * defender_strategy[i]
-        
-        attack_probs[i] = max(0, min(1, base_attraction - deterrence))
-    
-    attacks = np.random.binomial(1, attack_probs)
-    
-    if np.sum(attacks) == 0:
-        attacks[np.argmax(attack_probs)] = 1
+def elephant_strategy_simulator():
 
-    attacks = [1, 0, 1, 0, 0, 1, 0, 1, 0, 0]
+    attacks = [1, 0, 1, 0, 0, 1, 0, 0, 0, 1]
         
     return attacks
+
+
+
 
 
 if __name__ == "__main__":
@@ -317,24 +146,15 @@ if __name__ == "__main__":
     num_targets = 10
     num_defender_resources = 3
     
-    adversary_payoffs = [3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    adversary_penalties = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-    defender_payoffs = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    defender_penalties = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    defender_payoffs = [0.1, 0.1, 0.1, 0.1, 0.1, 0.8, 0.1, 0.1, 0.1, 0.5]
+    defender_penalties = [-0.25, -0.1, -0.1, -0.1, -0.3, -0.1, -0.4, -0.1, -0.1, -0.1]
     
     game = RepeatedStackelbergGame(
         num_targets=num_targets,
         num_defender_resources=num_defender_resources,
-        adversary_payoffs=adversary_payoffs,
-        adversary_penalties=adversary_penalties,
         defender_payoffs=defender_payoffs,
-        defender_penalties=defender_penalties,
-        lamda=0.5, 
-        exploration_rate=0.10,
-        decay_rate=0.75
+        defender_penalties = defender_penalties
     )
     
-    game.run_simulation(500, elephant_simulator=elephant_strategy_simulator)
+    game.run_simulation(num_steps=100, elephant_simulator=elephant_strategy_simulator)
     
-    game.plot_results()

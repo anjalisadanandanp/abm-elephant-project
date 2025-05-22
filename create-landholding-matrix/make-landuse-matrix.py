@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import random
 from collections import defaultdict
 from tqdm import tqdm
-from matplotlib.colors import ListedColormap
 
 landuse = gdal.Open("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif").ReadAsArray()
 geotransform = gdal.Open("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif").GetGeoTransform()

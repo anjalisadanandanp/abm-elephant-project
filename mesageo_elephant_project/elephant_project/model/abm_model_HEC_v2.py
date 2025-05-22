@@ -98,13 +98,14 @@ class Elephant(GeoAgent):
         self.danger_to_life = False
         self.conflict_with_humans = False
 
-        self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
+        # self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
+        self.proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
         #----------------hoose the type of memory matrix initialization-------------------#
         # self.initialize_food_memory_matrix_only_forest()
-        self.initialize_food_memory_matrix_random()
-        # self.initialize_food_memory_matrix_with_knowledge_from_fringe()
+        # self.initialize_food_memory_matrix_random()
+        self.initialize_food_memory_matrix_with_knowledge_from_fringe()
         #---------------------------------------------------------------------------------#
         # self.initialize_water_memory_matrix_only_forest()
         self.initialize_water_memory_matrix_forest_and_croplands()
@@ -202,7 +203,7 @@ class Elephant(GeoAgent):
 
         for i in range(0,self.model.row_size):
             for j in range(0,self.model.col_size):
-                if self.model.random.uniform(0,1) < self.model.percent_memory_elephant and self.proximity_to_plantations[i][j] > 1:
+                if self.model.random.uniform(0,1) < self.model.percent_memory_elephant and self.proximity_to_plantations[i][j] > 0.025:
                     food_memory[i,j] = self.model.FOOD[i][j]
                     if self.model.FOOD[i][j] > 0:
                         food_memory_cells[i,j] = 1
@@ -227,7 +228,7 @@ class Elephant(GeoAgent):
 
         for i in range(0,self.model.row_size):
             for j in range(0,self.model.col_size):
-                if self.proximity_to_plantations[i][j] > 50:
+                if self.proximity_to_plantations[i][j] > 0.025:
                     if self.model.WATER[i][j] > 0:
                         water_memory_cells[i,j] = 1
                     
@@ -1562,9 +1563,11 @@ class environment():
         food_matrix = np.zeros_like(Plantation)
         landscape_cell_status = np.zeros_like(Plantation)
 
+        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
+
         for i in range(0,m):
             for j in range(0,n):
-                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10:
+                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0:   
                     landscape_cell_status[i,j] = 2
 
                 elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   

@@ -1,51 +1,3 @@
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# from osgeo import gdal
-
-# df = pd.read_excel("data/seethathode_data/seethathodu_data.xlsx")
-
-# df = df[df["Area under rubber (cent)"] > 0]
-# df = df[df["Area under rubber (cent)"] < 1000]
-
-# area = df["Area under rubber (cent)"]*40.47
-
-# plt.hist(area, bins=25, color="dodgerblue")
-
-# plt.grid(alpha=0.5)
-
-# plt.xlabel("area (sq. m)")
-# plt.ylabel("counts")
-
-# plt.savefig("create-landholding-matrix/histogram_area_of_landholding", dpi=300, bbox_inches="tight")
-
-# total_area = sum(area)
-
-# print("Total area for which data is available:", total_area/1e6, "sq. km")
-
-# landuse = gdal.Open("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif").ReadAsArray()
-
-# geotransform = gdal.Open("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif").GetGeoTransform()
-# mask = landuse == 10
-
-# num_cells_plantation = len(landuse[mask])
-
-# print("Number of plantation cells:", num_cells_plantation, "with an area", num_cells_plantation*geotransform[1]*geotransform[1]/1e6, "sq. km")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import numpy as np
 import pandas as pd
 from osgeo import gdal
@@ -53,6 +5,7 @@ import matplotlib.pyplot as plt
 import random
 from collections import defaultdict
 from tqdm import tqdm
+from matplotlib.colors import ListedColormap
 
 landuse = gdal.Open("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif").ReadAsArray()
 geotransform = gdal.Open("mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif").GetGeoTransform()
@@ -102,7 +55,7 @@ assigned_areas = []
 plot_id = 1
 remaining_coords = plantation_coords.copy()
 
-remaining_coords = random.sample(remaining_coords, 25000)
+remaining_coords = random.sample(remaining_coords, 5000)
 
 while tqdm(remaining_coords):
 
@@ -202,11 +155,6 @@ print(f"Median: {median_plot_size:.2f}")
 print(f"Min: {min_plot_size:.2f}")
 print(f"Max: {max_plot_size:.2f}")
 
-
-plt.figure(figsize=(8, 8))
-img = plt.imshow(agricultural_plots)
-plt.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
-plt.savefig("create-landholding-matrix/agricultural_plots_assignment.png", dpi=300, bbox_inches="tight")
 
 
 def save_as_geotiff(array, reference_file, output_file):

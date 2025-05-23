@@ -1,0 +1,19 @@
+   combination_generator = combinations(attack_locations, budget_k)
+
+    for location in combination_generator:
+
+        v = combination_to_binary_vector(location, NUM_LANDSCAPE_CELLS)
+        v = np.array(v)
+
+        total_strategy_utilty = 0
+
+        for attacker_strategy in attacker_strategy_history:
+
+            step_utility_defender_i = step_utility_defender(attacker_strategy, v, targets_df)
+            total_strategy_utilty += step_utility_defender_i
+
+        if total_strategy_utilty > max_reward:
+            max_reward = total_strategy_utilty
+            best_strategy = v
+
+    return best_strategy

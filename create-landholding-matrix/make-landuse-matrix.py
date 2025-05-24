@@ -113,6 +113,9 @@ while tqdm(remaining_coords):
             f"Actual area = {actual_area:.2f} sqm ({current_size} cells)")
             plot_id += 1
 
+filter = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
+agricultural_plots[filter > 0] = 0
+
 assigned_cells = np.sum(agricultural_plots > 0)
 assigned_percentage = (assigned_cells / plantation_cells) * 100
 

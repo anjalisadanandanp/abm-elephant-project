@@ -1601,6 +1601,110 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
+    def initialize_food_matrix_setup_0_0_2(self):
+        """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
+        """
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        Plantation = gdal.Open(fid).ReadAsArray()
+        m,n=Plantation.shape
+
+        food_matrix = np.zeros_like(Plantation)
+        landscape_cell_status = np.zeros_like(Plantation)
+
+        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
+        landholding_matrix = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
+
+        for i in range(0,m):
+            for j in range(0,n):
+                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0 and landholding_matrix[i,j] > 0:   
+                    landscape_cell_status[i,j] = 2
+
+                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
+                    landscape_cell_status[i,j] = 1
+
+        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
+        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
+
+        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
+        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
+
+        #saving the food matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        ras_meta['dtype'] = "float64"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(food_matrix.astype(float), 1)
+
+        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(landscape_cell_status.astype(float), 1)
+
+        return 
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
+    def initialize_food_matrix_setup_0_0_3(self):
+        """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
+        """
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        Plantation = gdal.Open(fid).ReadAsArray()
+        m,n=Plantation.shape
+
+        food_matrix = np.zeros_like(Plantation)
+        landscape_cell_status = np.zeros_like(Plantation)
+
+        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
+        landholding_matrix = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
+
+        for i in range(0,m):
+            for j in range(0,n):
+                if (np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0) or (landholding_matrix[i,j] > 0):   
+                    landscape_cell_status[i,j] = 2
+
+                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
+                    landscape_cell_status[i,j] = 1
+
+        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
+        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
+
+        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
+        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
+
+        #saving the food matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        ras_meta['dtype'] = "float64"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(food_matrix.astype(float), 1)
+
+        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(landscape_cell_status.astype(float), 1)
+
+        return 
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
     def initialize_water_matrix_with_rivers_and_water_holes(self):
         
         """The function initializes water matrix based on the simulation parameters"""
@@ -1716,7 +1820,7 @@ class environment():
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
-        self.initialize_food_matrix()
+        self.initialize_food_matrix_setup_0_0_3()
         self.initialize_water_matrix_only_rivers()
         # self.initialize_water_matrix_only_water_holes()
 

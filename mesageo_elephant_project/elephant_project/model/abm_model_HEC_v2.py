@@ -1550,7 +1550,7 @@ class environment():
         self.output_folder = output_folder
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix(self):
+    def initialize_food_matrix_setup_0_0_1(self):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
@@ -1601,7 +1601,7 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix_v1(self):
+    def initialize_water_matrix_with_rivers_and_water_holes(self):
         
         """The function initializes water matrix based on the simulation parameters"""
         #Prob_water: probability of water being available in a given cell 

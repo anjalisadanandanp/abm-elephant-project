@@ -190,21 +190,26 @@ for folder in tqdm(output_folders):
         return rows, cols
 
     def find_cropland_use_indices(landuse_sequence):
-
         indices = []
         start = None
         
         for i, value in enumerate(landuse_sequence):
-            if value == 10 or value == 9:
+            if value == 10:
                 if start is None:
                     start = i
             else:
                 if start is not None:
-                    indices.append((start, i-1))
-                    start = None
+                    # End subsequence if current value is not 10, 3, 9, or 6
+                    if value not in [10, 3, 9, 6]:
+                        indices.append((start, i))
+                        start = None
         
+        # Handle case where sequence ends while in a subsequence starting with 10
+        # Only add if the last value is not 10, 3, 9, or 6
         if start is not None:
-            indices.append((start, len(landuse_sequence)-1))
+            last_value = landuse_sequence[-1]
+            if last_value not in [10, 3, 9, 6]:
+                indices.append((start, len(landuse_sequence)))
         
         return indices
 
@@ -396,13 +401,19 @@ for folder in tqdm(output_folders):
             for sequence in indices:
 
                 if (sequence[1] - sequence[0]) >= num_cropraiding_steps:
-                    
-                    for i in range(sequence[1] - sequence[0]):
-                        if agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]] != 0:
-                            association_matrix_num_visiting_trajs_local[int(boundary_patches[rows[sequence[0]], cols[sequence[0]]]),  int(agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]])] = 1
-        
+
+                    if boundary_patches[rows[sequence[0]], cols[sequence[0]]] != 0:
+
+                        for i in range(sequence[1] - sequence[0]):
+    
+                            if agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]] != 0:
+
+                                print("boundary patch:", boundary_patches[rows[sequence[0]], cols[sequence[0]]], "agricultural plot:", agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]])
+
+                                association_matrix_num_visiting_trajs_local[int(boundary_patches[rows[sequence[0]], cols[sequence[0]]]),  int(agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]])] = 1
+            
         except Exception as e:
-            print(f"Error processing trajectory in {expt}: {e}")
+            # print(f"Error processing trajectory in {expt}: {e}")
             pass
 
         association_matrix_num_visiting_trajs += association_matrix_num_visiting_trajs_local
@@ -410,7 +421,7 @@ for folder in tqdm(output_folders):
     print("max number of visiting trajectories:", np.max(association_matrix_num_visiting_trajs))
     print("min number of visiting trajectories:", np.min(association_matrix_num_visiting_trajs))
 
-    df = pd.DataFrame(association_matrix_num_visiting_trajs, columns=[f"agricultural_plot_{i+1}" for i in range(num_agricultural_plts)],
-                    index=[f"boundary_patch_{i+1}" for i in range(num_boundary_patchs)])
+    df = pd.DataFrame(association_matrix_num_visiting_trajs, columns=[f"agricultural_plot_{i}" for i in range(num_agricultural_plts)],
+                    index=[f"boundary_patch_{i}" for i in range(num_boundary_patchs)])
     
     df.to_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))

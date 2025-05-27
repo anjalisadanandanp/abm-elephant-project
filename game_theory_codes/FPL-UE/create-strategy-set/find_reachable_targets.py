@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     start_row, start_col = 375, 600
     target_value = 10
-    max_distance = 323
+    max_distance = 600
     
     reachable_targets = find_first_reachable_targets(matrix, start_row, start_col, target_value, max_distance)
 

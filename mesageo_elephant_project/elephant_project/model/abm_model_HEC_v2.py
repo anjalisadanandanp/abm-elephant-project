@@ -1820,7 +1820,7 @@ class environment():
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
-        self.initialize_food_matrix_setup_0_0_1()
+        self.initialize_food_matrix_setup_0_0_3()
         self.initialize_water_matrix_only_rivers()
         # self.initialize_water_matrix_only_water_holes()
 

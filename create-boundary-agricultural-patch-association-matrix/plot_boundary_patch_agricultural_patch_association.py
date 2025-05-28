@@ -139,19 +139,20 @@ experiment_name = "model-without-intervention"
 output_folders = [return_output_folder(experiment_name, param_dict) for param_dict in param_dicts]
 
 agricultural_plots = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
-boundary_patches = gdal.Open("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif").ReadAsArray()
+boundary_patches = gdal.Open("create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
 
 geotransform = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").GetGeoTransform()
 ag_xmin, ag_xres, ag_xskew, ag_ymax, ag_yskew, ag_yres = geotransform
 ag_rows, ag_cols = agricultural_plots.shape
 
 row_size, col_size = boundary_patches.shape
-xmin, xres, xskew, ymax, yskew, yres = gdal.Open("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif").GetGeoTransform()
+xmin, xres, xskew, ymax, yskew, yres = gdal.Open("create-strategy-matrix/boundary_raster_discretised.tif").GetGeoTransform()
 outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   
 LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
 LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
 
 plot_boundary_patch_map = True
+plot_boundary_association = True
 num_cropraiding_steps = 12
 
 for folder in tqdm(output_folders):
@@ -259,55 +260,63 @@ for folder in tqdm(output_folders):
         plt.close()
                 
 
+    if plot_boundary_association == True:
 
-    df = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
+        df = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
 
-    for index, row in df.iterrows():
+        for index, row in df.iterrows():
 
-        if index == 0:
-            pass
+            if index == 0:
+                pass
 
-        else:
+            else:
 
-            non_zero_items = [(col, val) for col, val in row.items() if val != 0]
+                non_zero_items = [(col, val) for col, val in row.items() if val != 0]
 
-            row_name = row['Unnamed: 0']
-            col_names = [col for col in df.columns if col != 'Unnamed: 0']
+                row_name = row['Unnamed: 0']
+                col_names = [col for col in df.columns if col != 'Unnamed: 0']
 
-            boundary_patch_id = int(row_name.split("_")[-1])
+                boundary_patch_id = int(row_name.split("_")[-1])
 
-            print(f"Boundary Patch ID: {boundary_patch_id}")
+                print(f"Boundary Patch ID: {boundary_patch_id}")
 
-            matrix_to_plot = np.zeros((ag_rows, ag_cols))
+                matrix_to_plot = np.zeros((ag_rows, ag_cols))
 
-            mask = boundary_patches == boundary_patch_id
+                mask = boundary_patches == boundary_patch_id
 
-            matrix_to_plot[mask] = 1
-            
+                matrix_to_plot[mask] = 1
 
-            for col, val in non_zero_items:
+                flag = False
+                
+                for col, val in non_zero_items:
 
-                try:
-                    agricultural_plot_id = int(col.split("_")[-1])
-                    print(f"  {col}: {val}")
-                    ag_mask = agricultural_plots == agricultural_plot_id
-                    matrix_to_plot[ag_mask] = 2
-                except:
-                    pass
+                    try:
+                        agricultural_plot_id = int(col.split("_")[-1])
+                        print(f"  {col}: {val}")
+                        ag_mask = agricultural_plots == agricultural_plot_id
+                        matrix_to_plot[ag_mask] = 2
+                        if np.any(ag_mask):
+                            flag = True
+                    except:
+                        pass
 
+                if os.path.exists(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png")):
+                    os.remove(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png"))
 
-            fig, ax = plt.subplots(figsize=(8, 8))
+                if flag == True:
 
-            map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+                    fig, ax = plt.subplots(figsize=(8, 8))
 
-            colors = ["white", "red", "black"]
-            custom_cmap = mcolors.ListedColormap(colors)
-            
-            img = map.imshow(np.flipud(matrix_to_plot), cmap=custom_cmap, interpolation='nearest')
+                    map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
 
-            map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
-            map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+                    colors = ["white", "red", "black"]
+                    custom_cmap = mcolors.ListedColormap(colors)
+                    
+                    img = map.imshow(np.flipud(matrix_to_plot), cmap=custom_cmap, interpolation='nearest')
 
-            plt.savefig(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png"), dpi=300, bbox_inches="tight")
-            plt.close()
+                    map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+                    map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+                    plt.savefig(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png"), dpi=300, bbox_inches="tight")
+                    plt.close()
 

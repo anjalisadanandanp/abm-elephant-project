@@ -149,7 +149,7 @@ for folder in tqdm(output_folders):
 
     os.makedirs(os.path.join(os.getcwd(), "create-boundary-agricultural-patch-association-matrix/outputs/" + folder), exist_ok=True)
 
-    boundary_patches = gdal.Open("game_theory_codes/FPL-UE/create-strategy-set/outputs/high_res_indexed_forest_agricultural_fringe.tif").ReadAsArray()
+    boundary_patches = gdal.Open("create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
 
     rainbow = plt.cm.rainbow
     colors = rainbow(np.linspace(0, 1, 256))

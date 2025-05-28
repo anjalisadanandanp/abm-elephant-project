@@ -73,7 +73,7 @@ def return_output_folder(experiment_name, model_params):
     elephant_category = "solitary_bulls"
     starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-    food_availability_sceanario = "random-food-distribition-within-plantation"
+    food_availability_sceanario = "random-food-distribition-within-agricultural-plots-and-other-plantation-cells"
     water_availability_sceanario = "water-source-rivers-landscape-" + str(model_params["prob_water_sources"])
     food_memory_matrix_type = "random-memory-forest-and_plantation-fringe-model"
     water_memory_matrix_type = "full-memory-forest-and_plantation-model"

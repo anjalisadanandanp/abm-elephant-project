@@ -103,8 +103,8 @@ class Elephant(GeoAgent):
 
         #----------------hoose the type of memory matrix initialization-------------------#
         # self.initialize_food_memory_matrix_only_forest()
-        self.initialize_food_memory_matrix_random()
-        # self.initialize_food_memory_matrix_with_knowledge_from_fringe()
+        # self.initialize_food_memory_matrix_random()
+        self.initialize_food_memory_matrix_with_knowledge_from_fringe()
         #---------------------------------------------------------------------------------#
         # self.initialize_water_memory_matrix_only_forest()
         self.initialize_water_memory_matrix_forest_and_croplands()
@@ -1714,8 +1714,8 @@ class environment():
     def main(self):
 
         self.initialize_food_matrix()
-        # self.initialize_water_matrix_only_rivers()
-        self.initialize_water_matrix_only_water_holes()
+        self.initialize_water_matrix_only_rivers()
+        # self.initialize_water_matrix_only_water_holes()
 
         return
     #---------------------------------------------------------------------------------------------------------

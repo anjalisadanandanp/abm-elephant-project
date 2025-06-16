@@ -2,5 +2,7 @@
 model_runs/*
 mlruns/*
 
-
-
+game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE/*
+game_theory_codes/FPL-UE/create-strategy-set/simulations-without-mitigation/*
+create-vulnerability-matrix/model-runs-without-intervention/*
+create-boundary-agricultural-patch-association-matrix/outputs/*

@@ -98,10 +98,11 @@ class Elephant(GeoAgent):
         self.danger_to_life = False
         self.conflict_with_humans = False
 
-        self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
+        # self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
+        self.proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
-        #----------------hoose the type of memory matrix initialization-------------------#
+        #----------------choose the type of memory matrix initialization-------------------#
         # self.initialize_food_memory_matrix_only_forest()
         # self.initialize_food_memory_matrix_random()
         self.initialize_food_memory_matrix_with_knowledge_from_fringe()
@@ -202,7 +203,7 @@ class Elephant(GeoAgent):
 
         for i in range(0,self.model.row_size):
             for j in range(0,self.model.col_size):
-                if self.model.random.uniform(0,1) < self.model.percent_memory_elephant and self.proximity_to_plantations[i][j] > 1:
+                if self.model.random.uniform(0,1) < self.model.percent_memory_elephant and self.proximity_to_plantations[i][j] > 0.025:
                     food_memory[i,j] = self.model.FOOD[i][j]
                     if self.model.FOOD[i][j] > 0:
                         food_memory_cells[i,j] = 1
@@ -227,7 +228,7 @@ class Elephant(GeoAgent):
 
         for i in range(0,self.model.row_size):
             for j in range(0,self.model.col_size):
-                if self.proximity_to_plantations[i][j] > 50:
+                if self.proximity_to_plantations[i][j] > 0.025:
                     if self.model.WATER[i][j] > 0:
                         water_memory_cells[i,j] = 1
                     
@@ -1300,8 +1301,10 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         coord_list=[]
+
         for i in range(row_start, row_end):
             for j in range(col_start, col_end):
+
                 if i == self.ROW and j == self.COL:
                     pass
 
@@ -1426,9 +1429,9 @@ class Elephant(GeoAgent):
         
         self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
 
-        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
-        with rio.open(source) as src:
-            ras_meta = src.profile
+        # source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+        # with rio.open(source) as src:
+        #     ras_meta = src.profile
 
         # proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
         # with rio.open(proximity_loc, 'w', **ras_meta) as dst:
@@ -1549,7 +1552,7 @@ class environment():
         self.output_folder = output_folder
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix(self):
+    def initialize_food_matrix_setup_0_0_1(self):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
@@ -1562,9 +1565,11 @@ class environment():
         food_matrix = np.zeros_like(Plantation)
         landscape_cell_status = np.zeros_like(Plantation)
 
+        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
+
         for i in range(0,m):
             for j in range(0,n):
-                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10:
+                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0:   
                     landscape_cell_status[i,j] = 2
 
                 elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
@@ -1576,6 +1581,7 @@ class environment():
         food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
         food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
 
+        #saving the food matrix
         fid = os.path.join(folder_path, "LULC.tif")
 
         with rio.open(fid) as src:
@@ -1585,7 +1591,7 @@ class environment():
         ras_meta['dtype'] = "float64"
         ras_meta['nodata'] = -99
 
-        fid = os.path.join(self.output_folder, "food_matrix_" + str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
+        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
 
         with rio.open(fid, 'w', **ras_meta) as dst:
             dst.write(food_matrix.astype(float), 1)
@@ -1597,7 +1603,111 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix_rivers_and_water_holes(self):
+    def initialize_food_matrix_setup_0_0_2(self):
+        """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
+        """
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        Plantation = gdal.Open(fid).ReadAsArray()
+        m,n=Plantation.shape
+
+        food_matrix = np.zeros_like(Plantation)
+        landscape_cell_status = np.zeros_like(Plantation)
+
+        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
+        landholding_matrix = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
+
+        for i in range(0,m):
+            for j in range(0,n):
+                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0 and landholding_matrix[i,j] > 0:   
+                    landscape_cell_status[i,j] = 2
+
+                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
+                    landscape_cell_status[i,j] = 1
+
+        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
+        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
+
+        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
+        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
+
+        #saving the food matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        ras_meta['dtype'] = "float64"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(food_matrix.astype(float), 1)
+
+        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(landscape_cell_status.astype(float), 1)
+
+        return 
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
+    def initialize_food_matrix_setup_0_0_3(self):
+        """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
+        """
+
+        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        Plantation = gdal.Open(fid).ReadAsArray()
+        m,n=Plantation.shape
+
+        food_matrix = np.zeros_like(Plantation)
+        landscape_cell_status = np.zeros_like(Plantation)
+
+        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
+        landholding_matrix = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
+
+        for i in range(0,m):
+            for j in range(0,n):
+                if (np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0) or (landholding_matrix[i,j] > 0):   
+                    landscape_cell_status[i,j] = 2
+
+                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
+                    landscape_cell_status[i,j] = 1
+
+        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
+        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
+
+        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
+        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
+
+        #saving the food matrix
+        fid = os.path.join(folder_path, "LULC.tif")
+
+        with rio.open(fid) as src:
+            ras_data = src.read()
+            ras_meta = src.profile
+
+        ras_meta['dtype'] = "float64"
+        ras_meta['nodata'] = -99
+
+        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
+
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(food_matrix.astype(float), 1)
+
+        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
+        with rio.open(fid, 'w', **ras_meta) as dst:
+            dst.write(landscape_cell_status.astype(float), 1)
+
+        return 
+    #---------------------------------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------------
+    def initialize_water_matrix_with_rivers_and_water_holes(self):
         
         """The function initializes water matrix based on the simulation parameters"""
         #Prob_water: probability of water being available in a given cell 
@@ -1712,7 +1822,7 @@ class environment():
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
-        self.initialize_food_matrix()
+        self.initialize_food_matrix_setup_0_0_3()
         self.initialize_water_matrix_only_rivers()
         # self.initialize_water_matrix_only_water_holes()
 
@@ -1729,7 +1839,6 @@ class conflict_model(Model):
     Model class: Elephant-Human interaction model
     """
 
-    #Model Initialization
     def __init__(self,
         year,
         month,
@@ -2000,7 +2109,6 @@ class conflict_model(Model):
                                                 "num_steps_thermoregulated": "num_steps_thermoregulated",
                                                 "current_proximity_to_plantations": "current_proximity_to_plantations",
                                                 "current_proximity_to_water_sources": "current_proximity_to_water_sources"
-
                                                 })
 
         self.datacollector.collect(self)
@@ -2086,7 +2194,7 @@ class conflict_model(Model):
             mlflow.log_figure(fig, "elephant_agent_init_coords.png")
 
         plt.close()
-    #-------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------
     def elephant_distribution_random_init_forest(self):
         """ Function to return the distribution of elephants within the study area"""
 
@@ -2370,6 +2478,7 @@ class conflict_model(Model):
     def plot_ele_traj_on_LULC(self, longitude, latitude, agent_id):
 
         ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
+
         data = ds.ReadAsArray()
         data = np.flip(data, axis=0)
         row_size, col_size = data.shape
@@ -2607,7 +2716,7 @@ class conflict_model(Model):
 
         self.datacollector.collect(self)
 
-        #UPDATE TIME
+        #------------UPDATE TIME------------
         self.model_time = self.model_time + 1      
         self.model_minutes = self.model_time * 5
         self.model_hour = int(self.model_minutes/60)

@@ -9,6 +9,7 @@ import rasterio
 from osgeo import gdal
 
 class RangerOptimizer:
+    
     def __init__(
         self,
         num_rangers: int,

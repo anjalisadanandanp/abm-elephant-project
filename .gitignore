@@ -2,5 +2,12 @@
 model_runs/*
 mlruns/*
 
+<<<<<<< HEAD
 
-create-vulnerability-matrix/model-runs-without-intervention
+=======
+>>>>>>> 4538cd8ba2b29e38ef7d345c805fd31c23d0514f
+create-vulnerability-matrix/model-runs-without-intervention/*
+create-boundary-agricultural-patch-association-matrix/outputs/*
+model_runs/model-without-intervention/*
+game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE/*
+game_theory_codes/FPL-UE/create-strategy-set/simulations-without-mitigation/*

@@ -80,6 +80,7 @@ class Elephant(GeoAgent):
         self.crop_habituated = self.model.elephant_crop_habituation
 
         self.disturbance_tolerance = 0.5
+        self.human_habituation = 0
         self.food_consumed = 0                      
         self.visit_water_source = False            
         self.heading = self.model.random.uniform(0,360)
@@ -98,7 +99,10 @@ class Elephant(GeoAgent):
         self.danger_to_life = False
         self.conflict_with_humans = False
 
-        # self.proximity_to_plantations = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=10, name="plantations")
+        self.strategy_row = None
+        self.strategy_col = None
+        self.target_attacked = None
+
         self.proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
@@ -293,7 +297,7 @@ class Elephant(GeoAgent):
     def next_step_to_move_v1(self):
         """how the elephant agent moves from the current co-ordinates to the next"""
 
-        self.mode = self.current_mode_of_the_agent()   
+        self.mode = self.current_mode_of_the_agent()  
 
         if self.mode == "RandomWalk":
             next_lon, next_lat = self.correlated_random_walk_without_terrain_factor()
@@ -376,13 +380,18 @@ class Elephant(GeoAgent):
                 next_lon, next_lat = self.targeted_walk_v0()
                 self.shape = self.move_point(next_lon, next_lat)
 
-        elif self.mode == "EscapeMode":   
-            filter = self.return_feasible_direction_to_move_v2()   
-            self.target_for_escape_v1(filter)  
-            next_lon, next_lat = self.targeted_walk_v0()
-            self.shape = self.move_point(next_lon, next_lat)
-            self.target_name = "forest:escaping"
+        elif self.mode == "EscapeMode":
 
+            if self.target_present == False or (self.target_name and "escaping" not in self.target_name):   
+                filter = self.return_feasible_direction_to_move_v2()
+                self.target_for_escape_v1(filter)  
+                self.target_name = "forest:escaping"
+
+            else:
+                next_lon, next_lat = self.targeted_walk_v0()
+                self.shape = self.move_point(next_lon, next_lat)
+                self.target_name = "forest:escaping"
+            
         elif self.mode == "InflictDamage":     
             self.InflictDamage()   
 
@@ -397,28 +406,29 @@ class Elephant(GeoAgent):
             # print("water source proximity (number of cells):", self.proximity_to_water_sources[self.ROW][self.COL])
             if self.proximity_to_water_sources[self.ROW][self.COL]*33.33 < self.model.radius_water_search:
                 self.num_steps_thermoregulated += 1
-
+                
         return 
     #--------------------------------------------------------------------------------------------------
     def update_danger_to_life(self):
         """Update danger_to_life"""
-            
-        if self.conflict_neighbor != None:    
-            if self.human_habituation < self.model.human_habituation_tolerance:  
-                for agent in self.conflict_neighbor:
-                    self.danger_to_life = True
-                    self.conflict_with_humans = True 
-                    return  
 
-            else: 
-                for agent in self.conflict_neighbor:
-                    self.danger_to_life = False 
-                    self.conflict_with_humans = True
-                    return 
+        i = int(np.floor((self.model.ymax_coverage_matrix-self.shape.y) / -self.model.yres_coverage_matrix))
+        j = int(np.floor((self.shape.x-self.model.xmin_coverage_matrix) / self.model.xres_coverage_matrix))
+
+        self.strategy_row = i
+        self.strategy_col = j
+
+        if self.model.COVERAGE_MATRIX[i][j] > 0:    
+            self.danger_to_life = True
+            self.conflict_with_humans = True 
+            self.target_attacked = self.model.COVERAGE_MATRIX[i][j] 
+            return  
+
         else:
             self.danger_to_life = False   
             self.conflict_with_humans = False
-            return 
+            self.target_attacked = None
+            return  
     #--------------------------------------------------------------------------------------------------
     def current_mode_of_the_agent(self):
         """function returns the mode of the agent depending on its energy levels and interaction with human agents"""
@@ -433,18 +443,6 @@ class Elephant(GeoAgent):
         self.prob_thermoregulation = self.model.temp[ROW,COL]
         if  self.prob_thermoregulation > 0.5:
             self.num_thermoregulation_steps += 1
-        
-        if self.model.elephant_agent_visibility_radius != None:
-            for agent in self.model.schedule.agents:
-                conflict_neighbors = []
-                if isinstance(agent,  Humans):
-                    distance = agent.distance_calculator_epsg3857(self.shape.y, agent.shape.y, self.shape.x, agent.shape.x)
-                    if distance <= self.model.elephant_agent_visibility_radius:
-                        conflict_neighbors.append(agent)
-                if len(conflict_neighbors) > 0:
-                    self.conflict_neighbor = conflict_neighbors
-                else:
-                    self.conflict_neighbor = None
 
         self.update_danger_to_life()
 
@@ -1214,7 +1212,7 @@ class Elephant(GeoAgent):
         x = self.ROW
         y = self.COL
 
-        fig, ax = plt.subplots(1,6, figsize=(30,5))
+        fig, ax = plt.subplots(1,7, figsize=(35,5))
 
         food_memory = np.array(self.food_memory)[row_start:row_end, col_start:col_end]
         img1 = ax[0].imshow(food_memory, cmap='gray', vmin=0, vmax=np.max(food_memory))
@@ -1257,12 +1255,19 @@ class Elephant(GeoAgent):
         ax[5].set_yticks([])
         plt.colorbar(img6, ax=ax[5], orientation='vertical', shrink=0.5)
 
+        ranger_coverage = np.array(self.model.COVERAGE_MATRIX)[row_start:row_end, col_start:col_end]
+        img7 = ax[6].imshow(ranger_coverage, cmap='coolwarm', vmin=0, vmax=1)
+        ax[6].set_xticks([])
+        ax[6].set_yticks([])
+        plt.colorbar(img7, ax=ax[6], orientation='vertical', shrink=0.5)
+
         ax[0].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
         ax[1].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
         ax[2].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
         ax[3].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
         ax[4].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
         ax[5].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
+        ax[6].scatter(y - col_start, x - row_start, color='green', s=25, marker='s')
 
         ax[0].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
         ax[1].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
@@ -1270,6 +1275,7 @@ class Elephant(GeoAgent):
         ax[3].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
         ax[4].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
         ax[5].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
+        ax[6].scatter(target_y - col_start, target_x - row_start, color='red', s=50, marker='x')
 
         plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_" + target_name + "_.png"), dpi=300, bbox_inches='tight')
     #-----------------------------------------------------------------------------------------------------
@@ -1333,6 +1339,9 @@ class Elephant(GeoAgent):
         lat = self.model.yres * 0.5  + self.model.ymax + x * self.model.yres
         self.target_lon, self.target_lat = lon, lat
         self.target_present = True
+
+        if self.danger_to_life==True and self.conflict_with_humans==True and self.model.plot_stepwise_target_selection == True:    
+            self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "escape_target_v1", filter, x, y)
 
         return
     #-----------------------------------------------------------------------------------------------------
@@ -1522,215 +1531,52 @@ class Elephant(GeoAgent):
 
 
 
-#--------------------------------------------------------------------------------------------------------------------------------
-#Human agent class: serves as superclass
-class Humans(GeoAgent):
-    """ Human agents class"""
-
-    def __init__(self,unique_id, model, shape):
-        super().__init__(unique_id, model, shape)
-
-        self.home_lon = self.shape.x
-        self.home_lat = self.shape.y
-    #----------------------------------------------------------------------------------------------------
-    def step(self):
-        return
-    #----------------------------------------------------------------------------------------------------
-
-
-
-
-
 class environment():
 
-    def __init__(self, prob_food_in_forest, prob_food_in_cropland, prob_water_sources, max_food_val_forest, max_food_val_cropland, output_folder):
+    def __init__(self, prob_food_in_forest, prob_food_in_cropland, prob_water_sources, input_folder, output_folder):
         self.prob_food_in_forest =  prob_food_in_forest
         self.prob_food_in_cropland = prob_food_in_cropland
         self.prob_water_sources = prob_water_sources
-        self.max_food_val_forest = max_food_val_forest
-        self.max_food_val_cropland = max_food_val_cropland
+        self.input_folder = input_folder
         self.output_folder = output_folder
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix_setup_0_0_1(self):
+    def initialize_food_matrix(self):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
-        fid = os.path.join(folder_path, "LULC.tif")
+        fid_in = os.path.join(self.input_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
+        food_matrix = gdal.Open(fid_in).ReadAsArray()
 
-        Plantation = gdal.Open(fid).ReadAsArray()
-        m,n=Plantation.shape
+        landscape_cell_status_in = os.path.join(self.input_folder, "landscape_cell_status.tif")
+        landscape_cell_status = gdal.Open(landscape_cell_status_in).ReadAsArray()
 
-        food_matrix = np.zeros_like(Plantation)
-        landscape_cell_status = np.zeros_like(Plantation)
-
-        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
-
-        for i in range(0,m):
-            for j in range(0,n):
-                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0:   
-                    landscape_cell_status[i,j] = 2
-
-                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
-                    landscape_cell_status[i,j] = 1
-
-        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
-        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
-
-        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
-        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
-
-        #saving the food matrix
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        with rio.open(fid) as src:
+        with rio.open(fid_in) as src:
             ras_data = src.read()
             ras_meta = src.profile
 
         ras_meta['dtype'] = "float64"
         ras_meta['nodata'] = -99
 
-        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
+        fid_out = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
 
-        with rio.open(fid, 'w', **ras_meta) as dst:
+        with rio.open(fid_out, 'w', **ras_meta) as dst:
             dst.write(food_matrix.astype(float), 1)
 
-        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
-        with rio.open(fid, 'w', **ras_meta) as dst:
+        fid_out = os.path.join(self.output_folder, "landscape_cell_status.tif")
+
+        with rio.open(fid_out, 'w', **ras_meta) as dst:
             dst.write(landscape_cell_status.astype(float), 1)
 
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix_setup_0_0_2(self):
-        """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
-        """
-
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        Plantation = gdal.Open(fid).ReadAsArray()
-        m,n=Plantation.shape
-
-        food_matrix = np.zeros_like(Plantation)
-        landscape_cell_status = np.zeros_like(Plantation)
-
-        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
-        landholding_matrix = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
-
-        for i in range(0,m):
-            for j in range(0,n):
-                if np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0 and landholding_matrix[i,j] > 0:   
-                    landscape_cell_status[i,j] = 2
-
-                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
-                    landscape_cell_status[i,j] = 1
-
-        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
-        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
-
-        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
-        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
-
-        #saving the food matrix
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        with rio.open(fid) as src:
-            ras_data = src.read()
-            ras_meta = src.profile
-
-        ras_meta['dtype'] = "float64"
-        ras_meta['nodata'] = -99
-
-        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
-
-        with rio.open(fid, 'w', **ras_meta) as dst:
-            dst.write(food_matrix.astype(float), 1)
-
-        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
-        with rio.open(fid, 'w', **ras_meta) as dst:
-            dst.write(landscape_cell_status.astype(float), 1)
-
-        return 
-    #---------------------------------------------------------------------------------------------------------
-    #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix_setup_0_0_3(self):
-        """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
-        """
-
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        Plantation = gdal.Open(fid).ReadAsArray()
-        m,n=Plantation.shape
-
-        food_matrix = np.zeros_like(Plantation)
-        landscape_cell_status = np.zeros_like(Plantation)
-
-        proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
-        landholding_matrix = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
-
-        for i in range(0,m):
-            for j in range(0,n):
-                if (np.random.uniform(0,1) < self.prob_food_in_cropland and Plantation[i,j] == 10 and proximity_to_plantations[i,j] == 0) or (landholding_matrix[i,j] > 0):   
-                    landscape_cell_status[i,j] = 2
-
-                elif np.random.uniform(0,1) < self.prob_food_in_forest and Plantation[i,j] == 15:   
-                    landscape_cell_status[i,j] = 1
-
-        forest_mask = (Plantation == 15) & (landscape_cell_status == 1)
-        cropland_mask = (Plantation == 10) & (landscape_cell_status == 2)
-
-        food_matrix[forest_mask] = np.random.uniform(0, self.max_food_val_forest, size=(m,n))[forest_mask]
-        food_matrix[cropland_mask] = np.random.uniform(0, self.max_food_val_cropland, size=(m,n))[cropland_mask]
-
-        #saving the food matrix
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        with rio.open(fid) as src:
-            ras_data = src.read()
-            ras_meta = src.profile
-
-        ras_meta['dtype'] = "float64"
-        ras_meta['nodata'] = -99
-
-        fid = os.path.join(self.output_folder, "food_matrix_"+ str(self.prob_food_in_forest) + "_" + str(self.prob_food_in_cropland) + "_.tif")
-
-        with rio.open(fid, 'w', **ras_meta) as dst:
-            dst.write(food_matrix.astype(float), 1)
-
-        fid = os.path.join(self.output_folder, "landscape_cell_status.tif")
-        with rio.open(fid, 'w', **ras_meta) as dst:
-            dst.write(landscape_cell_status.astype(float), 1)
-
-        return 
-    #---------------------------------------------------------------------------------------------------------
-    #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix_with_rivers_and_water_holes(self):
-        
-        """The function initializes water matrix based on the simulation parameters"""
-        #Prob_water: probability of water being available in a given cell 
+    def initialize_water_matrix(self):
         
         #Reading the LULC and storing the plantation area details
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
-        fid = os.path.join(folder_path, "LULC.tif")
+        fid = os.path.join(self.input_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
 
-        LULC = gdal.Open(fid).ReadAsArray()
-        rowmax, colmax = LULC.shape
-
-        water_matrix = np.zeros_like(LULC)
-
-        for i in range(0,rowmax):
-            for j in range(0,colmax):
-                if LULC[i,j]==9:
-                    water_matrix[i,j]=1
-
-                if np.random.uniform(0,1) < self.prob_water_sources:
-                    water_matrix[i,j]=1
-
-        #saving the water matrix
-        fid = os.path.join(folder_path, "LULC.tif")
+        water_matrix = gdal.Open(fid).ReadAsArray()
 
         with rio.open(fid) as src:
             ras_data = src.read()
@@ -1745,87 +1591,14 @@ class environment():
         with rio.open(fid, 'w', **ras_meta) as dst:
             dst.write(water_matrix.astype(int), 1)
 
-        return
-    #---------------------------------------------------------------------------------------------------------
-    #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix_only_rivers(self):
-        
-        """The function initializes water matrix based on the simulation parameters"""
-
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        LULC = gdal.Open(fid).ReadAsArray()
-        rowmax, colmax = LULC.shape
-
-        water_matrix = np.zeros_like(LULC)
-
-        for i in range(0,rowmax):
-            for j in range(0,colmax):
-                if LULC[i,j]==9:
-                    if np.random.uniform(0,1) < self.prob_water_sources:
-                        water_matrix[i,j]=1
-
-        #saving the water matrix
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        with rio.open(fid) as src:
-            ras_data = src.read()
-            ras_meta = src.profile
-
-        # make any necessary changes to raster properties, e.g.:
-        ras_meta['dtype'] = "int32"
-        ras_meta['nodata'] = -99
-
-        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
-
-        with rio.open(fid, 'w', **ras_meta) as dst:
-            dst.write(water_matrix.astype(int), 1)
-
-        return
-    #---------------------------------------------------------------------------------------------------------
-    #---------------------------------------------------------------------------------------------------------
-    def initialize_water_matrix_only_water_holes(self):
-        
-        """The function initializes water matrix based on the simulation parameters"""
-
-        folder_path = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode","Raster_Files_Seethathode_Derived", "area_1100sqKm/reso_30x30")
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        LULC = gdal.Open(fid).ReadAsArray()
-        rowmax, colmax = LULC.shape
-
-        water_matrix = np.zeros_like(LULC)
-
-        for i in range(0,rowmax):
-            for j in range(0,colmax):
-                if np.random.uniform(0,1) < self.prob_water_sources:
-                    water_matrix[i,j]=1
-
-        #saving the water matrix
-        fid = os.path.join(folder_path, "LULC.tif")
-
-        with rio.open(fid) as src:
-            ras_data = src.read()
-            ras_meta = src.profile
-
-        # make any necessary changes to raster properties, e.g.:
-        ras_meta['dtype'] = "int32"
-        ras_meta['nodata'] = -99
-
-        fid = os.path.join(self.output_folder, "water_matrix_" + str(self.prob_water_sources) +"_.tif")
-
-        with rio.open(fid, 'w', **ras_meta) as dst:
-            dst.write(water_matrix.astype(int), 1)
         return
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
-        self.initialize_food_matrix_setup_0_0_3()
-        self.initialize_water_matrix_only_rivers()
-        # self.initialize_water_matrix_only_water_holes()
-
+        self.initialize_food_matrix()
+        self.initialize_water_matrix()
+        
         return
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
@@ -1851,7 +1624,7 @@ class conflict_model(Model):
         prob_food_cropland,                         #probability of food in the cropland
         prob_water_sources,                         #probability of water holes in the landscape
         thermoregulation_threshold,                 #threshold temperature for thermoregulation for the elephant agents
-        num_days_agent_survives_in_deprivation,     #number of days an agent survives without food and water     
+        num_days_agent_survives_in_deprivation,     #number of days an agent survives without food and water              
         knowledge_from_fringe,                      #distance from the fringe where elephants knows food availability within the crop fields
         prob_crop_damage,                           #probability of damaging crop if entered an agricultural field
         prob_infrastructure_damage,                 #probability of damaging infrastructure if entered a settlement area
@@ -1866,7 +1639,8 @@ class conflict_model(Model):
         iterations,                                 #number of iterations to run the simulation
         max_time_steps,                             #maximum simulation time (in ticks)
         aggression_threshold_enter_cropland,        #aggression threshold for entering a cropland cell
-        elephant_agent_visibility_radius,           #elephant agent visibility radius
+        human_habituation_tolerance,                
+        elephant_agent_visibility_radius,           #elephant agent visibility radius     
         plot_stepwise_target_selection,             #plot stepwise target selection
         threshold_days_of_food_deprivation,         #threshold days of food deprivation
         threshold_days_of_water_deprivation,        #threshold days of water deprivation
@@ -1917,6 +1691,7 @@ class conflict_model(Model):
         self.slope_tolerance = slope_tolerance
         self.max_time_steps = max_time_steps
         self.aggression_threshold_enter_cropland = aggression_threshold_enter_cropland
+        self.human_habituation_tolerance = human_habituation_tolerance
         self.elephant_agent_visibility_radius = elephant_agent_visibility_radius
         self.plot_stepwise_target_selection = plot_stepwise_target_selection
         self.threshold_days_of_food_deprivation = threshold_days_of_food_deprivation
@@ -1953,7 +1728,7 @@ class conflict_model(Model):
 
 
         #-------------------------------------------------------------------
-        #MULTIPROCESSING
+        # MULTIPROCESSING
         #-------------------------------------------------------------------
         self.now = "PID" + str(os.getpid())     #creating a unique folder for each process using PID
         self.now = str(uuid.uuid4())            #creating a unique folder for each process using UUID
@@ -1968,19 +1743,18 @@ class conflict_model(Model):
         os.mkdir(os.path.join(folder, self.now, "output_files"))
         
         environment(prob_food_in_forest = self.prob_food_forest,
-                            prob_food_in_cropland = self.prob_food_cropland,
-                            prob_water_sources = self.prob_water_sources,
-                            max_food_val_forest = self.max_food_val_forest,
-                            max_food_val_cropland = self.max_food_val_cropland,
-                            output_folder=os.path.join(self.folder_root, "env")).main()
+                    prob_food_in_cropland = self.prob_food_cropland,
+                    prob_water_sources = self.prob_water_sources,
+                    input_folder = os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/"),
+                    output_folder=os.path.join(self.folder_root, "env")).main()
         
         env_folder_seethathode = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode", "Raster_Files_Seethathode_Derived", self.area[area_size], self.reso[spatial_resolution])
         shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(self.folder_root, "env"))
-        # shutil.copy(os.path.join(folder, "food_matrix_" + str(self.prob_food_forest) + "_" + str(self.prob_food_cropland) + "_.tif"), os.path.join(self.folder_root, "env"))
-        # shutil.copy(os.path.join(folder, "water_matrix_" + str(self.prob_water_sources) + "_.tif"), os.path.join(self.folder_root, "env"))
-        # shutil.copy(os.path.join(folder, "landscape_cell_status.tif"), os.path.join(self.folder_root, "env"))
+        shutil.copy(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/defender_coverage_matrix.tif"), os.path.join(self.folder_root, "env"))
+
+
 
         self.DEM = self.DEM_study_area()
         self.SLOPE = self.SLOPE_study_area()
@@ -1989,6 +1763,7 @@ class conflict_model(Model):
         self.WATER = self.WATER_MATRIX()
         self.LANDSCAPE_STATUS = self.LANDSCAPE_CELL_STATUS()
         self.AGRICULTURAL_PLOTS, self.INFRASTRUCTURE_MATRIX = self.PROPERTY_MATRIX()
+        self.COVERAGE_MATRIX = self.COVERAGE_MATRIX()
         #-------------------------------------------------------------------
 
 
@@ -2094,6 +1869,9 @@ class conflict_model(Model):
                                                 "longitude": "shape.x", 
                                                 "latitude": "shape.y",
                                                 "mode": "mode",
+                                                "ROW": "strategy_row",
+                                                "COL": "strategy_col",
+                                                "target_attacked" : "target_attacked",
                                                 "fitness": "fitness",
                                                 "daily_dry_matter_intake": "daily_dry_matter_intake",
                                                 "food_consumed": "food_consumed",
@@ -2289,6 +2067,27 @@ class conflict_model(Model):
         fid = os.path.join(self.folder_root , "env", "water_matrix_"+ str(self.prob_water_sources) + "_.tif")
         WATER = gdal.Open(fid).ReadAsArray()  
         return WATER.tolist() 
+    #-----------------------------------------------------------------------------------------------------
+    def COVERAGE_MATRIX(self):
+        """ Returns the water matrix model of the study area"""
+        fid = os.path.join(self.folder_root , "env", "defender_coverage_matrix.tif")
+        coverage_matrix = gdal.Open(fid).ReadAsArray()  
+
+        geotransform = gdal.Open(fid).GetGeoTransform()
+        
+        xmin = geotransform[0]
+        ymax = geotransform[3]  
+        xres = geotransform[1]   
+        yres = geotransform[5]   
+
+        self.xmin_coverage_matrix = xmin
+        self.ymax_coverage_matrix = ymax
+        self.xres_coverage_matrix = xres
+        self.yres_coverage_matrix = yres
+                               
+        # print("xmin, ymax, xres, yres", xmin, ymax, xres, yres)
+
+        return coverage_matrix.tolist() 
     #-----------------------------------------------------------------------------------------------------
     def LANDSCAPE_CELL_STATUS(self):
         """ Returns the slope model of the study area"""

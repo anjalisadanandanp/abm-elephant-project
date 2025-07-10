@@ -174,5 +174,5 @@ if __name__ == "__main__":
         geojson_path='mesageo_elephant_project/elephant_project/geojson_files/landuse_10.geojson',
         reference_tif_path='mesageo_elephant_project/elephant_project/experiment_setup_files/environment_seethathode/Raster_Files_Seethathode_Derived/area_1100sqKm/reso_30x30/LULC.tif',
         output_dir='create-strategy-matrix',
-        segment_length=10
+        segment_length=15
     )

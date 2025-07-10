@@ -71,7 +71,7 @@ def return_output_folder(experiment_name, model_params):
     elephant_category = "solitary_bulls"
     starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-    food_availability_sceanario = "random-food-distribition-within-plantation"
+    food_availability_sceanario = "random-food-distribition-within-within-plantation-cells"
     water_availability_sceanario = "water-source-rivers-landscape-" + str(model_params["prob_water_sources"])
     food_memory_matrix_type = "random-memory-forest-and_plantation-fringe-model"
     water_memory_matrix_type = "full-memory-forest-and_plantation-model"
@@ -155,13 +155,13 @@ def find_food_value_association():
 
     for folder in tqdm(output_folders):
 
-        run_folder = os.path.join(os.getcwd(), "model_runs/", folder)
+        run_folder = os.path.join("/mnt/qdata/abm-elephant-project/aryabhata-runs/", folder)
         expts = os.listdir(run_folder)
 
         landuse_matrix = gdal.Open(os.path.join(run_folder, expts[-1], "env", "LULC.tif")).ReadAsArray()
         food_matrix = gdal.Open(os.path.join(run_folder, expts[-1], "env", "food_matrix_" + str(folder.split("/")[4].split("-")[4]) + "_" + str(folder.split("/")[4].split("-")[6]) + "_.tif")).ReadAsArray()
 
-        save_folder = os.path.join(os.getcwd(), "create-boundary-agricultural-patch-association-matrix/outputs/", folder)
+        save_folder = os.path.join(os.getcwd(), "create-boundary-agricultural-patch-association-matrix-v2/outputs/", folder)
 
         df = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
 
@@ -219,20 +219,53 @@ def find_food_value_association():
         df_new.to_csv(os.path.join(save_folder, "boundary_patch_association_matrix.csv"), index=False)
 
 
-        max_food_value = df_new["total_food_value"].max()
-        min_food_value = df_new["total_food_value"].min()
 
-        print(f"Max Food Value: {max_food_value}, Min Food Value: {min_food_value}")
+        rewards = []
 
-        reward = df_new["total_food_value"]/ (max_food_value - min_food_value)/2
-        penalty = -reward
+        num_trajs_threatening = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
+        num_food_resources_under_attack = pd.read_csv(os.path.join(save_folder, "boundary_patch_association_matrix.csv"))
+
+        for boundary_id in num_food_resources_under_attack["boundary_patch_id"].unique():
+
+            reward = 0.0
+
+            rows = num_trajs_threatening[num_trajs_threatening["Unnamed: 0"] == f"boundary_patch_{boundary_id}"]
+
+            num_intersecting_trajs = rows.iloc[0, 1:].sum()
+
+            if num_intersecting_trajs == 0:
+                reward = 0.0
+                rewards.append(reward)
+
+            else:
+                reward = num_food_resources_under_attack[num_food_resources_under_attack["boundary_patch_id"] == boundary_id]["total_food_value"].values[0]*num_intersecting_trajs
+
+                print(f"Boundary Patch ID: {boundary_id}, Reward: {reward}")
+
+                rewards.append(reward)
+
+        rewards = np.array(rewards).flatten()
+
+        print(rewards.shape)
+
+        global_min = np.min(rewards)
+        global_max = np.max(rewards)
+
+        normalized_all = (rewards - global_min) / (global_max - global_min) / 2
+
+        rewards = normalized_all.flatten().tolist()
+
+        print("reward update:", rewards)
+
+        penalties = [-r for r in rewards]
 
         df_reward_penalty = pd.DataFrame({
             "boundary_patch_id": df_new["boundary_patch_id"],
-            "reward": reward,
-            "penalty": penalty
+            "reward": rewards,
+            "penalty": penalties
         })
         df_reward_penalty.to_csv(os.path.join(save_folder, "boundary_patch_reward_penalty_matrix.csv"), index=False)
+
 
 
 find_food_value_association()

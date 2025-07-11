@@ -1332,7 +1332,7 @@ def calculate_reward_for_strategy(defender_strategy, perturbed_reward):
     total_reward = np.dot(v, perturbed_reward)
     return total_reward, v
 
-def find_best_strategy_parallel(defender_strategies, perturbed_reward, n_processes=16):
+def find_best_strategy_parallel(defender_strategies, perturbed_reward, n_processes=8):
     
     process_func = partial(
         calculate_reward_for_strategy,
@@ -1351,6 +1351,19 @@ def find_best_strategy_parallel(defender_strategies, perturbed_reward, n_process
     
     return best_strategy
 
+def find_best_strategy_sequential(defender_strategies, perturbed_reward):
+    
+    max_reward = float('-inf')
+    best_strategy = None
+
+    for strategy in tqdm(defender_strategies):
+        total_reward, v = calculate_reward_for_strategy(strategy, perturbed_reward)
+        if total_reward > max_reward:
+            max_reward = total_reward
+            best_strategy = v
+    
+    return best_strategy
+
 def select_defender_strategy(
     defender_strategies,
     estimated_reward: np.ndarray,
@@ -1363,9 +1376,9 @@ def select_defender_strategy(
 
     flag = np.random.random() < gamma 
 
-    flag = True
-
     if flag: 
+
+        print("exploration")
 
         potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
         unique_values = np.unique(potential_coverage_matrix)
@@ -1374,7 +1387,14 @@ def select_defender_strategy(
 
         v_t = combination_to_binary_vector(random_sample, NUM_LANDSCAPE_CELLS)
 
+        total_reward, _ = calculate_reward_for_strategy(v_t, estimated_reward)
+
+        targets =  [i + 1 for i, value in enumerate(v_t) if value > 0]
+        print(f"protected targets: {targets}, total_rewards: {total_reward}")
+
     else:  
+
+        print("exploitation")
 
         # n = len(estimated_reward)
         # z = np.random.exponential(scale=1/eta, size=n)
@@ -1383,6 +1403,11 @@ def select_defender_strategy(
         perturbed_reward = estimated_reward
 
         v_t = find_best_strategy_parallel(defender_strategies, perturbed_reward)
+
+        total_reward, _ = calculate_reward_for_strategy(v_t, estimated_reward)
+
+        targets =  [i + 1 for i, value in enumerate(v_t) if value > 0]
+        print(f"protected targets: {targets}, total_rewards: {total_reward}")
 
     return v_t
 
@@ -1699,7 +1724,9 @@ def calculate_defender_regret(defender_strategy_history, attacker_strategy_histo
      
 def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df):
 
-    estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+    # estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+
+    estimated_reward = targets_df["reward"].values
 
     defender_strategy_history = []
     attacker_strategy_history = []
@@ -1842,8 +1869,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 35,
-            "num_processes": 42,
-            "iterations": 42,
+            "num_processes": 8,
+            "iterations": 8,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -1862,7 +1889,7 @@ if __name__ == "__main__":
 
     BUDGET_K = 10                               # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
-    gamma = 0.10                                # Exploration/Exploitation Trade-off parameter
+    gamma = 0.0                                # Exploration/Exploitation Trade-off parameter
     eta = 0                                     # reward perturbation parameter
     M = 50                                      # parameter in the GR algorithm
 

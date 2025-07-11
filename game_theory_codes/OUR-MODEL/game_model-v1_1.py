@@ -1363,8 +1363,6 @@ def select_defender_strategy(
 
     flag = np.random.random() < gamma 
 
-    flag = True
-
     if flag: 
 
         potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
@@ -1699,7 +1697,9 @@ def calculate_defender_regret(defender_strategy_history, attacker_strategy_histo
      
 def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df):
 
-    estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+    # estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+
+    estimated_reward = targets_df["reward"].values
 
     defender_strategy_history = []
     attacker_strategy_history = []
@@ -1862,8 +1862,8 @@ if __name__ == "__main__":
 
     BUDGET_K = 10                               # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
-    gamma = 0.10                                # Exploration/Exploitation Trade-off parameter
-    eta = 0                                     # reward perturbation parameter
+    gamma = 0.0                                # Exploration/Exploitation Trade-off parameter
+    eta = 0.0                                     # reward perturbation parameter
     M = 50                                      # parameter in the GR algorithm
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE/" 

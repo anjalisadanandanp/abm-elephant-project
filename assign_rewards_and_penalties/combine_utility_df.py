@@ -1,10 +1,7 @@
-import numpy as np
 import pandas as pd
-from osgeo import gdal
 import os
 import itertools
-from tqdm import tqdm
-from pyproj import Proj, transform    
+from tqdm import tqdm  
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -68,7 +65,7 @@ def return_output_folder(experiment_name, model_params):
     elephant_category = "solitary_bulls"
     starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-    food_availability_sceanario = "random-food-distribition-only-within-agricultural-plots"
+    food_availability_sceanario = "random-food-distribition-within-agricultural-plots-and-other-plantation-cells"
     water_availability_sceanario = "water-source-rivers-landscape-" + str(model_params["prob_water_sources"])
     food_memory_matrix_type = "random-memory-forest-and_plantation-fringe-model"
     water_memory_matrix_type = "full-memory-forest-and_plantation-model"
@@ -90,7 +87,7 @@ def return_output_folder(experiment_name, model_params):
     return output_folder
     
 
-def find_food_value_association():
+def create_utility_df():
 
     model_params_all = {
         "year": 2010,
@@ -99,7 +96,7 @@ def find_food_value_association():
         "area_size": 1100,              
         "spatial_resolution": 30, 
         "max_food_val_cropland": 100,
-        "max_food_val_forest": [10],
+        "max_food_val_forest": [5, 10, 15, 20, 25],
         "prob_food_forest": [0.10],
         "prob_food_cropland": [0.10],
         "prob_water_sources": [1.0],
@@ -137,132 +134,40 @@ def find_food_value_association():
 
     output_folders = [return_output_folder(experiment_name, param_dict) for param_dict in param_dicts]
 
-    agricultural_plots = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
-    boundary_patches = gdal.Open("create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
+    for i, folder in tqdm(enumerate(output_folders)):
 
-    geotransform = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").GetGeoTransform()
-    ag_xmin, ag_xres, ag_xskew, ag_ymax, ag_yskew, ag_yres = geotransform
-    ag_rows, ag_cols = agricultural_plots.shape
+        try:
 
-    row_size, col_size = boundary_patches.shape
-    xmin, xres, xskew, ymax, yskew, yres = gdal.Open("create-strategy-matrix/boundary_raster_discretised.tif").GetGeoTransform()
-    outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   
-    LON_MIN,LAT_MIN = transform(inProj, outProj, xmin, ymax + yres*col_size)
-    LON_MAX,LAT_MAX = transform(inProj, outProj, xmin + xres*row_size, ymax)
+            save_folder = os.path.join(os.getcwd(), "create-boundary-agricultural-patch-association-matrix-v2/outputs/", folder)
+            df = pd.read_csv(os.path.join(save_folder, "boundary_patch_reward_penalty_matrix.csv"))
 
-    for folder in tqdm(output_folders):
 
-        run_folder = os.path.join("/mnt/qdata/abm-elephant-project/aryabhata-runs/", folder)
-        expts = os.listdir(run_folder)
+            if i == 0:
 
-        landuse_matrix = gdal.Open(os.path.join(run_folder, expts[-1], "env", "LULC.tif")).ReadAsArray()
-        food_matrix = gdal.Open(os.path.join(run_folder, expts[-1], "env", "food_matrix_" + str(folder.split("/")[4].split("-")[4]) + "_" + str(folder.split("/")[4].split("-")[6]) + "_.tif")).ReadAsArray()
-
-        save_folder = os.path.join(os.getcwd(), "create-boundary-agricultural-patch-association-matrix-v2/outputs/", folder)
-
-        df = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
-
-        column_boundary_ids = []
-        column_food_value = []
-
-        for index, row in df.iterrows():
-
-            if index == 0:
-                pass
+                reward = df["reward"].values
+                penalty = df["penalty"].values
 
             else:
 
-                non_zero_items = [(col, val) for col, val in row.items() if val != 0]
+                reward += df["reward"].values
+                penalty += df["penalty"].values
 
-                row_name = row['Unnamed: 0']
-                col_names = [col for col in df.columns if col != 'Unnamed: 0']
+        except:
+            pass
 
-                boundary_patch_id = int(row_name.split("_")[-1])
+    max_reward = max(reward)
+    min_penalty = min(penalty)
 
-                boundarymask = boundary_patches == boundary_patch_id
-                associated_plots = []
-                food_within_plots = []
+    reward /= max_reward*2
+    penalty /= max_reward*2
 
-                flag = False
-                
-                for col, val in non_zero_items:
-
-                    try:
-                        agricultural_plot_id = int(col.split("_")[-1])
-                        ag_mask = agricultural_plots == agricultural_plot_id
-                        if np.any(ag_mask):
-                            flag = True
-                            associated_plots.append(agricultural_plot_id)
-
-                            foodmask = food_matrix[ag_mask]
-                            food_within_plots.append(np.sum(foodmask))
-                    except:
-                        pass
-
-                if flag:
-                    print(f"Boundary Patch ID: {boundary_patch_id}, Associated Agricultural Plots: {associated_plots}, Food within Plots: {food_within_plots}")
-                    total_food = np.sum(food_within_plots)
-
-                else:
-                    total_food = 0
-
-                column_boundary_ids.append(boundary_patch_id)
-                column_food_value.append(total_food)
-
-        df_new = pd.DataFrame({
-            "boundary_patch_id": column_boundary_ids,
-            "total_food_value": column_food_value
-        })
-        df_new.to_csv(os.path.join(save_folder, "boundary_patch_association_matrix.csv"), index=False)
+    df_reward_penalty = pd.DataFrame({
+        "boundary_patch_id": df["boundary_patch_id"],
+        "reward": reward,
+        "penalty": penalty
+    })
+    df_reward_penalty.to_csv(os.path.join("assign_rewards_and_penalties/boundary_patch_reward_penalty_matrix.csv"), index=False)
 
 
 
-        rewards = []
-
-        num_trajs_threatening = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
-        num_food_resources_under_attack = pd.read_csv(os.path.join(save_folder, "boundary_patch_association_matrix.csv"))
-
-        for boundary_id in num_food_resources_under_attack["boundary_patch_id"].unique():
-
-            reward = 0.0
-
-            rows = num_trajs_threatening[num_trajs_threatening["Unnamed: 0"] == f"boundary_patch_{boundary_id}"]
-
-            num_intersecting_trajs = rows.iloc[0, 1:].sum()
-
-            if num_intersecting_trajs == 0:
-                reward = 0.0
-                rewards.append(reward)
-
-            else:
-                reward = num_food_resources_under_attack[num_food_resources_under_attack["boundary_patch_id"] == boundary_id]["total_food_value"].values[0]*num_intersecting_trajs
-
-                print(f"Boundary Patch ID: {boundary_id}, Reward: {reward}")
-
-                rewards.append(reward)
-
-        rewards = np.array(rewards).flatten()
-
-        print(rewards.shape)
-
-        global_min = np.min(rewards)
-        global_max = np.max(rewards)
-
-        normalized_all = (rewards - global_min) / (global_max - global_min) / 2
-
-        rewards = normalized_all.flatten().tolist()
-
-        print("reward update:", rewards)
-
-        penalties = [-r for r in rewards]
-
-        df_reward_penalty = pd.DataFrame({
-            "boundary_patch_id": df_new["boundary_patch_id"],
-            "reward": rewards,
-            "penalty": penalties
-        })
-        df_reward_penalty.to_csv(os.path.join(save_folder, "boundary_patch_reward_penalty_matrix.csv"), index=False)
-
-
-
-find_food_value_association()
+create_utility_df()

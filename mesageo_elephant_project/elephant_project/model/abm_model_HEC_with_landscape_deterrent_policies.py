@@ -26,6 +26,10 @@ import uuid                             # for generating unique ids
 from scipy.ndimage import distance_transform_edt   # for distance transformations     
 import mlflow     
 import random
+import yaml
+import pathlib
+from copy import deepcopy
+import rasterio
 #---------------imports-------------------#
 
 
@@ -58,6 +62,9 @@ from mesageo_elephant_project.elephant_project.experiment_setup_files.datacollec
 
 # from mesageo_elephant_project.elephant_project.experiment_setup_files.batch_runner_codes.Mesa_BatchRunner_class_v1_1 import batch_run      #runnning multiple simulations
 from mesa.batchrunner import batch_run
+
+
+from deterrent_measures.codes.calculate_deterrent_policy_spatial_implemetation import DeterrentPolicyPlanner
 #-------------------------------------------------#
 
 
@@ -383,13 +390,15 @@ class Elephant(GeoAgent):
         elif self.mode == "EscapeMode":
 
             if self.target_present == False or (self.target_name and "escaping" not in self.target_name):   
-                # print("setting target for escape")
-                filter = self.return_feasible_direction_to_move_v2()
-                self.target_for_escape_v1(filter)  
+
+                # filter = self.return_feasible_direction_to_move_v2()
+                # self.target_for_escape_v1(filter)  
+
+                filter = self.return_direction_for_escape_v1(self.conflict_lon, self.conflict_lat)   
+                self.target_for_escape_v2(filter) 
                 self.target_name = "forest:escaping"
 
             else:
-                # print("target is present for escape:", self.target_name)
                 next_lon, next_lat = self.targeted_walk_v0()
                 self.shape = self.move_point(next_lon, next_lat)
                 self.target_name = "forest:escaping"
@@ -420,26 +429,24 @@ class Elephant(GeoAgent):
         self.strategy_row = i
         self.strategy_col = j
 
-        num_neighbors = 3
+        if self.model.COVERAGE_MATRIX[i][j] > 0: 
 
-        #choose neigborhood cells of the current cell
-        coverage_matrix = np.array(self.model.COVERAGE_MATRIX)[i-num_neighbors:i+num_neighbors+1,j-num_neighbors:j+num_neighbors+1]
+            self.conflict_lon, self.conflict_lat = self.model.pixel2coord_raster(self.strategy_row, self.strategy_col, self.model.xmin_coverage_matrix, self.model.ymax_coverage_matrix, self.model.xres_coverage_matrix, self.model.yres_coverage_matrix)
+            
+            # print("conflict with humans at:", self.conflict_lon, self.conflict_lat)
 
-        if np.any(coverage_matrix > 0):    
-            # print("danger to life")
-            self.danger_to_life = True
             self.conflict_with_humans = True 
-            attacked_targets = np.unique(coverage_matrix)
-            attacked_targets = attacked_targets[attacked_targets != 0]  
-            # print("attacked targets:", attacked_targets)
-            # self.target_attacked = self.model.COVERAGE_MATRIX[i][j] 
-            self.target_attacked = attacked_targets[0] 
+            self.danger_to_life = True
+            self.target_attacked = self.model.COVERAGE_MATRIX[i][j] 
+
             return  
 
         else:
             self.danger_to_life = False   
             self.conflict_with_humans = False
             self.target_attacked = None
+            self.conflict_lon = None
+            self.conflict_lat = None
             return  
     #--------------------------------------------------------------------------------------------------
     def current_mode_of_the_agent(self):
@@ -1357,6 +1364,238 @@ class Elephant(GeoAgent):
 
         return
     #-----------------------------------------------------------------------------------------------------
+    def return_direction_for_escape_v1(self, ranger_x, ranger_y, cone_angle=1):
+        """
+        Gets new position for elephant within a cone facing away from human in EPSG:3857
+        """
+
+        # print("choosing direction for escape")
+
+        radius = int(self.model.radius_forest_search*2/self.model.xres) + 1   
+        data = np.zeros((radius, radius), dtype=object)
+
+        #fill the array with theta values calculated on the basis of row and column index with respect to the center of the array
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = np.arctan2(((i-(radius//2))*np.pi),((j-(radius//2))*np.pi))
+
+        #convert the array to degrees from radians
+        data = np.rad2deg(data.astype(float))
+
+        #find min and max of the array
+        min_val = np.amin(data)
+        max_val = np.amax(data)
+
+        #set center value to -1
+        data[radius//2][radius//2] = -500
+
+        #discretize the array into 8 bins
+        data = np.digitize(data, np.linspace(min_val, max_val, 17))
+
+        #map values in array based on the following mapping
+        map = {0:0, 1:8, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:5, 11:5, 12:6, 13:6, 14:7, 15:7, 16:8, 17:8}
+
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = map[data[i][j]]
+
+        outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857') 
+        ranger_lon, ranger_lat =  transform(inProj, outProj, ranger_x, ranger_y)
+        elephant_lon, elephant_lat = transform(inProj, outProj, self.shape.x, self.shape.y)
+
+        # print("ranger lon:", ranger_lon, "ranger lat:", ranger_lat)
+        # print("elephant lon:", elephant_lon, "elephant lat:", elephant_lat)
+                
+        dx = ranger_lon - elephant_lon
+        dy = ranger_lat - elephant_lat
+
+        base_angle = np.arctan2(dy, dx)
+        opposite_angle = base_angle + np.pi
+        cone_angle_rad = np.radians(cone_angle)
+        movement_direction = opposite_angle + np.random.uniform(-cone_angle_rad/2, cone_angle_rad/2)
+
+        movement_direction = movement_direction*(180/np.pi)
+        movement_direction = movement_direction % 360 
+
+        if movement_direction > 112.5 and movement_direction <= 157.5:
+            #create an array with 0 when data array != 1
+            filter = np.zeros_like(data)
+            filter[data == 1] = 1
+
+        elif movement_direction > 67.5 and movement_direction <= 112.5:
+            #create an array with 0 when data array != 2
+            filter = np.zeros_like(data)
+            filter[data == 2] = 1
+
+        elif movement_direction > 22.5 and movement_direction <= 67.5:
+            #create an array with 0 when data array != 3
+            filter = np.zeros_like(data)
+            filter[data == 3] = 1
+
+        elif movement_direction > 337.5 or movement_direction <= 22.5:
+            #create an array with 0 when data array != 4
+            filter = np.zeros_like(data)
+            filter[data == 4] = 1
+
+        elif movement_direction > 292.5 and movement_direction <= 337.5:
+            #create an array with 0 when data array != 5
+            filter = np.zeros_like(data)
+            filter[data == 5] = 1
+
+        elif movement_direction > 247.5 and movement_direction <= 292.5:
+            #create an array with 0 when data array != 6
+            filter = np.zeros_like(data)
+            filter[data == 6] = 1
+
+        elif movement_direction > 202.5 and movement_direction <= 247.5:
+            #create an array with 0 when data array != 7
+            filter = np.zeros_like(data)
+            filter[data == 7] = 1
+
+        elif movement_direction > 157.5 and movement_direction <= 202.5:
+            #create an array with 0 when data array != 8
+            filter = np.zeros_like(data)
+            filter[data == 8] = 1
+
+        #center value is set to -1
+        filter[radius//2][radius//2] = 2
+
+        self.direction = movement_direction
+
+        return filter
+    #-----------------------------------------------------------------------------------------------------
+    def target_for_escape_v2(self, filter):
+        """ Function returns the target for the elephant agent to move in case of danger to life. """
+
+        try:
+            if self.target_present == True and "escaping" in self.target_name:   
+                return
+        except:
+            pass
+        
+        radius = int(self.model.radius_forest_search*2/self.model.xres)     
+        row_start = self.ROW - radius//2
+        col_start = self.COL - radius//2
+        row_end = self.ROW + radius//2 + 1
+        col_end = self.COL + radius//2 + 1
+
+        if self.ROW < radius:
+            row_start = 0
+
+        elif self.ROW > self.model.row_size-1-radius:
+            row_end = self.model.row_size-1
+
+        if self.COL < radius:
+            col_start = 0
+
+        elif self.COL > self.model.col_size-radius-1:
+            col_end = self.model.col_size-1
+
+        coord_list=[]
+
+        for i in range(row_start, row_end):
+            for j in range(col_start, col_end):
+
+                if i == self.ROW and j == self.COL:
+                    pass
+
+                elif self.model.LANDUSE[i][j] == 15 and filter[i - row_start][j - col_start] == 1:
+                    coord_list.append([i, j])
+
+        if coord_list==[]:
+            coord_list.append([self.ROW, self.COL])
+            for _ in range(25):
+
+                radius = int(self.model.terrain_radius*2/self.model.xres)   
+
+                row_start = self.ROW - radius//2
+                col_start = self.COL - radius//2
+                row_end = self.ROW + radius//2 + 1
+                col_end = self.COL + radius//2 + 1
+
+                i = self.model.random.randint(row_start, row_end)
+                j = self.model.random.randint(col_start, col_end)
+
+                if self.proximity_to_forests[i][j] <= self.proximity_to_forests[self.ROW][self.COL] and filter[i - row_start][j - col_start] == 1:
+                    coord_list.append([i,j])
+
+        x, y = self.model.random.choice(coord_list)
+        lon = self.model.xres * 0.5  + self.model.xmin + y * self.model.xres
+        lat = self.model.yres * 0.5  + self.model.ymax + x * self.model.yres
+        self.target_lon, self.target_lat = lon, lat
+        self.target_present = True
+
+        if self.danger_to_life==True and self.conflict_with_humans==True and self.model.plot_stepwise_target_selection == True:    
+            self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "escape_target_v2", filter, x, y)
+
+        return
+    #---------------------------------------------------------------------------------------------------
+    def target_for_escape_v3(self):
+        """ Function returns the target for the elephant agent to move in case of danger to life. """
+
+        try:
+            if self.target_present == True and "escaping" in self.target_name:   
+                return
+        except:
+            pass
+        
+        radius = int(self.model.radius_forest_search*2/self.model.xres)     
+        row_start = self.ROW - radius//2
+        col_start = self.COL - radius//2
+        row_end = self.ROW + radius//2 + 1
+        col_end = self.COL + radius//2 + 1
+
+        if self.ROW < radius:
+            row_start = 0
+
+        elif self.ROW > self.model.row_size-1-radius:
+            row_end = self.model.row_size-1
+
+        if self.COL < radius:
+            col_start = 0
+
+        elif self.COL > self.model.col_size-radius-1:
+            col_end = self.model.col_size-1
+
+        coord_list=[]
+
+        for i in range(row_start, row_end):
+            for j in range(col_start, col_end):
+
+                if i == self.ROW and j == self.COL:
+                    pass
+
+                elif self.model.LANDUSE[i][j] == 15:
+                    coord_list.append([i, j])
+
+        if coord_list==[]:
+            coord_list.append([self.ROW, self.COL])
+            for _ in range(25):
+
+                radius = int(self.model.terrain_radius*2/self.model.xres)   
+
+                row_start = self.ROW - radius//2
+                col_start = self.COL - radius//2
+                row_end = self.ROW + radius//2 + 1
+                col_end = self.COL + radius//2 + 1
+
+                i = self.model.random.randint(row_start, row_end)
+                j = self.model.random.randint(col_start, col_end)
+
+                if self.proximity_to_forests[i][j] <= self.proximity_to_forests[self.ROW][self.COL]:
+                    coord_list.append([i,j])
+
+        x, y = self.model.random.choice(coord_list)
+        lon = self.model.xres * 0.5  + self.model.xmin + y * self.model.xres
+        lat = self.model.yres * 0.5  + self.model.ymax + x * self.model.yres
+        self.target_lon, self.target_lat = lon, lat
+        self.target_present = True
+
+        if self.danger_to_life==True and self.conflict_with_humans==True and self.model.plot_stepwise_target_selection == True:    
+            self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "escape_target_v3", filter, x, y)
+
+        return
+    #---------------------------------------------------------------------------------------------------
     def drink_water(self):
         """ The elephant agent consumes water from the current cell it is located in"""
 
@@ -1944,8 +2183,7 @@ class conflict_model(Model):
         num_processes,                              #number of processes to run the simulation
         iterations,                                 #number of iterations to run the simulation
         max_time_steps,                             #maximum simulation time (in ticks)
-        aggression_threshold_enter_cropland,        #aggression threshold for entering a cropland cell
-        human_habituation_tolerance,                
+        aggression_threshold_enter_cropland,        #aggression threshold for entering a cropland cell           
         elephant_agent_visibility_radius,           #elephant agent visibility radius     
         plot_stepwise_target_selection,             #plot stepwise target selection
         threshold_days_of_food_deprivation,         #threshold days of food deprivation
@@ -1956,7 +2194,16 @@ class conflict_model(Model):
         elephant_starting_latitude,                 #starting latitude of the elephant agents
         elephant_starting_longitude,                #starting longitude of the elephant agents
         elephant_aggression_value,                  #aggression value of the elephant agents
-        elephant_crop_habituation                   #elephant crop habituation value
+        elephant_crop_habituation,                   #elephant crop habituation value
+        deterrant_matrix_configuration,
+        deterrant_matrix_coverage,
+        suitability_threshold,
+        forest_fringe_buffer_for_deterrant_matrix,
+        w_border,
+        w_roads,
+        w_plantation,
+        w_dem,
+        w_slope
         ):
 
 
@@ -1997,7 +2244,6 @@ class conflict_model(Model):
         self.slope_tolerance = slope_tolerance
         self.max_time_steps = max_time_steps
         self.aggression_threshold_enter_cropland = aggression_threshold_enter_cropland
-        self.human_habituation_tolerance = human_habituation_tolerance
         self.elephant_agent_visibility_radius = elephant_agent_visibility_radius
         self.plot_stepwise_target_selection = plot_stepwise_target_selection
         self.threshold_days_of_food_deprivation = threshold_days_of_food_deprivation
@@ -2048,6 +2294,7 @@ class conflict_model(Model):
         os.mkdir(os.path.join(folder, self.now, "env"))
         os.mkdir(os.path.join(folder, self.now, "output_files"))
         
+
         # environment_v1(prob_food_in_forest = self.prob_food_forest,
         #             prob_food_in_cropland = self.prob_food_cropland,
         #             prob_water_sources = self.prob_water_sources,
@@ -2062,13 +2309,11 @@ class conflict_model(Model):
                             max_food_val_cropland = self.max_food_val_cropland,
                             output_folder=os.path.join(self.folder_root, "env")).main()
         
+
         env_folder_seethathode = os.path.join("mesageo_elephant_project/elephant_project/", "experiment_setup_files","environment_seethathode", "Raster_Files_Seethathode_Derived", self.area[area_size], self.reso[spatial_resolution])
         shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(self.folder_root, "env"))
-        shutil.copy(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/defender_coverage_matrix.tif"), os.path.join(self.folder_root, "env"))
-
-
 
         self.DEM = self.DEM_study_area()
         self.SLOPE = self.SLOPE_study_area()
@@ -2077,6 +2322,33 @@ class conflict_model(Model):
         self.WATER = self.WATER_MATRIX()
         self.LANDSCAPE_STATUS = self.LANDSCAPE_CELL_STATUS()
         self.AGRICULTURAL_PLOTS, self.INFRASTRUCTURE_MATRIX = self.PROPERTY_MATRIX()
+
+
+        planner = DeterrentPolicyPlanner(os.path.join(self.folder_root, "env", "LULC.tif"), 
+                                         os.path.join(self.folder_root, "env", "DEM.tif"), 
+                                         os.path.join(self.folder_root, "env", "slope_matrix.tif"), 
+                                         "deterrent_measures/outputs/road_raster.tif", 
+                                         forest_fringe_buffer_for_deterrant_matrix)
+        
+        configuration = {'type': deterrant_matrix_configuration, 
+                         'coverage': deterrant_matrix_coverage, 
+                         'threshold': suitability_threshold,
+                         'buffer_distance': forest_fringe_buffer_for_deterrant_matrix,
+                         'w_border': w_border,
+                         'w_roads': w_roads,
+                         'w_plantation': w_plantation, 
+                         'w_dem': w_dem,
+                         'w_slope': w_slope}
+
+        planner.make_policies(configuration, os.path.join(self.folder_root, "env"))
+
+        planner.save_raster(
+                output_path=os.path.join(os.path.join(self.folder_root, "env"), "deterrent_policy.tif"),
+                reference_raster_path=os.path.join(self.folder_root, "env", "LULC.tif"), 
+                dtype=rasterio.int8
+            )
+        
+
         self.COVERAGE_MATRIX = self.COVERAGE_MATRIX()
         #-------------------------------------------------------------------
 
@@ -2383,9 +2655,9 @@ class conflict_model(Model):
         return WATER.tolist() 
     #-----------------------------------------------------------------------------------------------------
     def COVERAGE_MATRIX(self):
+
         """ Returns the water matrix model of the study area"""
-        
-        fid = os.path.join(self.folder_root , "env", "defender_coverage_matrix.tif")
+        fid = os.path.join(self.folder_root , "env", "deterrent_policy.tif")
         coverage_matrix = gdal.Open(fid).ReadAsArray()  
 
         geotransform = gdal.Open(fid).GetGeoTransform()
@@ -2512,7 +2784,7 @@ class conflict_model(Model):
         lon = xres * 0.5  + xmin + col * xres
         lat = yres * 0.5  + ymax + row * yres
 
-        return(lon, lat)
+        return (lon, lat)
     #-----------------------------------------------------------------------------------------------------
     def update_season(self):
 

@@ -102,7 +102,7 @@ class Elephant(GeoAgent):
         self.proximity_to_plantations = gdal.Open("create-vulnerability-matrix/plantation_proximity_map_cluster_based.tif").ReadAsArray()
         self.proximity_to_forests = self.model.calculate_proximity_map(landscape_matrix=self.model.LANDUSE, target_class=15, name="forests")
 
-        #----------------hoose the type of memory matrix initialization-------------------#
+        #----------------choose the type of memory matrix initialization-------------------#
         # self.initialize_food_memory_matrix_only_forest()
         # self.initialize_food_memory_matrix_random()
         self.initialize_food_memory_matrix_with_knowledge_from_fringe()
@@ -1301,8 +1301,10 @@ class Elephant(GeoAgent):
             col_end = self.model.col_size-1
 
         coord_list=[]
+
         for i in range(row_start, row_end):
             for j in range(col_start, col_end):
+
                 if i == self.ROW and j == self.COL:
                     pass
 
@@ -1427,9 +1429,9 @@ class Elephant(GeoAgent):
         
         self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
 
-        source = os.path.join(self.model.folder_root, "env", "LULC.tif")
-        with rio.open(source) as src:
-            ras_meta = src.profile
+        # source = os.path.join(self.model.folder_root, "env", "LULC.tif")
+        # with rio.open(source) as src:
+        #     ras_meta = src.profile
 
         # proximity_loc = os.path.join(self.model.folder_root, "env", "proximity_to_food_sources_" + str(self.unique_id) + "_" + str(self.model.schedule.steps) + ".tif")
         # with rio.open(proximity_loc, 'w', **ras_meta) as dst:
@@ -1550,7 +1552,7 @@ class environment():
         self.output_folder = output_folder
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix_setup_0_0_1(self):
+    def initialize_food_matrix_setup_any_cell_within_plantation(self):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
@@ -1601,7 +1603,7 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix_setup_0_0_2(self):
+    def initialize_food_matrix_setup_any_agricultural_plot_cell_within_plantation(self):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
@@ -1653,7 +1655,7 @@ class environment():
         return 
     #---------------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------------
-    def initialize_food_matrix_setup_0_0_3(self):
+    def initialize_food_matrix_setup_both_agricultural_plot_and_random_cell_within_plantation(self):
         """Function returns a food matrix with values 0-num, 0 being no food avavilability and num being high food availability
         """
 
@@ -1820,8 +1822,9 @@ class environment():
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
-        self.initialize_food_matrix_setup_0_0_3()
+        self.initialize_food_matrix_setup_any_cell_within_plantation()
         self.initialize_water_matrix_only_rivers()
+        
         # self.initialize_water_matrix_only_water_holes()
 
         return
@@ -1837,7 +1840,6 @@ class conflict_model(Model):
     Model class: Elephant-Human interaction model
     """
 
-    #Model Initialization
     def __init__(self,
         year,
         month,
@@ -2108,7 +2110,6 @@ class conflict_model(Model):
                                                 "num_steps_thermoregulated": "num_steps_thermoregulated",
                                                 "current_proximity_to_plantations": "current_proximity_to_plantations",
                                                 "current_proximity_to_water_sources": "current_proximity_to_water_sources"
-
                                                 })
 
         self.datacollector.collect(self)
@@ -2194,7 +2195,7 @@ class conflict_model(Model):
             mlflow.log_figure(fig, "elephant_agent_init_coords.png")
 
         plt.close()
-    #-------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------
     def elephant_distribution_random_init_forest(self):
         """ Function to return the distribution of elephants within the study area"""
 
@@ -2478,6 +2479,7 @@ class conflict_model(Model):
     def plot_ele_traj_on_LULC(self, longitude, latitude, agent_id):
 
         ds = gdal.Open(os.path.join(self.folder_root, "env", "LULC.tif"))
+
         data = ds.ReadAsArray()
         data = np.flip(data, axis=0)
         row_size, col_size = data.shape
@@ -2715,7 +2717,7 @@ class conflict_model(Model):
 
         self.datacollector.collect(self)
 
-        #UPDATE TIME
+        #------------UPDATE TIME------------
         self.model_time = self.model_time + 1      
         self.model_minutes = self.model_time * 5
         self.model_hour = int(self.model_minutes/60)

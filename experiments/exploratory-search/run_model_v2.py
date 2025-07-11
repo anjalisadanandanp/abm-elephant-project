@@ -25,7 +25,7 @@ model_params_all = {
     "area_size": 1100,              
     "spatial_resolution": 30, 
     "max_food_val_cropland": 100,
-    "max_food_val_forest": [5],
+    "max_food_val_forest": [5, 10, 15, 20, 25],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
     "prob_water_sources": [1.0],
@@ -42,7 +42,7 @@ model_params_all = {
     "terrain_radius": 750,       
     "slope_tolerance": [30, 32.5, 35, 37.5, 40],
     "num_processes": 32,
-    "iterations": 128,
+    "iterations": 64,
     "max_time_steps": 288*30,
     "aggression_threshold_enter_cropland": 1.0,
     "elephant_agent_visibility_radius": 500,
@@ -116,7 +116,7 @@ def run_model(experiment_name, model_params):
     elephant_category = "solitary_bulls"
     starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
     landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-    food_availability_sceanario = "random-food-distribition-within-agricultural-plots-and-other-plantation-cells"
+    food_availability_sceanario = "random-food-distribition-within-within-plantation-cells"
     water_availability_sceanario = "water-source-rivers-landscape-" + str(model_params["prob_water_sources"])
     food_memory_matrix_type = "random-memory-forest-and_plantation-fringe-model"
     water_memory_matrix_type = "full-memory-forest-and_plantation-model"
@@ -129,7 +129,7 @@ def run_model(experiment_name, model_params):
     num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
     elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
-    output_folder = os.path.join(os.getcwd(), "model_runs/", experiment_name, starting_location, elephant_category, food_availability_sceanario, landscape_food_probability, 
+    output_folder = os.path.join("/home/anjali/mnt/abm-elephant-project/aryabhata-runs", experiment_name, starting_location, elephant_category, food_availability_sceanario, landscape_food_probability, 
                                  water_availability_sceanario, food_memory_matrix_type, water_memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                  elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                  slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,

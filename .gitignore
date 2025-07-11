@@ -8,6 +8,4 @@ create-boundary-agricultural-patch-association-matrix-v2/outputs/*
 model_runs/model-without-intervention/*
 game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE/*
 game_theory_codes/FPL-UE/create-strategy-set/simulations-without-mitigation/*
-
 game_theory_codes/OUR-MODEL/coverage_matrix_init/*
-game_theory_codes/FPL-UE/create-strategy-set/simulations-without-mitigation/*

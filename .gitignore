@@ -3,7 +3,7 @@ model_runs/*
 mlruns/*
 
 create-vulnerability-matrix/model-runs-without-intervention/*
-# create-boundary-agricultural-patch-association-matrix/outputs/*
+create-boundary-agricultural-patch-association-matrix/outputs/*
 create-boundary-agricultural-patch-association-matrix-v2/outputs/*
 model_runs/model-without-intervention/*
 game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE/*

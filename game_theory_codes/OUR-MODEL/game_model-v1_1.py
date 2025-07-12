@@ -604,12 +604,9 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
 
     return
 
-def update_targets_df(output_folder, targets_df, current_game_step, num_cropraiding_steps=1, learning_rate = 0.00):
+def update_targets_df(output_folder, targets_df, current_game_step, num_cropraiding_steps=12):
 
-    if current_game_step == 0:
-        return targets_df
-
-    run_folder = os.path.join(output_folder, "game_step_" + str(int(current_game_step) - 1))
+    run_folder = os.path.join(output_folder, "game_step_" + str(int(current_game_step)))
     expts = os.listdir(run_folder)
 
     save_folder = os.path.join(os.getcwd(), "game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(int(current_game_step)))
@@ -1108,6 +1105,8 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
 
     #     i += 1
 
+
+
     # all_rewards = np.array(all_rewards)
 
     # # print("reward update before normalisation:", all_rewards)
@@ -1117,22 +1116,23 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     # global_min = np.min(all_rewards)
     # global_max = np.max(all_rewards)
 
-    # normalized_all = (all_rewards - global_min) / (global_max - global_min)
+    # normalized_all = (all_rewards - global_min) / (global_max - global_min) / 2
 
-    # # all_rewards = np.mean(normalized_all, axis=0).flatten().tolist()
-    # k = min(current_game_step, 3)
-    # all_rewards = np.sort(normalized_all, axis=0)[-k:].mean(axis=0).flatten().tolist()
+    # all_rewards = np.mean(normalized_all, axis=0).flatten().tolist()
+
+    # # k = min(current_game_step, 3)
+    # # all_rewards = np.sort(normalized_all, axis=0)[-k:].mean(axis=0).flatten().tolist()
 
     # print("reward update:", all_rewards)
 
     # all_penalties = [-r for r in all_rewards]
 
-    # targets_df["reward"] = targets_df["reward"] + learning_rate * np.array(all_rewards)
-    # targets_df["penalty"] = targets_df["penalty"] + learning_rate * np.array(all_penalties)
+    # targets_df["reward"] = np.array(all_rewards)
+    # targets_df["penalty"] = np.array(all_penalties)
 
-    targets_df.to_csv(os.path.join(save_folder, "boundary_patch_reward_penalty_matrix.csv"), index=False)
+    # targets_df.to_csv(os.path.join(save_folder, "boundary_patch_reward_penalty_matrix.csv"), index=False)
 
-    return targets_df
+    return
 
 def create_defender_coverage_matrix(defender_strategy):
 
@@ -1572,6 +1572,8 @@ def calculate_reward_for_strategy_best(defender_strategy, attacker_strategy_hist
     
 def calculate_best_strategy(defender_strategies, attacker_strategy_history, targets_df, n_processes=16):
 
+
+
     process_func = partial(
         calculate_reward_for_strategy_best,
         attacker_strategy_history=attacker_strategy_history,
@@ -1587,7 +1589,32 @@ def calculate_best_strategy(defender_strategies, attacker_strategy_history, targ
             if total_reward > max_reward:
                 max_reward = total_reward
                 best_strategy = v
-    
+
+
+
+    # def calculate_reward_wrapper(args):
+    #     attacker_strategy, target_df = args
+    #     return calculate_reward_for_strategy_best(
+    #         defender_strategies,  
+    #         attacker_strategy_history=attacker_strategy,
+    #         targets_df=target_df
+    #     )
+
+    # process_args = list(zip(attacker_strategy_history, targets_df_history))
+
+    # max_reward = float('-inf')
+    # best_strategy = None
+
+    # with mp.Pool(processes=n_processes) as pool:
+        
+    #     for total_reward, v in tqdm(pool.imap(calculate_reward_wrapper, process_args, chunksize=512)):
+    #         if total_reward > max_reward:
+    #             max_reward = total_reward
+    #             best_strategy = v
+
+
+
+
     return best_strategy
 
 def GR_algorithm(defender_strategy,
@@ -1695,25 +1722,31 @@ def calculate_defender_regret(defender_strategy_history, attacker_strategy_histo
 
     return REGRET
      
-def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df):
+def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M,  max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df):
 
-    # estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+    #---------start with an initial estimate of target rewards: no prior information---------#
+    estimated_reward = np.zeros(NUM_LANDSCAPE_CELLS)
+    #---------start with an initial estimate of target rewards: no prior information---------#
 
-    estimated_reward = targets_df["reward"].values
+    #---------start with an initial estimate of target rewards: with prior information---------#
+    # estimated_reward = targets_df["reward"].values - targets_df["penalty"].values
+    #---------start with an initial estimate of target rewards: with prior information---------#
 
     defender_strategy_history = []
     attacker_strategy_history = []
 
     defender_regret_values = []
+
+    defender_strategies = generate_defender_strategies(BUDGET_K, NUM_LANDSCAPE_CELLS, targets_df)
     
-    for i in range(0, MAX_GAME_STEPS+1):
+    for i in range(1, MAX_GAME_STEPS+1):
 
         print("\n----- GameStep", i ,"-----")
 
-        targets_df = update_targets_df(output_folder=output_folder, targets_df=targets_df, current_game_step=i)
+        gamma = max_gamma - (max_gamma - min_gamma) * (i / num_steps_gamma_decay)
 
-        defender_strategies = generate_defender_strategies(BUDGET_K, NUM_LANDSCAPE_CELLS, targets_df)
-    
+        print(f"gamma: {gamma}")
+
         defender_strategy_i = select_defender_strategy(defender_strategies, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
         print("Defender strategy:", defender_strategy_i)
@@ -1736,16 +1769,20 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         print(f"Protected target IDs: {targets_df['boundary_patch_id'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
         print(f"Attacked target IDs: {targets_df['boundary_patch_id'].loc[np.where(np.array(attacker_strategy_i) == 1)[0]].tolist()}")
 
-        make_trajectory_summary_plots_v1(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(i + 1)), num_cropraiding_steps = 12)
-        make_trajectory_summary_plots_v2(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(i + 1)), num_cropraiding_steps = 12)
-        make_trajectory_summary_plots_v3(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(i + 1)))
+        make_trajectory_summary_plots_v1(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(i)), num_cropraiding_steps = 12)
+        make_trajectory_summary_plots_v2(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(i)), num_cropraiding_steps = 12)
+        make_trajectory_summary_plots_v3(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(i)))
 
         defender_strategy_history.append(defender_strategy_i)
         attacker_strategy_history.append(attacker_strategy_i)
 
-        best_defender_strategy_t = calculate_best_strategy(defender_strategies, attacker_strategy_history, targets_df)
 
-        print("Best defender strategy:", best_defender_strategy_t)
+
+
+        update_targets_df(output_folder=output_folder, targets_df=targets_df, current_game_step=i)
+
+
+
 
         K = GR_algorithm(defender_strategies, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
@@ -1754,6 +1791,14 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         df = pd.DataFrame(estimated_reward, columns=['reward_estimate'])
         df.to_csv(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(i), "reward_estimate.csv"))
 
+
+
+
+
+        best_defender_strategy_t = calculate_best_strategy(defender_strategies, attacker_strategy_history, targets_df)
+
+        print("Best defender strategy:", best_defender_strategy_t)
+
         print("step utility for defender:", step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df))
 
         regret_i = calculate_defender_regret(defender_strategy_history, attacker_strategy_history, best_defender_strategy_t, targets_df)
@@ -1761,6 +1806,9 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         print("Defender regret:", regret_i)
 
         defender_regret_values.append(regret_i)
+
+
+
 
     plot_defender_regret(defender_regret_values)
 
@@ -1772,7 +1820,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
 
 
-def optimise_strategy(model_params, experiment_name, output_folder, BUDGET_K, MAX_GAME_STEPS, gamma, eta, M):
+def optimise_strategy(model_params, experiment_name, output_folder, BUDGET_K, MAX_GAME_STEPS, max_gamma, min_gamma, num_steps_gamma_decay, eta, M):
 
     NUM_LANDSCAPE_CELLS = 238      # Total number of landscape cells within the simulation extent
 
@@ -1781,11 +1829,11 @@ def optimise_strategy(model_params, experiment_name, output_folder, BUDGET_K, MA
 
     #------------create a vector of random numbers for reward and penalty------------#
     # np.random.seed(42)  
-    # reward = np.random.uniform(0.0, 0.5, size=NUM_LANDSCAPE_CELLS)
-    # penalty = np.random.uniform(-0.5, 0.0, size=NUM_LANDSCAPE_CELLS)
+    # reward = np.random.uniform(0.0, 0.05, size=NUM_LANDSCAPE_CELLS)
+    # penalty = np.random.uniform(-0.05, 0.0, size=NUM_LANDSCAPE_CELLS)
 
     # #create a dataframe with boundary_patch_id, reward and penalty columns
-    # targets_df_init = pd.DataFrame({
+    # targets_df = pd.DataFrame({
     #     "boundary_patch_id": [i + 1 for i in range(NUM_LANDSCAPE_CELLS)],
     #     "reward": reward,
     #     "penalty": penalty
@@ -1797,14 +1845,17 @@ def optimise_strategy(model_params, experiment_name, output_folder, BUDGET_K, MA
 
     targets_df = pd.read_csv("assign_rewards_and_penalties/boundary_patch_reward_penalty_matrix.csv")
 
-    path = pathlib.Path(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_0"))
+
+
+
+    path = pathlib.Path(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_1"))
     path.mkdir(parents=True, exist_ok=True)
     
-    targets_df.to_csv(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/game_step_0/boundary_patch_reward_penalty_matrix.csv"), index=False)
+    targets_df.to_csv(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/game_step_1/boundary_patch_reward_penalty_matrix.csv"), index=False)
 
 
 
-    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, gamma, eta, targets_df)
+    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df)
 
 
 
@@ -1861,20 +1912,26 @@ if __name__ == "__main__":
         }
 
     BUDGET_K = 10                               # Maximum number of cells that can be protected by the defenders at every time-step
-    MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
-    gamma = 0.0                                # Exploration/Exploitation Trade-off parameter
-    eta = 0.0                                     # reward perturbation parameter
-    M = 50                                      # parameter in the GR algorithm
+    MAX_GAME_STEPS = 35                         # Maximum number of time-steps in the game
+    max_gamma = 1.0                             # Exploration/Exploitation Trade-off parameter
+    min_gamma = 0.20                            # Exploration/Exploitation Trade-off parameter
+    num_steps_gamma_decay = 10                  # Exploration/Exploitation Trade-off parameter
+    eta = 0.0                                   # reward perturbation parameter
+    M = 30                                      # parameter in the GR algorithm
 
-    experiment_name = "mitigation-measures-within-plantations-FPL-UE/" 
+    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v1_1/" 
 
     FPL_UE_params = (
         "budget_k_"
         + str(BUDGET_K)
         + "-max_game_steps_"
         + str(MAX_GAME_STEPS) 
-        + "-gamma_"
-        + str(gamma)
+        + "-max_gamma_"
+        + str(max_gamma)
+        + "-min_gamma_"
+        + str(min_gamma)
+        + "-num_steps_gamma_decay_"
+        + str(num_steps_gamma_decay)
         + "-eta_"
         + str(eta)
         + "-M_"
@@ -1965,7 +2022,9 @@ if __name__ == "__main__":
         output_folder=output_folder,
         BUDGET_K = BUDGET_K,
         MAX_GAME_STEPS = MAX_GAME_STEPS,
-        gamma = gamma, 
+        max_gamma = max_gamma, 
+        min_gamma = min_gamma,
+        num_steps_gamma_decay = num_steps_gamma_decay,
         eta = eta,
         M = M
     )

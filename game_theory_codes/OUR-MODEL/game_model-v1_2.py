@@ -1893,8 +1893,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 35,
-            "num_processes": 42,
-            "iterations": 42,
+            "num_processes": 8,
+            "iterations": 8,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -1919,7 +1919,7 @@ if __name__ == "__main__":
     eta = 0.0                                   # reward perturbation parameter
     M = 30                                      # parameter in the GR algorithm
 
-    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v1_1/" 
+    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v1_2/" 
 
     FPL_UE_params = (
         "budget_k_"

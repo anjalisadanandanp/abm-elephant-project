@@ -1,16 +1,8 @@
 import os
-from osgeo import gdal
 import numpy as np
 import matplotlib.pyplot as plt
-from pyproj import Proj, transform  
-from mpl_toolkits.basemap import Basemap    
-import rasterio
-from rasterio.features import shapes
-import fiona
-import geojson
-import matplotlib.cm as cm
 import pandas as pd
-from tqdm import tqdm
+
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -47,10 +39,10 @@ def make_plots(run_folder, output_folder):
     
     fig, ax = plt.subplots(figsize=(6.8, 4.2))
 
-    cmap = plt.cm.tab20 
+    cmap = plt.cm.tab20b
     colors = cmap(np.linspace(0, 1, len(targets)))
-    
-    # np.random.shuffle(colors)
+
+    np.random.shuffle(colors)
 
     for i, target in enumerate(targets):
 

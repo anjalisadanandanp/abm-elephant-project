@@ -20,6 +20,7 @@ from rasterio.features import shapes
 import fiona
 import geojson
 import matplotlib.cm as cm
+import shutil
 
 
 import warnings
@@ -1392,7 +1393,38 @@ def run_abm(model_params, experiment_name, output_folder):
 
 
 
-    batch_run_model(model_params, experiment_name, output_folder)
+    num_strategic_trajectories  =  0
+
+    while num_strategic_trajectories < model_params["iterations"]:
+
+        batch_run_model(model_params, experiment_name, output_folder)
+
+        runs = os.listdir(output_folder)
+
+        num_strategic_trajectories  =  0
+
+        for run in runs:
+            if os.path.isdir(os.path.join(output_folder, run)):
+                agent_df = pd.read_csv(os.path.join(output_folder, run, "output_files", "agent_data.csv"))
+
+                targets_attacked = agent_df["target_attacked"].dropna().unique()
+
+                if len(targets_attacked) == 0:
+                    num_strategic_trajectories += 1
+
+                else:
+                    flag = True
+                    for target in targets_attacked:
+                        agent_df_attacking = agent_df[agent_df["target_attacked"] == target]
+                        if len(agent_df_attacking) > 12:
+                            flag = False
+
+                    if flag == True:
+                        num_strategic_trajectories += 1
+
+                    if flag == False:
+                        shutil.rmtree(os.path.join(output_folder, run))
+
 
 
 
@@ -1745,6 +1777,9 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
         gamma = max_gamma - (max_gamma - min_gamma) * (i / num_steps_gamma_decay)
 
+        if gamma < min_gamma:
+            gamma = min_gamma
+
         print(f"gamma: {gamma}")
 
         defender_strategy_i = select_defender_strategy(defender_strategies, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K)
@@ -1894,7 +1929,7 @@ if __name__ == "__main__":
             "terrain_radius": 750,
             "slope_tolerance": 35,
             "num_processes": 8,
-            "iterations": 8,
+            "iterations": 24,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,

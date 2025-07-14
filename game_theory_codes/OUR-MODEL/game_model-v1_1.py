@@ -20,7 +20,7 @@ from rasterio.features import shapes
 import fiona
 import geojson
 import matplotlib.cm as cm
-
+import shutil
 
 import warnings
 warnings.filterwarnings("ignore")

@@ -1916,7 +1916,7 @@ if __name__ == "__main__":
     max_gamma = 1.0                             # Exploration/Exploitation Trade-off parameter
     min_gamma = 0.20                            # Exploration/Exploitation Trade-off parameter
     num_steps_gamma_decay = 10                  # Exploration/Exploitation Trade-off parameter
-    eta = 10.0                                   # reward perturbation parameter
+    eta = 0.0                                   # reward perturbation parameter
     M = 30                                      # parameter in the GR algorithm
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v1_1/" 

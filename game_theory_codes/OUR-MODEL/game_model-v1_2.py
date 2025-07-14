@@ -610,6 +610,33 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     run_folder = os.path.join(output_folder, "game_step_" + str(int(current_game_step)))
     expts = os.listdir(run_folder)
 
+
+    try:
+        expts.remove("attacker_strategy_matrix.png")
+    except:
+        pass
+
+    try:
+        expts.remove("attacker_strategy_matrix.tif")
+    except:
+        pass
+
+    try:
+        expts.remove("defender_coverage_matrix.png")
+    except:
+        pass
+
+    try:
+        expts.remove("defender_coverage_matrix.tif")
+    except:
+        pass
+
+    try:
+        expts.remove("model_parameters.yaml")
+    except:
+        pass
+
+
     save_folder = os.path.join(os.getcwd(), "game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(int(current_game_step)))
     os.makedirs(save_folder, exist_ok=True)
 

@@ -51,7 +51,6 @@ def make_plots(run_folder):
 
     for run in tqdm(runs):
 
-
         output_folder = os.path.join(run_folder, run)
 
         if os.path.isdir(output_folder) and os.path.exists(os.path.join(output_folder, "boundary_patches_with_reward_estimate.png")):
@@ -61,7 +60,7 @@ def make_plots(run_folder):
 
             try:
 
-                ds = gdal.Open(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/potential_coverage_matrix.tif"))
+                ds = gdal.Open(os.path.join(run_folder, "potential_coverage_matrix.tif"))
 
                 data = ds.ReadAsArray()
                 data = np.flip(data, axis=0)
@@ -77,7 +76,7 @@ def make_plots(run_folder):
 
                 map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
 
-                raster_to_geojson(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/potential_coverage_matrix.tif"), os.path.join(output_folder, 'boundary_patches.geojson'))
+                raster_to_geojson(os.path.join(run_folder, "potential_coverage_matrix.tif"), os.path.join(output_folder, 'boundary_patches.geojson'))
 
                 with open('mesageo_elephant_project/elephant_project/geojson_files/landuse_10.geojson', 'r') as f:
                     geojson_object = geojson.load(f)
@@ -154,5 +153,5 @@ def make_plots(run_folder):
 
     return
 
-run_folder = "game_theory_codes/OUR-MODEL/coverage_matrix_init"
+run_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v1_1/budget_k_10-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_0.0-M_30/coverage_matrix_init"
 make_plots(run_folder)

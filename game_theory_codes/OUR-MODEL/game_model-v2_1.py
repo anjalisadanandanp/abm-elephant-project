@@ -22,6 +22,7 @@ import geojson
 import matplotlib.cm as cm
 import shutil
 
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -609,6 +610,33 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     run_folder = os.path.join(output_folder, "game_step_" + str(int(current_game_step)))
     expts = os.listdir(run_folder)
 
+
+    try:
+        expts.remove("attacker_strategy_matrix.png")
+    except:
+        pass
+
+    try:
+        expts.remove("attacker_strategy_matrix.tif")
+    except:
+        pass
+
+    try:
+        expts.remove("defender_coverage_matrix.png")
+    except:
+        pass
+
+    try:
+        expts.remove("defender_coverage_matrix.tif")
+    except:
+        pass
+
+    try:
+        expts.remove("model_parameters.yaml")
+    except:
+        pass
+
+
     save_folder = os.path.join(os.getcwd(), "game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(int(current_game_step)))
     os.makedirs(save_folder, exist_ok=True)
 
@@ -1004,6 +1032,32 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     
     folders = os.listdir(base_folder)
 
+
+    try:
+        folders.remove("attacker_strategy_matrix.png")
+    except:
+        pass
+
+    try:
+        folders.remove("attacker_strategy_matrix.tif")
+    except:
+        pass
+
+    try:
+        folders.remove("defender_coverage_matrix.png")
+    except:
+        pass
+
+    try:
+        folders.remove("defender_coverage_matrix.tif")
+    except:
+        pass
+
+    try:
+        folders.remove("model_parameters.yaml")
+    except:
+        pass
+
     attack_numbers = {}
     plot_ids = np.unique(agricultural_plts)
     
@@ -1392,7 +1446,38 @@ def run_abm(model_params, experiment_name, output_folder):
 
 
 
-    batch_run_model(model_params, experiment_name, output_folder)
+    num_strategic_trajectories  =  0
+
+    while num_strategic_trajectories < model_params["iterations"]:
+
+        batch_run_model(model_params, experiment_name, output_folder)
+
+        runs = os.listdir(output_folder)
+
+        num_strategic_trajectories  =  0
+
+        for run in runs:
+            if os.path.isdir(os.path.join(output_folder, run)):
+                agent_df = pd.read_csv(os.path.join(output_folder, run, "output_files", "agent_data.csv"))
+
+                targets_attacked = agent_df["target_attacked"].dropna().unique()
+
+                if len(targets_attacked) == 0:
+                    num_strategic_trajectories += 1
+
+                else:
+                    flag = True
+                    for target in targets_attacked:
+                        agent_df_attacking = agent_df[agent_df["target_attacked"] == target]
+                        if len(agent_df_attacking) > 12:
+                            flag = False
+
+                    if flag == True:
+                        num_strategic_trajectories += 1
+
+                    if flag == False:
+                        shutil.rmtree(os.path.join(output_folder, run))
+
 
 
 
@@ -1747,7 +1832,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
         if gamma < min_gamma:
             gamma = min_gamma
-            
+
         print(f"gamma: {gamma}")
 
         defender_strategy_i = select_defender_strategy(defender_strategies, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K)
@@ -1896,8 +1981,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 35,
-            "num_processes": 42,
-            "iterations": 42,
+            "num_processes": 8,
+            "iterations": 24,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -1919,10 +2004,10 @@ if __name__ == "__main__":
     max_gamma = 1.0                             # Exploration/Exploitation Trade-off parameter
     min_gamma = 0.20                            # Exploration/Exploitation Trade-off parameter
     num_steps_gamma_decay = 10                  # Exploration/Exploitation Trade-off parameter
-    eta = 1.0                                   # reward perturbation parameter
+    eta = 0.0                                   # reward perturbation parameter
     M = 30                                      # parameter in the GR algorithm
 
-    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v1_2/" 
+    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v2_1/" 
 
     FPL_UE_params = (
         "budget_k_"

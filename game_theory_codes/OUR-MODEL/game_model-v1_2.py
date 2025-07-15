@@ -1032,6 +1032,32 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     
     folders = os.listdir(base_folder)
 
+
+    try:
+        folders.remove("attacker_strategy_matrix.png")
+    except:
+        pass
+
+    try:
+        folders.remove("attacker_strategy_matrix.tif")
+    except:
+        pass
+
+    try:
+        folders.remove("defender_coverage_matrix.png")
+    except:
+        pass
+
+    try:
+        folders.remove("defender_coverage_matrix.tif")
+    except:
+        pass
+
+    try:
+        folders.remove("model_parameters.yaml")
+    except:
+        pass
+
     attack_numbers = {}
     plot_ids = np.unique(agricultural_plts)
     

@@ -1914,7 +1914,7 @@ if __name__ == "__main__":
             "elephant_crop_habituation": False
         }
 
-    BUDGET_K = 10                               # Maximum number of cells that can be protected by the defenders at every time-step
+    BUDGET_K = 5                               # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 35                         # Maximum number of time-steps in the game
     max_gamma = 1.0                             # Exploration/Exploitation Trade-off parameter
     min_gamma = 0.20                            # Exploration/Exploitation Trade-off parameter

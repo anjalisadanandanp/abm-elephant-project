@@ -1831,22 +1831,22 @@ def optimise_strategy(model_params, experiment_name, output_folder, BUDGET_K, MA
 
 
     #------------create a vector of random numbers for reward and penalty------------#
-    # np.random.seed(42)  
-    # reward = np.random.uniform(0.0, 0.05, size=NUM_LANDSCAPE_CELLS)
-    # penalty = np.random.uniform(-0.05, 0.0, size=NUM_LANDSCAPE_CELLS)
+    np.random.seed(42)  
+    reward = np.random.uniform(0.0, 0.05, size=NUM_LANDSCAPE_CELLS)
+    penalty = np.random.uniform(-0.05, 0.0, size=NUM_LANDSCAPE_CELLS)
 
-    # #create a dataframe with boundary_patch_id, reward and penalty columns
-    # targets_df = pd.DataFrame({
-    #     "boundary_patch_id": [i + 1 for i in range(NUM_LANDSCAPE_CELLS)],
-    #     "reward": reward,
-    #     "penalty": penalty
-    # })
+    #create a dataframe with boundary_patch_id, reward and penalty columns
+    targets_df = pd.DataFrame({
+        "boundary_patch_id": [i + 1 for i in range(NUM_LANDSCAPE_CELLS)],
+        "reward": reward,
+        "penalty": penalty
+    })
     #------------create a vector of random numbers for reward and penalty------------#
 
 
 
 
-    targets_df = pd.read_csv("assign_rewards_and_penalties/boundary_patch_reward_penalty_matrix.csv")
+    # targets_df = pd.read_csv("assign_rewards_and_penalties/boundary_patch_reward_penalty_matrix.csv")
 
 
 
@@ -1919,10 +1919,10 @@ if __name__ == "__main__":
     max_gamma = 1.0                             # Exploration/Exploitation Trade-off parameter
     min_gamma = 0.20                            # Exploration/Exploitation Trade-off parameter
     num_steps_gamma_decay = 10                  # Exploration/Exploitation Trade-off parameter
-    eta = 0.0                                   # reward perturbation parameter
+    eta = 10.0                                   # reward perturbation parameter
     M = 30                                      # parameter in the GR algorithm
 
-    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v1_2/" 
+    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v1_3/" 
 
     FPL_UE_params = (
         "budget_k_"

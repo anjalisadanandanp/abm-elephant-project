@@ -66,8 +66,8 @@ def make_plots(run_folder, output_folder):
 
     return
 
-run_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v1_2/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_10.0-M_30/latitude-1049237-longitude-8570917/solitary_bulls/random-food-distribition-within-agricultural-plots-and-other-plantation-cells/landscape-food-probability-forest-0.1-cropland-0.1/water-source-rivers-landscape-1.0/random-memory-forest-and_plantation-fringe-model/full-memory-forest-and_plantation-model/num_days_agent_survives_in_deprivation-10/maximum-food-in-a-forest-cell-5/thermoregulation-threshold-temperature-28/threshold_days_of_food_deprivation-0/threshold_days_of_water_deprivation-3/slope_tolerance-35/num_days_agent_survives_in_deprivation-10/elephant_aggression_value_0.8/2010/Mar/"
-output_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v1_2/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_10.0-M_30/"
+run_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v2_1/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_0.0-M_30/latitude-1049237-longitude-8570917/solitary_bulls/random-food-distribition-within-agricultural-plots-and-other-plantation-cells/landscape-food-probability-forest-0.1-cropland-0.1/water-source-rivers-landscape-1.0/random-memory-forest-and_plantation-fringe-model/full-memory-forest-and_plantation-model/num_days_agent_survives_in_deprivation-10/maximum-food-in-a-forest-cell-5/thermoregulation-threshold-temperature-28/threshold_days_of_food_deprivation-0/threshold_days_of_water_deprivation-3/slope_tolerance-35/num_days_agent_survives_in_deprivation-10/elephant_aggression_value_0.8/2010/Mar/"
+output_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v2_1/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_0.0-M_30/"
 
 
 make_plots(run_folder, output_folder)

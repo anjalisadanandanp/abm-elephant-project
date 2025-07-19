@@ -70,7 +70,7 @@ def make_plots(run_folder, output_folder):
 
     return
 
-run_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v2_1/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_10.0-M_30/coverage_matrix_init"
-output_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v2_1/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_10.0-M_30/"
+run_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v1_3/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_25.0-M_30/coverage_matrix_init"
+output_folder = "game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v1_3/budget_k_5-max_game_steps_35-max_gamma_1.0-min_gamma_0.2-num_steps_gamma_decay_10-eta_25.0-M_30/"
 
 make_plots(run_folder, output_folder)

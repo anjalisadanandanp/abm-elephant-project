@@ -629,8 +629,62 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
 
     food_matrix = gdal.Open(os.path.join(run_folder, expts[-1], "env", "food_matrix_0.1_0.1_.tif")).ReadAsArray()
 
+    num_boundary_patchs = int(np.max(boundary_patches))
+    num_agricultural_plts = int(np.max(agricultural_plts))
 
-    #-----------------build assciaiation matrix between agricultural and boundary patches-----------------#
+    attacked_target_dict = {}
+
+    for ids, expt in enumerate(expts):
+
+        try:
+
+            df = pd.read_csv(os.path.join(run_folder, expt, "output_files/agent_data.csv"))
+
+            attacked_targets = df["target_attacked"].dropna().unique()
+
+            if len(attacked_targets) > 0:
+
+                for target in attacked_targets:
+
+                    try:
+                        attacked_target_dict[target] += 1
+                    except:
+                        attacked_target_dict[target] = 1
+
+        except:
+            pass
+
+    for boundary_patch in attacked_target_dict.keys():
+
+        targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "reward"] += attacked_target_dict[boundary_patch]
+        targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "penalty"] -= attacked_target_dict[boundary_patch]
+
+    targets_df.to_csv(os.path.join(os.getcwd(), "game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(int(current_game_step + 1)), "boundary_patch_reward_penalty_matrix.csv"), index=False)
+
+
+
+
+
+
+
+    #-----------------------plot trajectories with boundary patch intersection-----------------------#
+    fig, ax = plt.subplots(figsize=(8, 8))
+
+    map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
+
+    rainbow = plt.cm.rainbow
+    colors = rainbow(np.linspace(0, 1, 256))
+    colors[0] = [1, 1, 1, 1]  
+    custom_cmap = mcolors.ListedColormap(colors)
+
+    img = map.imshow(np.flipud(boundary_patches), cmap = custom_cmap, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 1)
+
+    map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
+    map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
+
+    cb = fig.colorbar(img) 
+    cb.remove()
+
     def lat_lon_to_pixel(lats, lons, xmin, ymax, xres, yres):
         """Convert lat/lon coordinates to pixel coordinates"""
         rows = ((ymax - lats) / -yres).astype(int)
@@ -660,136 +714,7 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
                 indices.append((start, len(landuse_sequence)))
         
         return indices
-
-
-    num_boundary_patchs = int(np.max(boundary_patches))
-    num_agricultural_plts = int(np.max(agricultural_plts))
-
-    association_matrix_num_visiting_trajs = np.zeros((num_boundary_patchs, num_agricultural_plts))
-
-    for ids, expt in enumerate(expts):
-
-
-        # -----------------------plot trajectories on cropland with crop raid episodes-----------------------#
-        # try:
-
-        #     fig, ax = plt.subplots(figsize=(8, 8))
-
-        #     map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
-
-        #     img = map.imshow(np.flipud(landuse_matrix), cmap = "Pastel2", extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 1)
-
-        #     map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
-        #     map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
-
-        #     cb = fig.colorbar(img) 
-        #     cb.remove()
-
-        #     df = pd.read_csv(os.path.join(run_folder, expt, "output_files/agent_data.csv"))
-
-        #     rows, cols = lat_lon_to_pixel(
-        #         df["latitude"].values, df["longitude"].values, 
-        #         ag_xmin, ag_ymax, ag_xres, ag_yres
-        #     )
-            
-        #     landuse_values = landuse_matrix[rows, cols]
-
-        #     indices = find_cropland_use_indices(landuse_values)
-
-        #     outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   
-        #     longitude, latitude = transform(inProj, outProj, df["longitude"], df["latitude"])
-        #     x_new, y_new = map(longitude,latitude)
-
-        #     ax.plot(x_new, y_new, linewidth=0.25, alpha=0.5, color="black", zorder=1)
-
-        #     ax.scatter(x_new[0], y_new[0], 0.5, marker='o', color='red', zorder=1)
-        #     ax.scatter(x_new[-1], y_new[-1], 0.5, marker='^', color='red', zorder=1)
-
-        #     for sequence in indices:
-
-        #         if (sequence[1] - sequence[0]) >= num_cropraiding_steps:
-                    
-        #             outProj, inProj =  Proj(init='epsg:4326'),Proj(init='epsg:3857')   
-        #             longitude, latitude = transform(inProj, outProj, df["longitude"][sequence[0]:sequence[1]], df["latitude"][sequence[0]:sequence[1]])
-        #             x_new, y_new = map(longitude,latitude)
-
-        #             ax.plot(x_new, y_new, linewidth=0.25, zorder=2)
-                    
-        #             ax.scatter(x_new[0], y_new[0], 0.5, marker='o', color='black', zorder=2)
-        #             ax.scatter(x_new[-1], y_new[-1], 0.5, marker='^', color='black', zorder=2)
-
-        #     plt.savefig(os.path.join(save_folder, "cropland_intersection_traj_" + expt + "_.png"), dpi=500, bbox_inches="tight")
-        #     plt.close()
-
-        # except Exception as e:
-        #     pass
-        # -----------------------plot trajectories on cropland with crop raid episodes-----------------------#
-
-
-
-        try:
-
-            association_matrix_num_visiting_trajs_local = np.zeros((num_boundary_patchs, num_agricultural_plts))
-
-            df = pd.read_csv(os.path.join(run_folder, expt, "output_files/agent_data.csv"))
-
-            rows, cols = lat_lon_to_pixel(
-                df["latitude"].values, df["longitude"].values, 
-                ag_xmin, ag_ymax, ag_xres, ag_yres
-            )
-            
-            landuse_values = landuse_matrix[rows, cols]
-
-            indices = find_cropland_use_indices(landuse_values)
-            
-            for sequence in indices:
-
-                if (sequence[1] - sequence[0]) >= num_cropraiding_steps:
-
-                    if boundary_patches[rows[sequence[0]], cols[sequence[0]]] != 0:
-
-                        for i in range(sequence[1] - sequence[0]):
     
-                            if agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]] != 0:
-
-                                association_matrix_num_visiting_trajs_local[int(boundary_patches[rows[sequence[0]], cols[sequence[0]]]),  int(agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]])] = 1
-            
-        except Exception as e:
-            # print(f"Error processing trajectory in {expt}: {e}")
-            pass
-
-        association_matrix_num_visiting_trajs += association_matrix_num_visiting_trajs_local
-
-    print("max number of visiting trajectories in any agricultural plot:", np.max(association_matrix_num_visiting_trajs))
-    print("min number of visiting trajectories in any agricultural plot:", np.min(association_matrix_num_visiting_trajs))
-
-    df = pd.DataFrame(association_matrix_num_visiting_trajs, columns=[f"agricultural_plot_{i}" for i in range(num_agricultural_plts)],
-                    index=[f"boundary_patch_{i}" for i in range(num_boundary_patchs)])
-    
-    df.to_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
-    #-----------------build assciaiation matrix between agricultural and boundary patches-----------------#
-
-
-
-
-    #-----------------------plot trajectories with boundary patch intersection-----------------------#
-    fig, ax = plt.subplots(figsize=(8, 8))
-
-    map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
-
-    rainbow = plt.cm.rainbow
-    colors = rainbow(np.linspace(0, 1, 256))
-    colors[0] = [1, 1, 1, 1]  
-    custom_cmap = mcolors.ListedColormap(colors)
-
-    img = map.imshow(np.flipud(boundary_patches), cmap = custom_cmap, extent=[LON_MIN, LON_MAX, LAT_MIN, LAT_MAX], alpha = 1)
-
-    map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
-    map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
-
-    cb = fig.colorbar(img) 
-    cb.remove()
-
     for ids, expt in enumerate(expts):
 
         try:
@@ -911,265 +836,6 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
                 plt.savefig(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png"), dpi=300, bbox_inches="tight")
                 plt.close()
     #-----------------------plot boundary patch association-----------------------#
-
-
-
-
-    #-----------------make boundary patch association dataframe-----------------#
-    df = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
-
-    column_boundary_ids = []
-    column_food_value = []
-
-    for index, row in df.iterrows():
-
-        if index == 0:
-            pass
-
-        else:
-
-            non_zero_items = [(col, val) for col, val in row.items() if val != 0]
-
-            row_name = row['Unnamed: 0']
-            col_names = [col for col in df.columns if col != 'Unnamed: 0']
-
-            boundary_patch_id = int(row_name.split("_")[-1])
-
-            boundarymask = boundary_patches == boundary_patch_id
-            associated_plots = []
-            food_within_plots = []
-
-            flag = False
-            
-            for col, val in non_zero_items:
-
-                try:
-                    agricultural_plot_id = int(col.split("_")[-1])
-                    ag_mask = agricultural_plts == agricultural_plot_id
-                    if np.any(ag_mask):
-                        flag = True
-                        associated_plots.append(agricultural_plot_id)
-
-                        foodmask = food_matrix[ag_mask]
-                        food_within_plots.append(np.sum(foodmask))
-                except:
-                    pass
-
-            if flag:
-                print(f"Boundary Patch ID: {boundary_patch_id}, Associated Agricultural Plots: {associated_plots}, Food within Plots: {food_within_plots}")
-                total_food = np.sum(food_within_plots)
-
-            else:
-                total_food = 0
-
-            column_boundary_ids.append(boundary_patch_id)
-            column_food_value.append(total_food)
-
-    df_new = pd.DataFrame({
-        "boundary_patch_id": column_boundary_ids,
-        "total_food_value": column_food_value
-    })
-    df_new.to_csv(os.path.join(save_folder, "boundary_patch_association_matrix.csv"), index=False)
-    #-----------------make boundary patch associtaion dataframe-----------------#
-
-
-
-
-    #-----------------make total trajectory visiting matrix-----------------#
-    def lat_lon_to_pixel(lat, lon, xmin, ymax, xres, yres):
-        """Convert lat/lon coordinates to pixel coordinates"""
-        col = int((lon - xmin) / xres)
-        row = int((ymax - lat) / abs(yres))  
-        return row, col
-
-    def get_agricultural_plot_values(lat_array, lon_array, ag_plots, ag_geotransform):
-        """Get agricultural plot values for trajectory points"""
-        ag_xmin, ag_xres, ag_xskew, ag_ymax, ag_yskew, ag_yres = ag_geotransform
-        ag_rows, ag_cols = ag_plots.shape
-        
-        plot_values = []
-        
-        for lat, lon in zip(lat_array, lon_array):
-            row, col = lat_lon_to_pixel(lat, lon, ag_xmin, ag_ymax, ag_xres, ag_yres)
-            
-            if 0 <= row < ag_rows and 0 <= col < ag_cols:
-                plot_value = ag_plots[row, col]
-                plot_values.append(plot_value)
-            else:
-                plot_values.append(np.nan)
-        
-        return np.array(plot_values)
-    
-    base_folder = run_folder
-    
-    folders = os.listdir(base_folder)
-
-    attack_numbers = {}
-    plot_ids = np.unique(agricultural_plts)
-    
-    for plot_id in plot_ids:
-        attack_numbers[plot_id] = 0
-
-    ds = gdal.Open(os.path.join(base_folder, folders[-1], "env/slope_matrix.tif"))
-    data = ds.ReadAsArray()
-    data = np.flip(data, axis=0)
-    row_size, col_size = data.shape
-    xmin, xres, xskew, ymax, yskew, yres = ds.GetGeoTransform()
-
-    for folder in folders:
-
-        try:
-            data = pd.read_csv(os.path.join(base_folder, folder, "output_files/agent_data.csv"))
-
-            lat = data["latitude"]
-            lon = data["longitude"]
-
-            ag_plot_values = get_agricultural_plot_values(lat, lon, agricultural_plts, geotransform)
-            unique_plots = np.unique(ag_plot_values[~np.isnan(ag_plot_values)])
-
-            for plot in unique_plots:
-                attack_numbers[plot] += 1
-            
-        except Exception as e:
-            # print(f"Error processing folder {folder}: {e}")
-            pass
-    
-    attack_matrix = np.zeros_like(agricultural_plts)
-
-    for plot_id, attack_count in attack_numbers.items():
-
-        if plot_id == 0:
-            pass
-
-        else:
-            mask = agricultural_plts == plot_id
-            attack_matrix[mask] = attack_count
-    #-----------------make total trajectory visiting matrix-----------------#
-
-
-
-
-    #-----------------make total trajectory visiting matrix plot-----------------#
-    fig, ax = plt.subplots(figsize=(8, 8))
-
-    im = ax.imshow(attack_matrix, vmin=0, vmax=10, cmap = plt.cm.coolwarm, interpolation='nearest')
-    
-    cbar = plt.colorbar(im, ax=ax, shrink=0.5)
-    cbar.set_label('Number of Attacks', rotation=270, labelpad=15)
-
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    plt.savefig(os.path.join(save_folder, "total_trajectory_visiting.png"), dpi=300, bbox_inches="tight")
-
-    plt.close()
-    #-----------------make total trajectory visiting matrix plot-----------------#
-
-
-            
-
-
-
-    rewards = []
-
-    out_save_folder = os.path.join(os.getcwd(), "game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(int(current_game_step)))
-    num_trajs_threatening = pd.read_csv(os.path.join(out_save_folder, "association_matrix_num_visiting_trajs.csv"))
-    num_food_resources_under_attack = pd.read_csv(os.path.join(out_save_folder, "boundary_patch_association_matrix.csv"))
-
-    for boundary_id in num_food_resources_under_attack["boundary_patch_id"].unique():
-
-        reward = 0.0
-
-        rows = num_trajs_threatening[num_trajs_threatening["Unnamed: 0"] == f"boundary_patch_{boundary_id}"]
-
-        num_intersecting_trajs = rows.iloc[0, 1:].sum()
-
-        if num_intersecting_trajs == 0:
-            reward += 0.0
-
-        else:
-            reward += num_food_resources_under_attack[num_food_resources_under_attack["boundary_patch_id"] == boundary_id]["total_food_value"].values[0]*num_intersecting_trajs
-
-            print(f"Boundary Patch ID: {boundary_id}, Reward: {reward}")
-
-        rewards.append(reward)
-
-    print("reward update:", rewards)
-
-    penalties = [-r for r in rewards]
-
-    targets_df["reward"] = np.array(rewards)
-    targets_df["penalty"] = np.array(penalties)
-
-    targets_df.to_csv(os.path.join(save_folder, "boundary_patch_reward_penalty_matrix.csv"), index=False)
-
-
-
-
-    # all_rewards = []
-
-    # i = 1
-
-    # while i <= current_game_step:
-
-    #     print("---step---", i)
-
-    #     rewards = []
-
-    #     out_save_folder = os.path.join(os.getcwd(), "game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(int(i)))
-    #     num_trajs_threatening = pd.read_csv(os.path.join(out_save_folder, "association_matrix_num_visiting_trajs.csv"))
-    #     num_food_resources_under_attack = pd.read_csv(os.path.join(out_save_folder, "boundary_patch_association_matrix.csv"))
-
-    #     for boundary_id in num_food_resources_under_attack["boundary_patch_id"].unique():
-
-    #         reward = 0.0
-
-    #         rows = num_trajs_threatening[num_trajs_threatening["Unnamed: 0"] == f"boundary_patch_{boundary_id}"]
-
-    #         num_intersecting_trajs = rows.iloc[0, 1:].sum()
-
-    #         if num_intersecting_trajs == 0:
-    #             reward += 0.0
-
-    #         else:
-    #             reward += num_food_resources_under_attack[num_food_resources_under_attack["boundary_patch_id"] == boundary_id]["total_food_value"].values[0]*num_intersecting_trajs
-
-    #             print(f"Boundary Patch ID: {boundary_id}, Reward: {reward}")
-
-    #         rewards.append(reward)
-
-    #     all_rewards.append(rewards)
-
-    #     i += 1
-
-
-
-    # all_rewards = np.array(all_rewards)
-
-    # # print("reward update before normalisation:", all_rewards)
-
-    # print("shape of reward update matrix:", all_rewards.shape)
-
-    # global_min = np.min(all_rewards)
-    # global_max = np.max(all_rewards)
-
-    # normalized_all = (all_rewards - global_min) / (global_max - global_min) / 2
-
-    # all_rewards = np.mean(normalized_all, axis=0).flatten().tolist()
-
-    # # k = min(current_game_step, 3)
-    # # all_rewards = np.sort(normalized_all, axis=0)[-k:].mean(axis=0).flatten().tolist()
-
-    # print("reward update:", all_rewards)
-
-    # all_penalties = [-r for r in all_rewards]
-
-    # targets_df["reward"] = np.array(all_rewards)
-    # targets_df["penalty"] = np.array(all_penalties)
-
-    # targets_df.to_csv(os.path.join(save_folder, "boundary_patch_reward_penalty_matrix.csv"), index=False)
-
-
 
 
     return targets_df
@@ -1937,7 +1603,7 @@ if __name__ == "__main__":
             "terrain_radius": 750,
             "slope_tolerance": 35,
             "num_processes": 8,
-            "iterations": 32,
+            "iterations": 24,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,

@@ -609,6 +609,33 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     run_folder = os.path.join(output_folder, "game_step_" + str(int(current_game_step)))
     expts = os.listdir(run_folder)
 
+
+    try:
+        expts.remove("attacker_strategy_matrix.png")
+    except:
+        pass
+
+    try:
+        expts.remove("attacker_strategy_matrix.tif")
+    except:
+        pass
+
+    try:
+        expts.remove("defender_coverage_matrix.png")
+    except:
+        pass
+
+    try:
+        expts.remove("defender_coverage_matrix.tif")
+    except:
+        pass
+
+    try:
+        expts.remove("model_parameters.yaml")
+    except:
+        pass
+
+
     save_folder = os.path.join(os.getcwd(), "game_theory_codes/OUR-MODEL/coverage_matrix_init", "game_step_" + str(int(current_game_step)))
     os.makedirs(save_folder, exist_ok=True)
 
@@ -761,81 +788,6 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     plt.close()
     #-----------------------plot trajectories with boundary patch intersection-----------------------#
 
-
-                
-
-    #-----------------------plot boundary patch association-----------------------#
-    df = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
-
-    for index, row in df.iterrows():
-
-        if index == 0:
-            pass
-
-        else:
-
-            non_zero_items = [(col, val) for col, val in row.items() if val != 0]
-
-            row_name = row['Unnamed: 0']
-            col_names = [col for col in df.columns if col != 'Unnamed: 0']
-
-            boundary_patch_id = int(row_name.split("_")[-1])
-
-            # print(f"Boundary Patch ID: {boundary_patch_id}")
-
-            matrix_to_plot = np.zeros((ag_rows, ag_cols))
-
-            mask = boundary_patches == boundary_patch_id
-
-            matrix_to_plot[mask] = 1
-
-            flag = False
-            
-            for col, val in non_zero_items:
-
-                try:
-                    agricultural_plot_id = int(col.split("_")[-1])
-                    # print(f"  {col}: {val}")
-                    ag_mask = agricultural_plts == agricultural_plot_id
-                    matrix_to_plot[ag_mask] = 2
-                    if np.any(ag_mask):
-                        flag = True
-                except:
-                    pass
-
-            if os.path.exists(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png")):
-                os.remove(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png"))
-
-            if flag == True:
-
-                fig, ax = plt.subplots(figsize=(8, 8))
-
-                map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
-
-                colors = ["white", "red", "forestgreen"]
-                custom_cmap = mcolors.ListedColormap(colors)
-                
-                img = map.imshow(np.flipud(matrix_to_plot), cmap=custom_cmap, interpolation='nearest', zorder=1)
-
-                map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
-                map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
-
-                with open('mesageo_elephant_project/elephant_project/geojson_files/landuse_10.geojson', 'r') as f:
-                    geojson_object = geojson.load(f)
-
-                for feature in geojson_object['features']:
-                    coords = feature['geometry']['coordinates'][0]
-                    coords = [transform(inProj, outProj, lon, lat) for lon, lat in coords]
-                    coords = [(lon, lat) for lon, lat in coords]
-                    lon, lat = zip(*coords)
-
-                    # plt.fill(lon, lat, color='yellow', alpha=0.10, zorder=2)
-
-                    map.plot(lon, lat, marker=None, color='black', linewidth=0.25, zorder=1) 
-
-                plt.savefig(os.path.join(save_folder, "boundary_patch_association_" + str(boundary_patch_id) + "_.png"), dpi=300, bbox_inches="tight")
-                plt.close()
-    #-----------------------plot boundary patch association-----------------------#
 
 
     return targets_df

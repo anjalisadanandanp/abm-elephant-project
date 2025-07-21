@@ -1656,8 +1656,7 @@ if __name__ == "__main__":
     game_params = "budget_k_" + str(BUDGET_K) + "_MAX_GAME_STEPS_" + str(MAX_GAME_STEPS)
 
     output_folder = os.path.join(
-        os.getcwd(),
-        "game_theory_codes/OUR-MODEL",
+        "/home/anjali/mnt/abm-elephant-project/aryabhata-runs/game-model-aryabhata-runs/",
         experiment_name,
         FPL_UE_params,
         starting_location,

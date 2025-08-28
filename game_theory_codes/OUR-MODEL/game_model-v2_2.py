@@ -1585,8 +1585,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 35,
-            "num_processes": 8,
-            "iterations": 24,
+            "num_processes": 40,
+            "iterations": 40,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -1603,12 +1603,12 @@ if __name__ == "__main__":
             "elephant_crop_habituation": False
         }
 
-    BUDGET_K = 5                               # Maximum number of cells that can be protected by the defenders at every time-step
+    BUDGET_K = 3                               # Maximum number of cells that can be protected by the defenders at every time-step
     MAX_GAME_STEPS = 35                         # Maximum number of time-steps in the game
     max_gamma = 1.0                             # Exploration/Exploitation Trade-off parameter
-    min_gamma = 0.20                            # Exploration/Exploitation Trade-off parameter
+    min_gamma = 0.50                            # Exploration/Exploitation Trade-off parameter
     num_steps_gamma_decay = 10                  # Exploration/Exploitation Trade-off parameter
-    eta = 1.0                                   # reward perturbation parameter
+    eta = 10.0                                   # reward perturbation parameter
     M = 30                                      # parameter in the GR algorithm
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v2_2" \
@@ -1687,7 +1687,7 @@ if __name__ == "__main__":
     game_params = "budget_k_" + str(BUDGET_K) + "_MAX_GAME_STEPS_" + str(MAX_GAME_STEPS)
 
     output_folder = os.path.join(
-        "/mnt/qdata/abm-elephant-project/pampa_runs/",
+        "/home/anjali/mnt/abm-elephant-project/aryabhata-runs/game-model-aryabhata-runs/",
         experiment_name,
         FPL_UE_params,
         starting_location,

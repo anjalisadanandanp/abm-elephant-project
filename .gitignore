@@ -2,5 +2,10 @@
 model_runs/*
 mlruns/*
 
+create-boundary-agricultural-patch-association-matrix/*
+create-boundary-agricultural-patch-association-matrix-v2/*
+game_theory_codes/FPL-UE/create-strategy-set/*
+game_theory_codes/OUR-MODEL/*
+
 
 

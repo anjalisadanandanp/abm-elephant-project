@@ -9,3 +9,8 @@ game_theory_codes/OUR-MODEL/*
 
 
 
+create-vulnerability-matrix/model-runs-without-intervention/*
+create-boundary-agricultural-patch-association-matrix/outputs/*
+model_runs/model-without-intervention/*
+game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE/*
+game_theory_codes/FPL-UE/create-strategy-set/simulations-without-mitigation/*

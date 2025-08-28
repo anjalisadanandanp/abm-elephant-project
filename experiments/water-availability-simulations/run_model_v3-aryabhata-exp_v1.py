@@ -46,8 +46,8 @@ model_params_all = {
     "fitness_threshold": 0.4,   
     "terrain_radius": 750,       
     "slope_tolerance": [30],
-    "num_processes": 32,
-    "iterations": 64,
+    "num_processes": 42,
+    "iterations": 42,
     "max_time_steps": 288*30,
     "aggression_threshold_enter_cropland": 1.0,
     "elephant_agent_visibility_radius": 500,
@@ -160,7 +160,7 @@ class Experiment:
             elephant_category = "solitary_bulls"
             starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
             landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-            water_holes_probability = "water-holes-within-landscape-" + str(model_params["prob_water_sources"])
+            water_holes_probability = "rivers-within-landscape-" + str(model_params["prob_water_sources"])
             memory_matrix_type = "random-memory-matrix-model"
             num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
             maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])
@@ -172,7 +172,7 @@ class Experiment:
             elephant_aggression_value = "elephant_aggression_value_" + str(model_params["elephant_aggression_value"])
 
 
-            data_folder = os.path.join(os.getcwd(), "model_runs", "water-availability-simulations", "water-source-scenario-02", experiment_name, starting_location, elephant_category, landscape_food_probability, 
+            data_folder = os.path.join(os.getcwd(), "model_runs", "water-availability-simulations", "experiment-v1.1", experiment_name, starting_location, elephant_category, landscape_food_probability, 
                                                 water_holes_probability, memory_matrix_type, num_days_agent_survives_in_deprivation, maximum_food_in_a_forest_cell, 
                                                 elephant_thermoregulation_threshold, threshold_food_derivation_days, threshold_water_derivation_days, 
                                                 slope_tolerance, num_days_agent_survives_in_deprivation, elephant_aggression_value,

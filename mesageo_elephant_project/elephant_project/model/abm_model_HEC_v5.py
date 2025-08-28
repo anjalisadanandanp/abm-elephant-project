@@ -157,7 +157,7 @@ class Elephant(GeoAgent):
             self.infrastructure_damage_matrix = np.zeros_like(self.model.LANDUSE)
 
             self.current_proximity_to_plantations = self.proximity_to_plantations[self.ROW][self.COL]
-            self.current_proximity_to_water_sources = self.proximity_to_plantations[self.ROW][self.COL]
+            self.current_proximity_to_water_sources = self.proximity_to_water_sources[self.ROW][self.COL]
     #-------------------------------------------------------------------
     def move_point(self,xnew,ynew): 
         """

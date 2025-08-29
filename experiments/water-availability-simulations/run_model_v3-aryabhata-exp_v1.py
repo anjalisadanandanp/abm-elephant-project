@@ -33,7 +33,7 @@ model_params_all = {
     "max_food_val_forest": [5, 15, 25],
     "prob_food_forest": [0.10],
     "prob_food_cropland": [0.10],
-    "prob_water_sources": [1.0, 0.50, 0.10, 0.01],
+    "prob_water_sources": [0.10, 0.01, 0.001, 0.0001],
     "thermoregulation_threshold": [28, 32],
     "num_days_agent_survives_in_deprivation": [10],     
     "knowledge_from_fringe": 1500,   
@@ -160,7 +160,7 @@ class Experiment:
             elephant_category = "solitary_bulls"
             starting_location = "latitude-" + str(model_params["elephant_starting_latitude"]) + "-longitude-" + str(model_params["elephant_starting_longitude"])
             landscape_food_probability = "landscape-food-probability-forest-" + str(model_params["prob_food_forest"]) + "-cropland-" + str(model_params["prob_food_cropland"])
-            water_holes_probability = "rivers-within-landscape-" + str(model_params["prob_water_sources"])
+            water_holes_probability = "waterholes-within-landscape-" + str(model_params["prob_water_sources"])
             memory_matrix_type = "random-memory-matrix-model"
             num_days_agent_survives_in_deprivation = "num_days_agent_survives_in_deprivation-" + str(model_params["num_days_agent_survives_in_deprivation"])
             maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(model_params["max_food_val_forest"])

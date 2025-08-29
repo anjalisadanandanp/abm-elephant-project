@@ -1717,8 +1717,8 @@ class environment():
     def main(self):
 
         self.initialize_food_matrix()
-        self.initialize_water_matrix_only_rivers()
-        # self.initialize_water_matrix_only_water_holes()
+        # self.initialize_water_matrix_only_rivers()
+        self.initialize_water_matrix_only_water_holes()
 
         return
     #---------------------------------------------------------------------------------------------------------

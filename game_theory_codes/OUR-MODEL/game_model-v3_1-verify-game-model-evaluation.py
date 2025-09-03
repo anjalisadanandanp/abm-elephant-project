@@ -665,8 +665,14 @@ def plot_and_save_defender_coverage(coverage_matrix, output_folder, figsize=(8, 
 
 def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTORIES):
 
+
+
+
     with open(os.path.join(output_folder, "model_parameters.yaml"), "w") as configfile:
         yaml.dump(model_params, configfile, default_flow_style=False)
+
+
+
 
     num_strategic_trajectories  =  0
 
@@ -684,14 +690,11 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
 
                 targets_attacked = agent_df["target_attacked"].dropna().unique()
 
-                #FIND COUNT OF ATTACKS ON EACH TARGET
                 COUNTS = {}
                 for target in targets_attacked:
                     agent_df_attacking = agent_df[agent_df["target_attacked"] == target]
                     COUNTS[target] = len(agent_df_attacking)
                 COUNTS = dict(sorted(COUNTS.items(), key=lambda item: item[1], reverse=True))
-
-                print(run, COUNTS)
 
                 if len(targets_attacked) == 0:
                     num_strategic_trajectories += 1
@@ -709,19 +712,94 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
                     if flag == False:
                         shutil.rmtree(os.path.join(output_folder, run))
 
-    return 
 
-def run_single_play(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTORIES):
 
-    path = pathlib.Path(os.path.join(output_folder))
-    path.mkdir(parents=True, exist_ok=True)
 
-    run_abm(model_params, experiment_name, os.path.join(output_folder), NUM_STRATEGIC_TRAJECTORIES)
 
-    make_trajectory_summary_plots_v1(os.path.join(output_folder), os.path.join(output_folder), num_cropraiding_steps = 12)
-    make_trajectory_summary_plots_v2(os.path.join(output_folder), os.path.join(output_folder), num_cropraiding_steps = 12)
-    make_trajectory_summary_plots_v3(os.path.join(output_folder), os.path.join(output_folder))
 
+    TOTAL_DAMAGE_VALUE = 0
+    num_simulation_repeats = 0
+
+    for simulation_folder in os.listdir(output_folder):
+
+        try:
+
+            df = pd.read_csv(os.path.join(output_folder, simulation_folder, "output_files/agent_data.csv"))
+            landscape_cell_status = gdal.Open(os.path.join(output_folder, simulation_folder, "env/landscape_cell_status.tif"))
+            landscape_cell_status_matrix = landscape_cell_status.ReadAsArray()
+
+            food_matrix = gdal.Open(os.path.join(output_folder, simulation_folder, "env/food_matrix_0.1_0.1_.tif")).ReadAsArray()
+            
+            rows = df['ROW'].values.astype(int)
+            cols = df['COL'].values.astype(int)
+        
+            matrix_rows, matrix_cols = landscape_cell_status_matrix.shape
+            
+            agent_locations_matrix = np.zeros((matrix_rows, matrix_cols))
+
+            agent_values = []
+            target_values_under_attack = []
+            for r, c in zip(rows, cols):
+                if 0 <= r < matrix_rows and 0 <= c < matrix_cols:
+                    value = landscape_cell_status_matrix[r, c]
+                    agent_values.append(value)
+                    agent_locations_matrix[r, c] = 1 
+
+                    if value == 2:
+                        target_values_under_attack.append(food_matrix[r,c])
+
+            fig, ax = plt.subplots(figsize=(6,6))
+            im = ax.imshow(agent_locations_matrix, cmap='viridis')
+            fig.colorbar(im, ax=ax, label='Agent Locations (1 = agent present)', shrink=0.5)
+            ax.set_title(f'{simulation_folder}')
+            ax.set_xticks([])
+            ax.set_yticks([])
+            plt.savefig(os.path.join(output_folder, f"{simulation_folder}.png"), bbox_inches="tight", dpi=300)
+            plt.close()
+
+            num_simulation_repeats += 1
+
+            TOTAL_DAMAGE_VALUE += sum(target_values_under_attack)
+
+        except Exception as e:
+            pass
+
+    return TOTAL_DAMAGE_VALUE
+
+def run_single_play(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTORIES, NUM_GAME_STEPS):
+
+    damage_values = []
+
+    for step in range(1, NUM_GAME_STEPS+1):
+
+        path = pathlib.Path(os.path.join(output_folder, "game_step_" + str(step)))
+        path.mkdir(parents=True, exist_ok=True)
+
+        STEP_DAMAGE_VALUE = run_abm(model_params, experiment_name, os.path.join(output_folder, "game_step_" + str(step)), NUM_STRATEGIC_TRAJECTORIES)
+
+        damage_values.append(STEP_DAMAGE_VALUE)
+
+        make_trajectory_summary_plots_v1(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)), num_cropraiding_steps = 12)
+        make_trajectory_summary_plots_v2(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)), num_cropraiding_steps = 12)
+        make_trajectory_summary_plots_v3(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)))
+
+    plt.figure(figsize=(6, 4.8))
+    plt.plot(range(1, NUM_GAME_STEPS+1), damage_values, marker='o', linestyle='-', color='b', label='Damage Value')
+    plt.xlabel('Simulation Step', fontsize=12)
+    plt.ylabel('Damage Value (kg)', fontsize=12)
+    
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    
+    plt.legend()
+
+    plt.tight_layout()
+
+    plt.savefig(os.path.join(output_folder, "damage_with_game_step.png"), bbox_inches="tight", dpi=300)
+
+    data = {'step': range(1, NUM_GAME_STEPS+1), 'damage_value': damage_values}
+    df = pd.DataFrame(data)
+    csv_file_path = "step_damage_data.csv"
+    df.to_csv(os.path.join(output_folder, csv_file_path), index=False)
 
     return  
 
@@ -835,12 +913,12 @@ if __name__ == "__main__":
         model_params["elephant_aggression_value"]
     )
 
-    targets_to_cover = [46, 47, 48]
+    targets_to_cover = [0]
 
     target_folder = f"protected_targets_{'_'.join(map(str, targets_to_cover))}"
 
     output_folder = os.path.join(
-        "/home/anjali/mnt/abm-elephant-project/aryabhata-runs/verify-adaptive-agent-code-implementation/",
+        "/home/anjali/mnt/abm-elephant-project/aryabhata-runs/verify-game-model-evaluation/",
         experiment_name,
         starting_location,
         elephant_category,
@@ -870,5 +948,6 @@ if __name__ == "__main__":
         model_params=model_params,
         experiment_name=experiment_name,
         output_folder=output_folder,
-        NUM_STRATEGIC_TRAJECTORIES=16
+        NUM_STRATEGIC_TRAJECTORIES=16,
+        NUM_GAME_STEPS = 15
     )

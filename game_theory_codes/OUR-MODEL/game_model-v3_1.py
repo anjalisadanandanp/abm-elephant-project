@@ -1569,7 +1569,7 @@ if __name__ == "__main__":
             "area_size": 1100,
             "spatial_resolution": 30,
             "max_food_val_cropland": 100,
-            "max_food_val_forest": 5,
+            "max_food_val_forest": 25,
             "prob_food_forest": 0.10,
             "prob_food_cropland": 0.10,
             "prob_water_sources": 1.0,
@@ -1584,7 +1584,7 @@ if __name__ == "__main__":
             "radius_forest_search": 1500,
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
-            "slope_tolerance": 35,
+            "slope_tolerance": 32.5,
             "num_processes": 42,
             "iterations": 42,
             "max_time_steps": 288 * 30,
@@ -1611,7 +1611,7 @@ if __name__ == "__main__":
     eta = 10.0                                   # reward perturbation parameter
     M = 30                                      # parameter in the GR algorithm
 
-    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v2_2" \
+    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1" \
     "" \
     "/" 
 

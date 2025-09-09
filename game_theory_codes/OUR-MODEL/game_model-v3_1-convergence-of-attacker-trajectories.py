@@ -858,6 +858,8 @@ if __name__ == "__main__":
             "elephant_aggression_value": 0.8,
             "elephant_crop_habituation": False
         }
+    
+    NUM_STRATEGIC_TRAJECTORIES = 42
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
 
@@ -913,12 +915,14 @@ if __name__ == "__main__":
         model_params["elephant_aggression_value"]
     )
 
-    targets_to_cover = [144, 145]
+    targets_to_cover = [0]
 
     target_folder = f"protected_targets_{'_'.join(map(str, targets_to_cover))}"
 
+    simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
+
     output_folder = os.path.join(
-        "/home/anjali/mnt/abm-elephant-project/aryabhata-runs/verify-game-model-evaluation/",
+        "/home/anjali/mnt/abm-elephant-project/aryabhata-runs/convergence-of-attacker-trajectories/",
         experiment_name,
         starting_location,
         elephant_category,
@@ -948,6 +952,6 @@ if __name__ == "__main__":
         model_params=model_params,
         experiment_name=experiment_name,
         output_folder=output_folder,
-        NUM_STRATEGIC_TRAJECTORIES=16,
-        NUM_GAME_STEPS = 15
+        NUM_STRATEGIC_TRAJECTORIES=NUM_STRATEGIC_TRAJECTORIES,
+        NUM_GAME_STEPS = 10
     )

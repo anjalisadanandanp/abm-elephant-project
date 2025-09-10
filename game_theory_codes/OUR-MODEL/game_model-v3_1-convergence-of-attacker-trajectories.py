@@ -842,7 +842,7 @@ if __name__ == "__main__":
             "terrain_radius": 750,
             "slope_tolerance": 32.5,
             "num_processes": 42,
-            "iterations": 42,
+            "iterations": 84,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -853,13 +853,13 @@ if __name__ == "__main__":
             "number_of_feasible_movement_directions": 3,
             "track_in_mlflow": False,
             "elephant_starting_location": "user_input",
-            "elephant_starting_latitude": 1047232,
-            "elephant_starting_longitude": 8568225,
+            "elephant_starting_latitude": 1045609,
+            "elephant_starting_longitude": 8572686,
             "elephant_aggression_value": 0.8,
             "elephant_crop_habituation": False
         }
     
-    NUM_STRATEGIC_TRAJECTORIES = 42
+    NUM_STRATEGIC_TRAJECTORIES = 84
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
 
@@ -941,7 +941,8 @@ if __name__ == "__main__":
         elephant_aggression_value,
         str(model_params["year"]),
         str(model_params["month"]),
-        target_folder
+        target_folder,
+        simulation_repeats
     )
 
     coverage_matrix = create_defender_coverage_matrix(targets_to_cover)

@@ -853,8 +853,8 @@ if __name__ == "__main__":
             "number_of_feasible_movement_directions": 3,
             "track_in_mlflow": False,
             "elephant_starting_location": "user_input",
-            "elephant_starting_latitude": 1045609,
-            "elephant_starting_longitude": 8572686,
+            "elephant_starting_latitude": 1049237,
+            "elephant_starting_longitude": 8570917,
             "elephant_aggression_value": 0.8,
             "elephant_crop_habituation": False
         }
@@ -915,7 +915,7 @@ if __name__ == "__main__":
         model_params["elephant_aggression_value"]
     )
 
-    targets_to_cover = [0]
+    targets_to_cover = [46, 47, 48, 144, 145]
 
     target_folder = f"protected_targets_{'_'.join(map(str, targets_to_cover))}"
 

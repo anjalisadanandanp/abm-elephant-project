@@ -672,45 +672,50 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
         yaml.dump(model_params, configfile, default_flow_style=False)
 
 
+    
+
+    batch_run_model(model_params, experiment_name, output_folder)
 
 
-    num_strategic_trajectories  =  0
 
-    while num_strategic_trajectories < NUM_STRATEGIC_TRAJECTORIES:
 
-        batch_run_model(model_params, experiment_name, output_folder)
+    # num_strategic_trajectories  =  0
 
-        runs = os.listdir(output_folder)
+    # while num_strategic_trajectories < NUM_STRATEGIC_TRAJECTORIES:
 
-        num_strategic_trajectories  =  0
+    #     batch_run_model(model_params, experiment_name, output_folder)
 
-        for run in runs:
-            if os.path.isdir(os.path.join(output_folder, run)):
-                agent_df = pd.read_csv(os.path.join(output_folder, run, "output_files", "agent_data.csv"))
+    #     runs = os.listdir(output_folder)
 
-                targets_attacked = agent_df["target_attacked"].dropna().unique()
+    #     num_strategic_trajectories  =  0
 
-                COUNTS = {}
-                for target in targets_attacked:
-                    agent_df_attacking = agent_df[agent_df["target_attacked"] == target]
-                    COUNTS[target] = len(agent_df_attacking)
-                COUNTS = dict(sorted(COUNTS.items(), key=lambda item: item[1], reverse=True))
+    #     for run in runs:
+    #         if os.path.isdir(os.path.join(output_folder, run)):
+    #             agent_df = pd.read_csv(os.path.join(output_folder, run, "output_files", "agent_data.csv"))
 
-                if len(targets_attacked) == 0:
-                    num_strategic_trajectories += 1
+    #             targets_attacked = agent_df["target_attacked"].dropna().unique()
 
-                else:
-                    flag = True
-                    for target in targets_attacked:
-                        agent_df_attacking = agent_df[agent_df["target_attacked"] == target]
-                        if len(agent_df_attacking) > 12:
-                            flag = False
+    #             COUNTS = {}
+    #             for target in targets_attacked:
+    #                 agent_df_attacking = agent_df[agent_df["target_attacked"] == target]
+    #                 COUNTS[target] = len(agent_df_attacking)
+    #             COUNTS = dict(sorted(COUNTS.items(), key=lambda item: item[1], reverse=True))
 
-                    if flag == True:
-                        num_strategic_trajectories += 1
+    #             if len(targets_attacked) == 0:
+    #                 num_strategic_trajectories += 1
 
-                    if flag == False:
-                        shutil.rmtree(os.path.join(output_folder, run))
+    #             else:
+    #                 flag = True
+    #                 for target in targets_attacked:
+    #                     agent_df_attacking = agent_df[agent_df["target_attacked"] == target]
+    #                     if len(agent_df_attacking) > 12:
+    #                         flag = False
+
+    #                 if flag == True:
+    #                     num_strategic_trajectories += 1
+
+    #                 if flag == False:
+    #                     shutil.rmtree(os.path.join(output_folder, run))
 
 
 
@@ -841,8 +846,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 32.5,
-            "num_processes": 12,
-            "iterations": 12,
+            "num_processes": 42,
+            "iterations": 84,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -859,7 +864,7 @@ if __name__ == "__main__":
             "elephant_crop_habituation": False
         }
     
-    NUM_STRATEGIC_TRAJECTORIES = 96
+    NUM_STRATEGIC_TRAJECTORIES = 84
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
 
@@ -915,14 +920,14 @@ if __name__ == "__main__":
         model_params["elephant_aggression_value"]
     )
 
-    targets_to_cover = [0]
+    targets_to_cover = [46, 47, 48, 144, 145]
 
     target_folder = f"protected_targets_{'_'.join(map(str, targets_to_cover))}"
 
-    simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
+    simulation_repeats = f'non_adaptive_attackers_in_the_game'
 
     output_folder = os.path.join(
-        "/mnt/qdata/abm-elephant-project/pampa-runs/convergence-of-attacker-trajectories/",
+        "/home/anjali/mnt/abm-elephant-project/aryabhata-runs/convergence-of-attacker-trajectories/",
         experiment_name,
         starting_location,
         elephant_category,
@@ -941,7 +946,8 @@ if __name__ == "__main__":
         elephant_aggression_value,
         str(model_params["year"]),
         str(model_params["month"]),
-        target_folder
+        target_folder,
+        simulation_repeats
     )
 
     coverage_matrix = create_defender_coverage_matrix(targets_to_cover)

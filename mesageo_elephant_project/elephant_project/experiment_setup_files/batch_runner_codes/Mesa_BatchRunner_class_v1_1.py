@@ -89,15 +89,17 @@ def batch_run(
         iteration_counter: Counter[Tuple[Any, ...]] = Counter()
 
         def _fn(paramValues, rawdata):
-            iteration_counter[paramValues] += 1
-            iteration = iteration_counter[paramValues]
-            run_id = next(run_counter)
+
+            # iteration_counter[paramValues] += 1
+            # iteration = iteration_counter[paramValues]
+            # run_id = next(run_counter)
             # data = []
             # for run_data in rawdata:
             #     out = {"RunId": run_id, "iteration": iteration - 1}
             #     out.update(run_data)
             #     data.append(out)
             # results.extend(data)
+
             pbar.update()
 
         if number_processes == 1:

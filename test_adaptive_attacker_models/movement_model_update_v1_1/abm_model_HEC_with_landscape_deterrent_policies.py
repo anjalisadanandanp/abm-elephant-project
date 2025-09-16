@@ -913,6 +913,233 @@ class Elephant(GeoAgent):
      
         idx = np.argsort(scores)[::-1]
 
+        theta_slope = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
+
+        
+
+
+
+        coverage_matrix = np.array(self.model.COVERAGE_MATRIX)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
+
+        direction_0 = coverage_matrix[data == 1]
+        direction_1 = coverage_matrix[data == 2]
+        direction_2 = coverage_matrix[data == 3]
+        direction_3 = coverage_matrix[data == 4]
+        direction_4 = coverage_matrix[data == 5]
+        direction_5 = coverage_matrix[data == 6]
+        direction_6 = coverage_matrix[data == 7]
+        direction_7 = coverage_matrix[data == 8]
+
+        direction_0_low = [1 for x in direction_0.flatten() if x > 0]
+        direction_1_low = [1 for x in direction_1.flatten() if x > 0]
+        direction_2_low = [1 for x in direction_2.flatten() if x > 0]
+        direction_3_low = [1 for x in direction_3.flatten() if x > 0]
+        direction_4_low = [1 for x in direction_4.flatten() if x > 0]
+        direction_5_low = [1 for x in direction_5.flatten() if x > 0]
+        direction_6_low = [1 for x in direction_6.flatten() if x > 0]
+        direction_7_low = [1 for x in direction_7.flatten() if x > 0]
+
+        cost_0_low = sum(x for x in direction_0_low)
+        cost_1_low = sum(x for x in direction_1_low)
+        cost_2_low = sum(x for x in direction_2_low)
+        cost_3_low = sum(x for x in direction_3_low)
+        cost_4_low = sum(x for x in direction_4_low)
+        cost_5_low = sum(x for x in direction_5_low)
+        cost_6_low = sum(x for x in direction_6_low)
+        cost_7_low = sum(x for x in direction_7_low)
+
+        cost_low = [cost_0_low, cost_1_low, cost_2_low, cost_3_low, cost_4_low, cost_5_low, cost_6_low, cost_7_low]
+
+        zero_indices = [i for i, x in enumerate(cost_low) if x == 0]
+        nonzero_indices = [i for i, x in enumerate(cost_low) if x != 0]
+
+        theta_no_coverage = [direction[i] for i in zero_indices]
+
+        set1 = set(theta_slope)
+        set2 = set(theta_no_coverage)
+
+        theta_slope_and_coverage = list(set1.intersection(set2))
+
+        if len(theta_slope_and_coverage) == 0:
+            theta =  [direction[i] for i in nonzero_indices]
+        
+        else:
+            theta = theta_slope_and_coverage
+
+        #choose a direction to move
+        movement_direction = np.random.choice(theta)
+
+        if movement_direction == 135:
+            #create an array with 0 when data array != 1
+            filter = np.zeros_like(data)
+            filter[data == 1] = 1
+
+        elif movement_direction == 90:
+            #create an array with 0 when data array != 2
+            filter = np.zeros_like(data)
+            filter[data == 2] = 1
+
+        elif movement_direction == 45:
+            #create an array with 0 when data array != 3
+            filter = np.zeros_like(data)
+            filter[data == 3] = 1
+
+        elif movement_direction == 0:
+            #create an array with 0 when data array != 4
+            filter = np.zeros_like(data)
+            filter[data == 4] = 1
+
+        elif movement_direction == 315:
+            #create an array with 0 when data array != 5
+            filter = np.zeros_like(data)
+            filter[data == 5] = 1
+
+        elif movement_direction == 270:
+            #create an array with 0 when data array != 6
+            filter = np.zeros_like(data)
+            filter[data == 6] = 1
+
+        elif movement_direction == 225:
+            #create an array with 0 when data array != 7
+            filter = np.zeros_like(data)
+            filter[data == 7] = 1
+
+        elif movement_direction == 180:
+            #create an array with 0 when data array != 8
+            filter = np.zeros_like(data)
+            filter[data == 8] = 1
+
+        #center value is set to -1
+        filter[radius//2][radius//2] = 2
+
+        self.direction = movement_direction
+
+        # if self.model.plot_stepwise_target_selection == True:
+
+        #     #plot the slope matrix and the filter matrix to visualize the movement direction
+        #     fig, ax = plt.subplots(1,2, figsize=(10,5))
+        #     img1 = ax[0].imshow(slope, cmap='coolwarm', vmin=0, vmax=60)
+        #     ax[0].set_title("Slope Matrix")
+        #     ax[0].set_xticks([])
+        #     ax[0].set_yticks([])
+        #     plt.colorbar(img1, ax=ax[0], orientation='vertical', shrink=0.5)
+
+        #     img2 = ax[1].imshow(filter, cmap='gray')
+        #     ax[1].set_title("Filter Matrix")
+        #     ax[0].set_xticks([])
+        #     ax[0].set_yticks([])
+        #     plt.colorbar(img2, ax=ax[1], orientation='vertical', shrink=0.5)
+
+        #     plt.savefig(os.path.join(folder, self.model.now, "output_files", self.unique_id + "_step_" + str(self.model.schedule.steps) + "_feasible_move_direction_.png"), dpi=300, bbox_inches='tight')
+
+        return filter
+    #-----------------------------------------------------------------------------------------------------
+    def return_feasible_direction_to_move_v3(self):
+
+        radius = int(self.model.terrain_radius*2/self.model.xres) + 1   
+
+        #create a n*n numpy array to store the data
+        data = np.zeros((radius, radius), dtype=object)
+
+        #fill the array with theta values calculated on the basis of row and column index with respect to the center of the array
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = np.arctan2(((i-(radius//2))*np.pi),((j-(radius//2))*np.pi))
+
+        #convert the array to degrees from radians
+        data = np.rad2deg(data.astype(float))
+
+        #find min and max of the array
+        min_val = np.amin(data)
+        max_val = np.amax(data)
+
+        #set center value to -1
+        data[radius//2][radius//2] = -500
+
+        #discretize the array into 8 bins
+        data = np.digitize(data, np.linspace(min_val, max_val, 17))
+
+        #map values in array based on the following mapping
+        map = {0:0, 1:8, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:5, 11:5, 12:6, 13:6, 14:7, 15:7, 16:8, 17:8}
+
+        for i in range(0, radius):
+            for j in range(0, radius):
+                data[i][j] = map[data[i][j]]
+
+        data[radius//2][radius//2] = 9
+        slope = np.array(self.model.SLOPE)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
+
+        #sum the values in each direction based on the data array
+        direction_0 = slope[data == 1]
+        direction_1 = slope[data == 2]
+        direction_2 = slope[data == 3]
+        direction_3 = slope[data == 4]
+        direction_4 = slope[data == 5]
+        direction_5 = slope[data == 6]
+        direction_6 = slope[data == 7]
+        direction_7 = slope[data == 8]
+
+        #find cells less than 30 degrees in each direction
+        direction_0_low = [1 for x in direction_0.flatten() if x <= self.model.slope_tolerance]
+        direction_1_low = [1 for x in direction_1.flatten() if x <= self.model.slope_tolerance]
+        direction_2_low = [1 for x in direction_2.flatten() if x <= self.model.slope_tolerance]
+        direction_3_low = [1 for x in direction_3.flatten() if x <= self.model.slope_tolerance]
+        direction_4_low = [1 for x in direction_4.flatten() if x <= self.model.slope_tolerance]
+        direction_5_low = [1 for x in direction_5.flatten() if x <= self.model.slope_tolerance]
+        direction_6_low = [1 for x in direction_6.flatten() if x <= self.model.slope_tolerance]
+        direction_7_low = [1 for x in direction_7.flatten() if x <= self.model.slope_tolerance]
+
+        #calculate the cost of movement in each direction as sum of the direction cells
+        cost_0_low = sum(x for x in direction_0_low)
+        cost_1_low = sum(x for x in direction_1_low)
+        cost_2_low = sum(x for x in direction_2_low)
+        cost_3_low = sum(x for x in direction_3_low)
+        cost_4_low = sum(x for x in direction_4_low)
+        cost_5_low = sum(x for x in direction_5_low)
+        cost_6_low = sum(x for x in direction_6_low)
+        cost_7_low = sum(x for x in direction_7_low)
+
+        cost_low = [cost_0_low, cost_1_low, cost_2_low, cost_3_low, cost_4_low, cost_5_low, cost_6_low, cost_7_low]
+
+        #find cells less than 30 degrees in each direction
+        direction_0_high = [1 for x in direction_0.flatten() if x > self.model.slope_tolerance]
+        direction_1_high = [1 for x in direction_1.flatten() if x > self.model.slope_tolerance]
+        direction_2_high = [1 for x in direction_2.flatten() if x > self.model.slope_tolerance]
+        direction_3_high = [1 for x in direction_3.flatten() if x > self.model.slope_tolerance]
+        direction_4_high = [1 for x in direction_4.flatten() if x > self.model.slope_tolerance]
+        direction_5_high = [1 for x in direction_5.flatten() if x > self.model.slope_tolerance]
+        direction_6_high = [1 for x in direction_6.flatten() if x > self.model.slope_tolerance]
+        direction_7_high = [1 for x in direction_7.flatten() if x > self.model.slope_tolerance]
+
+        #calculate the cost of movement in each direction as sum of the direction cells
+        cost_0_high = sum(x for x in direction_0_high)
+        cost_1_high = sum(x for x in direction_1_high)
+        cost_2_high = sum(x for x in direction_2_high)
+        cost_3_high = sum(x for x in direction_3_high)
+        cost_4_high = sum(x for x in direction_4_high)
+        cost_5_high = sum(x for x in direction_5_high)
+        cost_6_high = sum(x for x in direction_6_high)
+        cost_7_high = sum(x for x in direction_7_high)
+
+        cost_high = [cost_0_high, cost_1_high, cost_2_high, cost_3_high, cost_4_high, cost_5_high, cost_6_high, cost_7_high]
+
+        direction = [135, 90, 45, 0, 315, 270, 225, 180]
+
+        lists_to_shuffle = list(zip(direction, cost_low, cost_high))
+
+        random.shuffle(lists_to_shuffle)
+
+        direction, cost_low, cost_high = zip(*lists_to_shuffle)
+
+        movement_direction = None
+        scores = []
+        
+        for angle, low, high in zip(direction, cost_low, cost_high):
+            score = low - high
+            scores.append(score)
+     
+        idx = np.argsort(scores)[::-1]
+
         theta = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
 
         #choose a direction to move

@@ -1,0 +1,9 @@
+Thursday-18th September
+
+run experiments for varying availability of resources to guard the human settlement area
+
+1. pure-exploration model - schedule daily patrol strategies
+2. static-guarding model 
+3. dynamic-guarding model based on historical crop-raiding data
+
+# additional layers of complexity - 1. How does the boundary patch width affect the crop-raiding events

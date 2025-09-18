@@ -2127,10 +2127,8 @@ class environment_v2():
     #---------------------------------------------------------------------------------------------------------
     def main(self):
 
-        self.initialize_food_matrix_setup_any_cell_within_plantation()
-        self.initialize_water_matrix_only_rivers()
-        
-        # self.initialize_water_matrix_only_water_holes()
+        self.initialize_food_matrix_setup_any_agricultural_plot_cell_within_plantation()
+        self.initialize_water_matrix_with_rivers_and_water_holes()
 
         return
     #---------------------------------------------------------------------------------------------------------

@@ -4,7 +4,6 @@ import pandas as pd
 import importlib
 import pathlib
 import yaml
-import shutil
 from osgeo import gdal
 import numpy as np
 import matplotlib.colors as mcolors
@@ -12,7 +11,6 @@ from matplotlib.patches import Patch
 from pyproj import Proj, transform  
 from mpl_toolkits.basemap import Basemap    
 import rasterio
-import matplotlib.patches as mpatches
 from rasterio.features import shapes
 import fiona
 import geojson
@@ -681,8 +679,8 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
 
 
 
-    with open(os.path.join(output_folder, "model_parameters.yaml"), "w") as configfile:
-        yaml.dump(model_params, configfile, default_flow_style=False)
+    # with open(os.path.join(output_folder, "model_parameters.yaml"), "w") as configfile:
+    #     yaml.dump(model_params, configfile, default_flow_style=False)
 
 
 
@@ -690,24 +688,24 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
 
 
 
-    num_strategic_trajectories  =  0
+    # num_strategic_trajectories  =  0
 
-    while num_strategic_trajectories < NUM_STRATEGIC_TRAJECTORIES:
+    # while num_strategic_trajectories < NUM_STRATEGIC_TRAJECTORIES:
 
-        batch_run_model(model_params, experiment_name, output_folder)
+    #     batch_run_model(model_params, experiment_name, output_folder)
 
-        runs = os.listdir(output_folder)
+    #     runs = os.listdir(output_folder)
 
-        num_strategic_trajectories  =  0
+    #     num_strategic_trajectories  =  0
 
-        for run in runs:
-            flag = True
+    #     for run in runs:
+    #         flag = True
 
-            if flag == True:
-                num_strategic_trajectories += 1
+    #         if flag == True:
+    #             num_strategic_trajectories += 1
 
-            if flag == False:
-                shutil.rmtree(os.path.join(output_folder, run))
+    #         if flag == False:
+    #             shutil.rmtree(os.path.join(output_folder, run))
 
 
 
@@ -724,7 +722,7 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
             landscape_cell_status = gdal.Open(os.path.join(output_folder, simulation_folder, "env/landscape_cell_status.tif"))
             landscape_cell_status_matrix = landscape_cell_status.ReadAsArray()
 
-            food_matrix = gdal.Open(os.path.join(output_folder, simulation_folder, "env/food_matrix_0.1_0.1_.tif")).ReadAsArray()
+            food_matrix = gdal.Open(os.path.join(output_folder, simulation_folder, "env/food_matrix_0.1_1.0_.tif")).ReadAsArray()
             
             rows = df['ROW'].values.astype(int)
             cols = df['COL'].values.astype(int)
@@ -823,8 +821,8 @@ if __name__ == "__main__":
             "max_food_val_cropland": 100,
             "max_food_val_forest": 25,
             "prob_food_forest": 0.10,
-            "prob_food_cropland": 0.10,
-            "prob_water_sources": 1.0,
+            "prob_food_cropland": 1.0,
+            "prob_water_sources": 0.05,
             "thermoregulation_threshold": 28,
             "num_days_agent_survives_in_deprivation": 10,
             "knowledge_from_fringe": 1500,
@@ -837,8 +835,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 35,
-            "num_processes": 12,
-            "iterations": 12,
+            "num_processes": 46,
+            "iterations": 46,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -852,10 +850,10 @@ if __name__ == "__main__":
             "elephant_starting_latitude": [[1052166]],
             "elephant_starting_longitude": [[8572829]],
             "elephant_aggression_value": 0.8,
-            "elephant_crop_habituation": False
+            "elephant_crop_habituation": True
         }
     
-    NUM_STRATEGIC_TRAJECTORIES = 12
+    NUM_STRATEGIC_TRAJECTORIES = 184
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
 

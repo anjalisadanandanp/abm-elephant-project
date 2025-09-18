@@ -849,8 +849,8 @@ if __name__ == "__main__":
             "number_of_feasible_movement_directions": 3,
             "track_in_mlflow": False,
             "elephant_starting_location": "user_input",
-            "elephant_starting_latitude": [[1049237]],
-            "elephant_starting_longitude": [[8570917]],
+            "elephant_starting_latitude": [[1052166]],
+            "elephant_starting_longitude": [[8572829]],
             "elephant_aggression_value": 0.8,
             "elephant_crop_habituation": False
         }

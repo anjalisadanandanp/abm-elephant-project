@@ -813,7 +813,7 @@ def run_single_play(model_params, experiment_name, output_folder, NUM_STRATEGIC_
 if __name__ == "__main__":
 
 
-    num_resources_k = [20]
+    num_resources_k = [20, 30, 40, 50]
     proximity_filter_parameter = [0.999]
     cost_function_threshold_parameter = [0]
     

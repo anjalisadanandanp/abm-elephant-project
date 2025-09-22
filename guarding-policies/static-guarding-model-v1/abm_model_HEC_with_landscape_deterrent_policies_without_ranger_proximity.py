@@ -385,7 +385,7 @@ class Elephant(GeoAgent):
             if self.target_present == False or (self.target_name and "escaping" not in self.target_name):   
                 # print("setting target for escape")
                 filter = self.return_feasible_direction_to_move_v2()
-                self.target_for_escape_v1(filter)  
+                self.target_for_escape_v2(filter)  
                 self.target_name = "forest:escaping"
 
             else:
@@ -420,18 +420,35 @@ class Elephant(GeoAgent):
         self.strategy_row = i
         self.strategy_col = j
 
-        num_neighbors = 3
+        num_neighbors = 1
 
         #choose neigborhood cells of the current cell
         coverage_matrix = np.array(self.model.COVERAGE_MATRIX)[i-num_neighbors:i+num_neighbors+1,j-num_neighbors:j+num_neighbors+1]
 
         if np.any(coverage_matrix > 0):    
-            # print("danger to life")
             self.danger_to_life = True
             self.conflict_with_humans = True 
             attacked_targets = np.unique(coverage_matrix)
             attacked_targets = attacked_targets[attacked_targets != 0]  
-            # print("attacked targets:", attacked_targets)
+            
+            target_row, target_col = np.where(coverage_matrix > 0)
+            
+            random_index = np.random.choice(len(target_row))
+            
+            random_target_row = target_row[random_index]
+            random_target_col = target_col[random_index]
+            
+            self.attacked_target_row = i - num_neighbors + random_target_row
+            self.attacked_target_col = j - num_neighbors + random_target_col
+
+            self.target_attacked = self.model.COVERAGE_MATRIX[self.attacked_target_row][self.attacked_target_col]
+            
+            lat = self.model.ymax_coverage_matrix - self.attacked_target_row * self.model.yres_coverage_matrix
+            lon = self.model.xmin_coverage_matrix + self.attacked_target_col * self.model.xres_coverage_matrix
+            
+            self.attacked_target_lat = lat
+            self.attacked_target_lon = lon
+            
             # self.target_attacked = self.model.COVERAGE_MATRIX[i][j] 
             self.target_attacked = attacked_targets[0] 
             return  
@@ -440,6 +457,12 @@ class Elephant(GeoAgent):
             self.danger_to_life = False   
             self.conflict_with_humans = False
             self.target_attacked = None
+            
+            self.attacked_target_lat = None
+            self.attacked_target_lon = None
+            self.attacked_target_row = None
+            self.attacked_target_col = None   
+            
             return  
     #--------------------------------------------------------------------------------------------------
     def current_mode_of_the_agent(self):
@@ -1584,6 +1607,89 @@ class Elephant(GeoAgent):
 
         return
     #-----------------------------------------------------------------------------------------------------
+    def target_for_escape_v2(self, filter):
+        
+        try:
+            if self.target_present is True and "escaping" in self.target_name:
+                return
+        except:
+            pass
+
+        radius = int(self.model.radius_forest_search * 2 / self.model.xres)
+        row_start = self.ROW - radius // 2
+        col_start = self.COL - radius // 2
+        row_end = self.ROW + radius // 2 + 1
+        col_end = self.COL + radius // 2 + 1
+
+        if self.ROW < radius:
+            row_start = 0
+        elif self.ROW > self.model.row_size - 1 - radius:
+            row_end = self.model.row_size - 1
+
+        if self.COL < radius:
+            col_start = 0
+        elif self.COL > self.model.col_size - radius - 1:
+            col_end = self.model.col_size - 1
+
+        coord_list = []
+        
+        for i in range(row_start, row_end):
+            for j in range(col_start, col_end):
+                if i == self.ROW and j == self.COL:
+                    continue
+                elif self.model.LANDUSE[i][j] == 15:
+                    coord_list.append([i, j])
+
+        if not coord_list:
+            coord_list.append([self.ROW, self.COL])
+            for _ in range(25):
+                radius = int(self.model.terrain_radius * 2 / self.model.xres)
+                row_start = self.ROW - radius // 2
+                col_start = self.COL - radius // 2
+                row_end = self.ROW + radius // 2 + 1
+                col_end = self.COL + radius // 2 + 1
+
+                i = self.model.random.randint(row_start, row_end)
+                j = self.model.random.randint(col_start, col_end)
+
+                if (self.proximity_to_forests[i][j] <= self.proximity_to_forests[self.ROW][self.COL] and
+                        filter[i - row_start][j - col_start] == 1):
+                    coord_list.append([i, j])
+
+        if self.attacked_target_lat is not None and self.attacked_target_lon is not None:
+            print("----moving away from the ranger----")
+
+            attacked_row = int((self.model.ymax + self.model.yres * 0.5 - self.attacked_target_lat) / self.model.yres)
+            attacked_col = int((self.attacked_target_lon - self.model.xmin - self.model.xres * 0.5) / self.model.xres)
+            
+            farthest_point = None
+            max_dist_sq = -1
+
+            for r, c in coord_list:
+                dist_sq = (r - attacked_row)**2 + (c - attacked_col)**2
+                if dist_sq > max_dist_sq:
+                    max_dist_sq = dist_sq
+                    farthest_point = [r, c]
+
+            if farthest_point:
+                x, y = farthest_point[0], farthest_point[1]
+                print("attacked:", attacked_row, attacked_col, "move to:", x, y)
+            else:
+                x, y = self.ROW, self.COL
+        else:
+            x, y = self.model.random.choice(coord_list)
+
+        lon = self.model.xres * 0.5 + self.model.xmin + y * self.model.xres
+        lat = self.model.yres * 0.5 + self.model.ymax + x * self.model.yres
+        
+        self.target_lon, self.target_lat = lon, lat
+        self.target_present = True
+
+        if self.danger_to_life and self.conflict_with_humans and self.model.plot_stepwise_target_selection:
+            self.plot_stepwise_neighborhood_matrices(row_start, row_end, col_start, col_end, "escape_target_v1", filter, x, y)
+
+        return
+    #---------------------------------------------------------------------------------------------------
     def drink_water(self):
         """ The elephant agent consumes water from the current cell it is located in"""
 
@@ -3043,7 +3149,7 @@ class conflict_model(Model):
     #----------------------------------------------------------------------------------------------------
     def step(self):
 
-        print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
+        # print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
 
         self.update_hourly_temp()
         self.update_season()

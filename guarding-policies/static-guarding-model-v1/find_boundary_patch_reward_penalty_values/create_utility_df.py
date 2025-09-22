@@ -44,16 +44,18 @@ def find_food_value_association():
             "plot_stepwise_target_selection": False,
             "threshold_days_of_food_deprivation": 0,
             "threshold_days_of_water_deprivation": 3,
-            "number_of_feasible_movement_directions": 3,
+            "number_of_feasible_movement_directions": 4,
             "track_in_mlflow": False,
             "elephant_starting_location": "user_input",
             "elephant_starting_latitude": [[1052166]],
             "elephant_starting_longitude": [[8572829]],
             "elephant_aggression_value": 0.8,
-            "elephant_crop_habituation": True
+            "elephant_crop_habituation": True,
+            "ranger_proximity_threshold": None,
+            "cost_ranger_proximity_threshold": None,
         }
 
-    NUM_STRATEGIC_TRAJECTORIES = 184
+    NUM_STRATEGIC_TRAJECTORIES = 92
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
 
@@ -78,7 +80,7 @@ def find_food_value_association():
     water_availability_sceanario = "water-source-rivers-landscape-" + str(model_params["prob_water_sources"])
 
     food_memory_matrix_type = "random-memory-forest-and_plantation-fringe-model"
-    
+
     water_memory_matrix_type = "full-memory-forest-and_plantation-model"
 
     num_days_agent_survives_in_deprivation = (
@@ -116,7 +118,7 @@ def find_food_value_association():
     simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
 
     folder = os.path.join(
-        "guarding-policies/static-guarding-model/model-runs/game_model-v3_1-run-model-without-intervention/",
+        "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-without-intervention/",
         experiment_name,
         starting_location,
         elephant_category,
@@ -136,19 +138,18 @@ def find_food_value_association():
         str(model_params["year"]),
         str(model_params["month"]),
         target_folder,
-        simulation_repeats
+        simulation_repeats,
     )
 
+
+
+
     agricultural_plots = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
-    boundary_patches = gdal.Open("guarding-policies/static-guarding-model/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
+    boundary_patches = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
 
+    food_matrix = gdal.Open(os.path.join("guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-without-intervention/mitigation-measures-within-plantations-FPL-UE_v3_1/latitude-[[1052166]]-longitude-[[8572829]]/solitary_bulls/random-food-distribition-within-agricultural-plots-and-other-plantation-cells/landscape-food-probability-forest-0.1-cropland-1.0/water-source-rivers-landscape-0.05/random-memory-forest-and_plantation-fringe-model/full-memory-forest-and_plantation-model/num_days_agent_survives_in_deprivation-10/maximum-food-in-a-forest-cell-25/thermoregulation-threshold-temperature-28/threshold_days_of_food_deprivation-0/threshold_days_of_water_deprivation-3/slope_tolerance-35/num_days_agent_survives_in_deprivation-10/elephant_aggression_value_0.8/2010/Mar/protected_targets_0/num_strategic_traj_92_num_iterations_46/game_step_1/0b57de59-1eb1-463a-9c12-7d1a882e647a/env/food_matrix_0.1_1.0_.tif")).ReadAsArray()
 
-
-    landuse_matrix = gdal.Open(os.path.join("guarding-policies/static-guarding-model/model-runs/game_model-v3_1-run-model-without-intervention/mitigation-measures-within-plantations-FPL-UE_v3_1/latitude-[[1052166]]-longitude-[[8572829]]/solitary_bulls/random-food-distribition-within-agricultural-plots-and-other-plantation-cells/landscape-food-probability-forest-0.1-cropland-1.0/water-source-rivers-landscape-0.05/random-memory-forest-and_plantation-fringe-model/full-memory-forest-and_plantation-model/num_days_agent_survives_in_deprivation-10/maximum-food-in-a-forest-cell-25/thermoregulation-threshold-temperature-28/threshold_days_of_food_deprivation-0/threshold_days_of_water_deprivation-3/slope_tolerance-35/num_days_agent_survives_in_deprivation-10/elephant_aggression_value_0.8/2010/Mar/protected_targets_0/num_strategic_traj_184_num_iterations_46/game_step_1/0a51ee75-2f5d-4cc3-a6f2-5d842f49d17f/env/LULC.tif")).ReadAsArray()
-
-    food_matrix = gdal.Open(os.path.join("guarding-policies/static-guarding-model/model-runs/game_model-v3_1-run-model-without-intervention/mitigation-measures-within-plantations-FPL-UE_v3_1/latitude-[[1052166]]-longitude-[[8572829]]/solitary_bulls/random-food-distribition-within-agricultural-plots-and-other-plantation-cells/landscape-food-probability-forest-0.1-cropland-1.0/water-source-rivers-landscape-0.05/random-memory-forest-and_plantation-fringe-model/full-memory-forest-and_plantation-model/num_days_agent_survives_in_deprivation-10/maximum-food-in-a-forest-cell-25/thermoregulation-threshold-temperature-28/threshold_days_of_food_deprivation-0/threshold_days_of_water_deprivation-3/slope_tolerance-35/num_days_agent_survives_in_deprivation-10/elephant_aggression_value_0.8/2010/Mar/protected_targets_0/num_strategic_traj_184_num_iterations_46/game_step_1/0a51ee75-2f5d-4cc3-a6f2-5d842f49d17f/env/food_matrix_0.1_1.0_.tif")).ReadAsArray()
-
-    save_folder = os.path.join("guarding-policies/static-guarding-model/find_boundary_patch_reward_penalty_values")
+    save_folder = os.path.join("guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values")
 
     df = pd.read_csv(os.path.join(save_folder, "association_matrix_num_visiting_trajs.csv"))
 

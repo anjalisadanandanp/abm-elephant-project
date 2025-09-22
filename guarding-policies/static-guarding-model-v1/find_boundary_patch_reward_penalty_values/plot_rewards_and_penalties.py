@@ -15,7 +15,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def make_plots(output_folder="guarding-policies/static-guarding-model/find_boundary_patch_reward_penalty_values"):
+def make_plots(output_folder="guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values"):
 
     def raster_to_geojson(input_raster_path, output_geojson_path):
 
@@ -43,7 +43,7 @@ def make_plots(output_folder="guarding-policies/static-guarding-model/find_bound
                     dst.write(feature)
         return
 
-    ds = gdal.Open(os.path.join("guarding-policies/static-guarding-model/create-strategy-matrix/boundary_raster_discretised.tif"))
+    ds = gdal.Open(os.path.join("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif"))
 
     data = ds.ReadAsArray()
     data = np.flip(data, axis=0)
@@ -59,12 +59,12 @@ def make_plots(output_folder="guarding-policies/static-guarding-model/find_bound
 
     map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
 
-    raster_to_geojson(os.path.join("guarding-policies/static-guarding-model/create-strategy-matrix/boundary_raster_discretised.tif"), os.path.join(output_folder, 'boundary_patches.geojson'))
+    raster_to_geojson(os.path.join("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif"), os.path.join(output_folder, 'boundary_patches.geojson'))
 
     with open('mesageo_elephant_project/elephant_project/geojson_files/landuse_10.geojson', 'r') as f:
         geojson_object = geojson.load(f)
 
-    reward_df = pd.read_csv("guarding-policies/static-guarding-model/find_boundary_patch_reward_penalty_values/boundary_patch_reward_penalty_matrix.csv")
+    reward_df = pd.read_csv("guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values/boundary_patch_reward_penalty_matrix.csv")
 
     for feature in geojson_object['features']:
         coords = feature['geometry']['coordinates'][0]

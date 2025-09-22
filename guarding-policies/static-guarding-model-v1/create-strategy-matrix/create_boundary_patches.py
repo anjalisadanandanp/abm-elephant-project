@@ -117,13 +117,13 @@ def discretize_raster_by_cells_from_raster(input_raster_path, output_raster_path
         
         dst.write(output_raster, 1)
 
-def create_combined_raster(output_dir):
+def create_combined_raster(output_dir, max_cells_per_group):
     
     os.makedirs(output_dir, exist_ok=True)
     
     discretised_raster_path = os.path.join(output_dir, 'boundary_raster.tif')
 
-    discretize_raster_by_cells_from_raster(discretised_raster_path, 'guarding-policies/static-guarding-model/create-strategy-matrix/boundary_raster_discretised.tif', max_cells_per_group=10)
+    discretize_raster_by_cells_from_raster(discretised_raster_path, 'guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif', max_cells_per_group=max_cells_per_group)
     
     return 
 
@@ -166,7 +166,7 @@ def plot_discretised_raster(output_dir):
 if __name__ == "__main__":
 
     create_combined_raster(
-        output_dir='guarding-policies/static-guarding-model/create-strategy-matrix'
+        output_dir='guarding-policies/static-guarding-model-v1/create-strategy-matrix', max_cells_per_group=10
     )
 
-    plot_discretised_raster(output_dir='guarding-policies/static-guarding-model/create-strategy-matrix')
+    plot_discretised_raster(output_dir='guarding-policies/static-guarding-model-v1/create-strategy-matrix')

@@ -14,7 +14,7 @@ import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
 
-k = 20
+k = 35
 
 
 def make_plots(output_folder="guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values"):

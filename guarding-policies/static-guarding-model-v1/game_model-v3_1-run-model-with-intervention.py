@@ -814,7 +814,7 @@ if __name__ == "__main__":
 
     reward_df = pd.read_csv("guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values/boundary_patch_reward_penalty_matrix.csv")
 
-    num_resources_k = [10]
+    num_resources_k = [50]
 
     sorted_df = reward_df.sort_values(by='reward', ascending=False)
     

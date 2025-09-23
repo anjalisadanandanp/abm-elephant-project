@@ -812,9 +812,9 @@ def run_single_play(model_params, experiment_name, output_folder, NUM_STRATEGIC_
 
 if __name__ == "__main__":
 
-    reward_df = pd.read_csv("guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values/boundary_patch_reward_penalty_matrix.csv")
+    reward_df = pd.read_csv("guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values-v2/boundary_patch_reward_penalty_matrix.csv")
 
-    num_resources_k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    num_resources_k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
 
     sorted_df = reward_df.sort_values(by='reward', ascending=False)
     
@@ -937,7 +937,7 @@ if __name__ == "__main__":
             intelligent_agent_parameters = f'proximity_filter_parameter_{ranger_proximity_threshold}_cost_function_threshold_{cost_ranger_proximity_threshold}_num_resources_{k}'
             
             output_folder = os.path.join(
-                "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-with-intervention/",
+                "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-with-intervention-v2/",
                 experiment_name,
                 starting_location,
                 elephant_category,

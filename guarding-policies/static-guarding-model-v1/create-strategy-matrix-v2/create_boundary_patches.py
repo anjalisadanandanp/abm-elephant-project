@@ -169,7 +169,7 @@ def plot_discretised_raster(output_dir):
 
 if __name__ == "__main__":
 
-    for max_cells_per_group in [10, 15, 20, 25, 30]:
+    for max_cells_per_group in [35, 40, 45, 50]:
 
         create_combined_raster(
             output_dir='guarding-policies/static-guarding-model-v1/create-strategy-matrix-v2', max_cells_per_group=max_cells_per_group

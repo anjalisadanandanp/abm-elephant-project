@@ -930,7 +930,7 @@ if __name__ == "__main__":
                 model_params["elephant_aggression_value"]
             )
 
-            target_folder = f"protected_targets_{'_'.join(map(str, targets_to_cover))}"
+            target_folder = f"num_protected_targets_" + str(k)
 
             simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
 

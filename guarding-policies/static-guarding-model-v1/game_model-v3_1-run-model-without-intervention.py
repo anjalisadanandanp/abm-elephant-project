@@ -744,14 +744,14 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
                     if value == 2:
                         target_values_under_attack.append(food_matrix[r,c])
 
-            fig, ax = plt.subplots(figsize=(6,6))
-            im = ax.imshow(agent_locations_matrix, cmap='viridis')
-            fig.colorbar(im, ax=ax, label='Agent Locations (1 = agent present)', shrink=0.5)
-            ax.set_title(f'{simulation_folder}')
-            ax.set_xticks([])
-            ax.set_yticks([])
-            plt.savefig(os.path.join(output_folder, f"{simulation_folder}.png"), bbox_inches="tight", dpi=300)
-            plt.close()
+            # fig, ax = plt.subplots(figsize=(6,6))
+            # im = ax.imshow(agent_locations_matrix, cmap='viridis')
+            # fig.colorbar(im, ax=ax, label='Agent Locations (1 = agent present)', shrink=0.5)
+            # ax.set_title(f'{simulation_folder}')
+            # ax.set_xticks([])
+            # ax.set_yticks([])
+            # plt.savefig(os.path.join(output_folder, f"{simulation_folder}.png"), bbox_inches="tight", dpi=300)
+            # plt.close()
 
             num_simulation_repeats += 1
 
@@ -837,8 +837,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 35,
-            "num_processes": 46,
-            "iterations": 46,
+            "num_processes": 47,
+            "iterations": 47,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -857,7 +857,7 @@ if __name__ == "__main__":
             "cost_ranger_proximity_threshold": None,
         }
     
-    NUM_STRATEGIC_TRAJECTORIES = 92
+    NUM_STRATEGIC_TRAJECTORIES = 188
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
 
@@ -920,7 +920,7 @@ if __name__ == "__main__":
     simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
 
     output_folder = os.path.join(
-        "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-without-intervention/",
+        "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-without-intervention-v2/",
         experiment_name,
         starting_location,
         elephant_category,

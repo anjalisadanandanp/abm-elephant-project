@@ -38,7 +38,7 @@ plt.rcParams.update(
 import sys
 sys.path.append(os.getcwd())
 
-module = importlib.import_module('guarding-policies.static-guarding-model-v1.abm_model_HEC_with_landscape_deterrent_policies_with_ranger_proximity')
+module = importlib.import_module('guarding-policies.static-guarding-model-v1.abm_model_HEC_with_landscape_deterrent_policies_without_ranger_proximity')
 batch_run_model = module.batch_run_model
 
 
@@ -861,7 +861,7 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
 
 if __name__ == "__main__":
 
-    boundary_raster_discretised = "boundary_raster_discretised_750m"
+    boundary_raster_discretised = "boundary_raster_discretised_450m"
 
     coverage_matrix_path = "guarding-policies/static-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
 
@@ -914,7 +914,7 @@ if __name__ == "__main__":
                     "radius_forest_search": 1500,
                     "fitness_threshold": 0.4,
                     "terrain_radius": 750,
-                    "slope_tolerance": 35,
+                    "slope_tolerance": 30,
                     "num_processes": 46,
                     "iterations": 46,
                     "max_time_steps": 288 * 30,
@@ -931,8 +931,6 @@ if __name__ == "__main__":
                     "elephant_starting_longitude": [[8572829]],
                     "elephant_aggression_value": 0.8,
                     "elephant_crop_habituation": True,
-                    "ranger_proximity_threshold": ranger_proximity_threshold,
-                    "cost_ranger_proximity_threshold": cost_ranger_proximity_threshold,
                 }
             
             NUM_STRATEGIC_TRAJECTORIES = 92
@@ -996,7 +994,7 @@ if __name__ == "__main__":
             simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
             
             output_folder = os.path.join(
-                "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-with-intervention-v2/",
+                "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
                 experiment_name,
                 starting_location,
                 elephant_category,

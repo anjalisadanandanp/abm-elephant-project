@@ -883,7 +883,8 @@ if __name__ == "__main__":
     import itertools
     
     parameter_combinations = list(itertools.product(proximity_filter_parameter, cost_function_threshold_parameter))
-
+    
+    
     num_resources_k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     
     for ranger_proximity_threshold, cost_ranger_proximity_threshold in parameter_combinations:

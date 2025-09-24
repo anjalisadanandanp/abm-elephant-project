@@ -385,7 +385,7 @@ class Elephant(GeoAgent):
             if self.target_present == False or (self.target_name and "escaping" not in self.target_name):   
                 # print("setting target for escape")
                 filter = self.return_feasible_direction_to_move_v2()
-                self.target_for_escape_v2(filter)  
+                self.target_for_escape_v1(filter)  
                 self.target_name = "forest:escaping"
 
             else:
@@ -420,7 +420,7 @@ class Elephant(GeoAgent):
         self.strategy_row = i
         self.strategy_col = j
 
-        num_neighbors = 1
+        num_neighbors = 3
 
         #choose neigborhood cells of the current cell
         coverage_matrix = np.array(self.model.COVERAGE_MATRIX)[i-num_neighbors:i+num_neighbors+1,j-num_neighbors:j+num_neighbors+1]
@@ -937,57 +937,8 @@ class Elephant(GeoAgent):
         idx = np.argsort(scores)[::-1]
 
         theta_slope = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
-
         
-
-
-
-        coverage_matrix = np.array(self.model.COVERAGE_MATRIX)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
-
-        direction_0 = coverage_matrix[data == 1]
-        direction_1 = coverage_matrix[data == 2]
-        direction_2 = coverage_matrix[data == 3]
-        direction_3 = coverage_matrix[data == 4]
-        direction_4 = coverage_matrix[data == 5]
-        direction_5 = coverage_matrix[data == 6]
-        direction_6 = coverage_matrix[data == 7]
-        direction_7 = coverage_matrix[data == 8]
-
-        direction_0_low = [1 for x in direction_0.flatten() if x > 0]
-        direction_1_low = [1 for x in direction_1.flatten() if x > 0]
-        direction_2_low = [1 for x in direction_2.flatten() if x > 0]
-        direction_3_low = [1 for x in direction_3.flatten() if x > 0]
-        direction_4_low = [1 for x in direction_4.flatten() if x > 0]
-        direction_5_low = [1 for x in direction_5.flatten() if x > 0]
-        direction_6_low = [1 for x in direction_6.flatten() if x > 0]
-        direction_7_low = [1 for x in direction_7.flatten() if x > 0]
-
-        cost_0_low = sum(x for x in direction_0_low)
-        cost_1_low = sum(x for x in direction_1_low)
-        cost_2_low = sum(x for x in direction_2_low)
-        cost_3_low = sum(x for x in direction_3_low)
-        cost_4_low = sum(x for x in direction_4_low)
-        cost_5_low = sum(x for x in direction_5_low)
-        cost_6_low = sum(x for x in direction_6_low)
-        cost_7_low = sum(x for x in direction_7_low)
-
-        cost_low = [cost_0_low, cost_1_low, cost_2_low, cost_3_low, cost_4_low, cost_5_low, cost_6_low, cost_7_low]
-
-        zero_indices = [i for i, x in enumerate(cost_low) if x == 0]
-        nonzero_indices = [i for i, x in enumerate(cost_low) if x != 0]
-
-        theta_no_coverage = [direction[i] for i in zero_indices]
-
-        set1 = set(theta_slope)
-        set2 = set(theta_no_coverage)
-
-        theta_slope_and_coverage = list(set1.intersection(set2))
-
-        if len(theta_slope_and_coverage) == 0:
-            theta =  [direction[i] for i in nonzero_indices]
-        
-        else:
-            theta = theta_slope_and_coverage
+        theta = theta_slope
 
         #choose a direction to move
         movement_direction = np.random.choice(theta)
@@ -1657,7 +1608,7 @@ class Elephant(GeoAgent):
                     coord_list.append([i, j])
 
         if self.attacked_target_lat is not None and self.attacked_target_lon is not None:
-            print("----moving away from the ranger----")
+            # print("----moving away from the ranger----")
 
             attacked_row = int((self.model.ymax + self.model.yres * 0.5 - self.attacked_target_lat) / self.model.yres)
             attacked_col = int((self.attacked_target_lon - self.model.xmin - self.model.xres * 0.5) / self.model.xres)
@@ -1673,7 +1624,7 @@ class Elephant(GeoAgent):
 
             if farthest_point:
                 x, y = farthest_point[0], farthest_point[1]
-                print("attacked:", attacked_row, attacked_col, "move to:", x, y)
+                # print("attacked:", attacked_row, attacked_col, "move to:", x, y)
             else:
                 x, y = self.ROW, self.COL
         else:
@@ -3149,7 +3100,7 @@ class conflict_model(Model):
     #----------------------------------------------------------------------------------------------------
     def step(self):
 
-        # print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
+        print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
 
         self.update_hourly_temp()
         self.update_season()

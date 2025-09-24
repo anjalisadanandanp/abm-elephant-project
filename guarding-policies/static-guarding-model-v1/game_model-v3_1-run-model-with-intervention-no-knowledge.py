@@ -861,7 +861,7 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
 
 if __name__ == "__main__":
 
-    boundary_raster_discretised = "boundary_raster_discretised_450m"
+    boundary_raster_discretised = "boundary_raster_discretised_600m"
 
     coverage_matrix_path = "guarding-policies/static-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
 

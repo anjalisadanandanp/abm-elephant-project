@@ -934,7 +934,7 @@ if __name__ == "__main__":
                     "num_protected_targets": k
                 }
             
-            NUM_STRATEGIC_TRAJECTORIES = 12
+            NUM_STRATEGIC_TRAJECTORIES = 24
 
             experiment_name = "mitigation-measures-within-plantations"
 

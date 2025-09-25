@@ -38,7 +38,7 @@ plt.rcParams.update(
 import sys
 sys.path.append(os.getcwd())
 
-module = importlib.import_module('guarding-policies.static-guarding-model-v1.abm_model_HEC_with_landscape_deterrent_policies_with_ranger_proximity_learning_model')
+module = importlib.import_module('guarding-policies.dynamic-guarding-model-v1.abm_model_HEC_with_landscape_deterrent_policies_with_ranger_proximity_learning_model')
 batch_run_model = module.batch_run_model
 
 
@@ -200,7 +200,7 @@ def make_trajectory_summary_plots_v1(base_path, output_folder, num_cropraiding_s
                     boundary_patches_guarded = gdal.Open(os.path.join(base_path, simulation_repeats[0], "env", "defender_coverage_matrix.tif")).ReadAsArray()
                     agricultural_plts = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
 
-                    boundary_patches = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
+                    boundary_patches = gdal.Open("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
 
                     boundary_patches_unguarded = boundary_patches - boundary_patches_guarded
 
@@ -416,7 +416,7 @@ def make_trajectory_summary_plots_v2(base_path, output_folder, num_cropraiding_s
                     boundary_patches_guarded = gdal.Open(os.path.join(base_path, simulation_repeats[0], "env", "defender_coverage_matrix.tif")).ReadAsArray()
                     agricultural_plts = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
 
-                    boundary_patches = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
+                    boundary_patches = gdal.Open("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
 
                     boundary_patches_unguarded = boundary_patches - boundary_patches_guarded
 
@@ -651,7 +651,7 @@ def plot_and_save_defender_coverage(coverage_matrix, output_folder, figsize=(8, 
         dpi=300,
     )
 
-    source_file = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif")
+    source_file = gdal.Open("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif")
 
     cols = source_file.RasterXSize
     rows = source_file.RasterYSize
@@ -863,17 +863,17 @@ if __name__ == "__main__":
 
     boundary_raster_discretised = "boundary_raster_discretised_600m"
 
-    coverage_matrix_path = "guarding-policies/static-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
+    coverage_matrix_path = "guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
 
     latlon_extent = (8563700, 1043400, 8574155, 1056000) 
 
-    targets = clip_raster_by_latlon_extent(coverage_matrix_path, "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/", latlon_extent)
+    targets = clip_raster_by_latlon_extent(coverage_matrix_path, "guarding-policies/dynamic-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/", latlon_extent)
 
-    df = pd.read_csv("guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values-v2_4/" + boundary_raster_discretised + "/boundary_patch_reward_penalty_matrix.csv")
+    df = pd.read_csv("guarding-policies/dynamic-guarding-model-v1/find_boundary_patch_reward_penalty_values-v2_4/" + boundary_raster_discretised + "/boundary_patch_reward_penalty_matrix.csv")
 
     sorted_df = df.sort_values(by='reward', ascending=False)
 
-    boundary_patches = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif")
+    boundary_patches = gdal.Open("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif")
 
     filtered_df = sorted_df[sorted_df['boundary_patch_id'].isin(targets)]
 
@@ -996,7 +996,7 @@ if __name__ == "__main__":
             simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
             
             output_folder = os.path.join(
-                "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-with-intervention-v2-partial-knowledge/",
+                "guarding-policies/dynamic-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-with-intervention-v2-partial-knowledge/",
                 experiment_name,
                 starting_location,
                 elephant_category,

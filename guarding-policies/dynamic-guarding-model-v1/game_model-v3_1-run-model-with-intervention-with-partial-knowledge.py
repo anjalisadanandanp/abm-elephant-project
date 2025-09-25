@@ -533,7 +533,7 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
     except:
         pass
 
-    ds = gdal.Open(os.path.join(base_path, simulation_repeats[0], "env", "defender_coverage_matrix.tif"))
+    ds = gdal.Open(os.path.join(base_path, simulation_repeats[0], "env", "LULC.tif"))
 
     data = ds.ReadAsArray()
     data = np.flip(data, axis=0)
@@ -549,7 +549,7 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
 
     map = Basemap(llcrnrlon=LON_MIN,llcrnrlat=LAT_MIN,urcrnrlon=LON_MAX,urcrnrlat=LAT_MAX, epsg=4326, resolution='l')
 
-    raster_to_geojson(os.path.join(base_path, simulation_repeats[0], "env", "defender_coverage_matrix.tif"), os.path.join(output_folder, 'guarded_patches.geojson'))
+    # raster_to_geojson(os.path.join(base_path, simulation_repeats[0], "env", "defender_coverage_matrix.tif"), os.path.join(output_folder, 'guarded_patches.geojson'))
 
     with open('mesageo_elephant_project/elephant_project/geojson_files/landuse_10.geojson', 'r') as f:
         geojson_object = geojson.load(f)
@@ -564,15 +564,15 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
 
         map.plot(lon, lat, marker=None, color='black', linewidth=1, zorder=2)
 
-    with open(os.path.join(output_folder, 'guarded_patches.geojson'), 'r') as f:
-        geojson_object = geojson.load(f)
+    # with open(os.path.join(output_folder, 'guarded_patches.geojson'), 'r') as f:
+    #     geojson_object = geojson.load(f)
 
-    for feature in geojson_object['features']:
-        coords = feature['geometry']['coordinates'][0]
-        coords = [transform(inProj, outProj, lon, lat) for lon, lat in coords]
-        coords = [(lon, lat) for lon, lat in coords]
-        lon, lat = zip(*coords)
-        map.plot(lon, lat, marker=None, color='red', linewidth=2, zorder=3)
+    # for feature in geojson_object['features']:
+    #     coords = feature['geometry']['coordinates'][0]
+    #     coords = [transform(inProj, outProj, lon, lat) for lon, lat in coords]
+    #     coords = [(lon, lat) for lon, lat in coords]
+    #     lon, lat = zip(*coords)
+    #     map.plot(lon, lat, marker=None, color='red', linewidth=2, zorder=3)
 
     map.drawmeridians([LON_MIN,(LON_MIN+LON_MAX)/2-(LON_MAX-LON_MIN)*1/4,(LON_MIN+LON_MAX)/2,(LON_MIN+LON_MAX)/2+(LON_MAX-LON_MIN)*1/4,LON_MAX], labels=[0,1,0,1],)
     map.drawparallels([LAT_MIN,(LAT_MIN+LAT_MAX)/2-(LAT_MAX-LAT_MIN)*1/4,(LAT_MIN+LAT_MAX)/2,(LAT_MIN+LAT_MAX)/2+(LAT_MAX-LAT_MIN)*1/4,LAT_MAX], labels=[1,0,1,0])
@@ -615,7 +615,7 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
 
 def create_defender_coverage_matrix(coverage_matrix_path, targets_to_cover):
 
-    potential_coverage_matrix = gdal.Open(os.path.join(coverage_matrix_path)).ReadAsArray()
+    potential_coverage_matrix = gdal.Open(os.path.join("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif")).ReadAsArray()
     
     coverage_matrix = np.zeros_like(potential_coverage_matrix)
 
@@ -773,8 +773,8 @@ def run_single_play(model_params, experiment_name, output_folder, NUM_STRATEGIC_
 
         damage_values.append(STEP_DAMAGE_VALUE)
 
-        make_trajectory_summary_plots_v1(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)), num_cropraiding_steps = 12)
-        make_trajectory_summary_plots_v2(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)), num_cropraiding_steps = 12)
+        # make_trajectory_summary_plots_v1(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)), num_cropraiding_steps = 12)
+        # make_trajectory_summary_plots_v2(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)), num_cropraiding_steps = 12)
         make_trajectory_summary_plots_v3(os.path.join(output_folder, "game_step_" + str(step)), os.path.join(output_folder, "game_step_" + str(step)))
 
     plt.figure(figsize=(6, 4.8))
@@ -834,15 +834,15 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
     cmap = plt.cm.get_cmap('tab20').copy()
     cmap.set_under('white')
 
-    fig, ax = plt.subplots(figsize=(8, 8))
+    # fig, ax = plt.subplots(figsize=(8, 8))
 
-    cax = ax.imshow(raster_data, cmap=cmap, vmin=0.1, 
-                    extent=(geo_transform[0], geo_transform[0] + x_size * x_res, 
-                            geo_transform[3] + y_size * y_res, geo_transform[3]))
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
+    # cax = ax.imshow(raster_data, cmap=cmap, vmin=0.1, 
+    #                 extent=(geo_transform[0], geo_transform[0] + x_size * x_res, 
+    #                         geo_transform[3] + y_size * y_res, geo_transform[3]))
+    # ax.set_xlabel('Longitude')
+    # ax.set_ylabel('Latitude')
 
-    plt.savefig(os.path.join(output_folder, "targets_to_protect.png"), dpi=600, bbox_inches='tight')
+    # plt.savefig(os.path.join(output_folder, "targets_to_protect.png"), dpi=600, bbox_inches='tight')
 
     return np.unique(raster_data)
 
@@ -889,8 +889,6 @@ if __name__ == "__main__":
     for ranger_proximity_threshold, cost_ranger_proximity_threshold in parameter_combinations:
 
         for k in num_resources_k: 
-            top_k_rows = filtered_df.head(k)
-            targets_to_cover = top_k_rows['boundary_patch_id'].tolist()
 
             model_params = {
                     "year": 2010,
@@ -992,7 +990,7 @@ if __name__ == "__main__":
                 model_params["elephant_aggression_value"]
             )
 
-            target_folder = f"num_protected_targets_" + str(k)
+            target_folder = f"num_protected_targets_" + str(model_params["num_protected_targets"])
 
             simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
             
@@ -1020,10 +1018,6 @@ if __name__ == "__main__":
                 simulation_repeats,
                 boundary_raster_discretised
             )
-
-            coverage_matrix = create_defender_coverage_matrix(coverage_matrix_path, targets_to_cover)
-            
-            plot_and_save_defender_coverage(coverage_matrix, "game_theory_codes/OUR-MODEL/coverage_matrix_init/")
 
             run_single_play(
                 model_params=model_params,

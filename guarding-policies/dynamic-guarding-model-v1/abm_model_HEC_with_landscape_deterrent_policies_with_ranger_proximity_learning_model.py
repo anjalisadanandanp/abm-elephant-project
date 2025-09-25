@@ -2327,7 +2327,9 @@ class conflict_model(Model):
         elephant_crop_habituation,
         ranger_proximity_threshold,
         cost_ranger_proximity_threshold,
-        num_protected_targets
+        num_protected_targets,
+        boundary_raster_discretisation
+                
         ):
 
 
@@ -2384,6 +2386,7 @@ class conflict_model(Model):
         self.ranger_proximity_threshold = ranger_proximity_threshold
         self.cost_ranger_proximity_threshold = cost_ranger_proximity_threshold
         self.num_protected_targets = num_protected_targets
+        self.boundary_raster_discretisation = boundary_raster_discretisation
         #-------------------------------------------------------------------
 
 
@@ -3246,7 +3249,7 @@ class conflict_model(Model):
             return np.unique(raster_data)
 
 
-        boundary_raster_discretised = "boundary_raster_discretised_600m"
+        boundary_raster_discretised = self.boundary_raster_discretisation
         coverage_matrix_path = "guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
         latlon_extent = (8563700, 1043400, 8574155, 1056000) 
         targets = clip_raster_by_latlon_extent(coverage_matrix_path, "guarding-policies/dynamic-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/", latlon_extent)

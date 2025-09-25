@@ -933,7 +933,8 @@ if __name__ == "__main__":
                     "elephant_crop_habituation": True,
                     "ranger_proximity_threshold": ranger_proximity_threshold,
                     "cost_ranger_proximity_threshold": cost_ranger_proximity_threshold,
-                    "num_protected_targets": k
+                    "num_protected_targets": k,
+                    "boundary_raster_discretisation": boundary_raster_discretised
                 }
             
             NUM_STRATEGIC_TRAJECTORIES = 92

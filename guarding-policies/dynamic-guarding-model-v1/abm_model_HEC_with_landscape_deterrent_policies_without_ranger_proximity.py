@@ -2239,6 +2239,8 @@ class conflict_model(Model):
         elephant_starting_longitude,                #starting longitude of the elephant agents
         elephant_aggression_value,                  #aggression value of the elephant agents
         elephant_crop_habituation,                  #elephant crop habituation value
+        ranger_proximity_threshold,
+        cost_ranger_proximity_threshold,
         num_protected_targets
         ):
 
@@ -2293,6 +2295,8 @@ class conflict_model(Model):
         self.elephant_aggression_value = elephant_aggression_value
         self.elephant_crop_habituation = elephant_crop_habituation
 
+        self.ranger_proximity_threshold = ranger_proximity_threshold
+        self.cost_ranger_proximity_threshold = cost_ranger_proximity_threshold
         self.num_protected_targets = num_protected_targets
         #-------------------------------------------------------------------
 

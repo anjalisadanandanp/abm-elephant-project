@@ -914,7 +914,7 @@ if __name__ == "__main__":
                     "radius_forest_search": 1500,
                     "fitness_threshold": 0.4,
                     "terrain_radius": 750,
-                    "slope_tolerance": 35,
+                    "slope_tolerance": 30,
                     "num_processes": 46,
                     "iterations": 46,
                     "max_time_steps": 288 * 30,

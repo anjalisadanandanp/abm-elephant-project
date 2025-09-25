@@ -862,7 +862,7 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
 if __name__ == "__main__":
     
 
-    boundary_raster_discretised = "boundary_raster_discretised_600m"
+    boundary_raster_discretised = "boundary_raster_discretised_750m"
     
     coverage_matrix_path = "guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
 
@@ -886,7 +886,7 @@ if __name__ == "__main__":
     parameter_combinations = list(itertools.product(proximity_filter_parameter, cost_function_threshold_parameter))
 
 
-    num_resources_k = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    num_resources_k = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     
     for ranger_proximity_threshold, cost_ranger_proximity_threshold in parameter_combinations:
 
@@ -915,8 +915,8 @@ if __name__ == "__main__":
                     "fitness_threshold": 0.4,
                     "terrain_radius": 750,
                     "slope_tolerance": 35,
-                    "num_processes": 7,
-                    "iterations": 7,
+                    "num_processes": 46,
+                    "iterations": 46,
                     "max_time_steps": 288 * 30,
                     "aggression_threshold_enter_cropland": 1.0,
                     "human_habituation_tolerance": 1.0,

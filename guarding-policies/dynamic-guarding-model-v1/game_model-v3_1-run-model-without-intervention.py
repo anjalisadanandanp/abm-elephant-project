@@ -837,8 +837,8 @@ if __name__ == "__main__":
             "fitness_threshold": 0.4,
             "terrain_radius": 750,
             "slope_tolerance": 35,
-            "num_processes": 46,
-            "iterations": 46,
+            "num_processes": 12,
+            "iterations": 12,
             "max_time_steps": 288 * 30,
             "aggression_threshold_enter_cropland": 1.0,
             "human_habituation_tolerance": 1.0,
@@ -857,7 +857,7 @@ if __name__ == "__main__":
             "cost_ranger_proximity_threshold": None,
         }
     
-    NUM_STRATEGIC_TRAJECTORIES = 92
+    NUM_STRATEGIC_TRAJECTORIES = 12
 
     experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
 

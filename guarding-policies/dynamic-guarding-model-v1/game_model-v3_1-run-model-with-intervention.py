@@ -834,15 +834,15 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
     cmap = plt.cm.get_cmap('tab20').copy()
     cmap.set_under('white')
 
-    fig, ax = plt.subplots(figsize=(8, 8))
+    # fig, ax = plt.subplots(figsize=(8, 8))
 
-    cax = ax.imshow(raster_data, cmap=cmap, vmin=0.1, 
-                    extent=(geo_transform[0], geo_transform[0] + x_size * x_res, 
-                            geo_transform[3] + y_size * y_res, geo_transform[3]))
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
+    # cax = ax.imshow(raster_data, cmap=cmap, vmin=0.1, 
+    #                 extent=(geo_transform[0], geo_transform[0] + x_size * x_res, 
+    #                         geo_transform[3] + y_size * y_res, geo_transform[3]))
+    # ax.set_xlabel('Longitude')
+    # ax.set_ylabel('Latitude')
 
-    plt.savefig(os.path.join(output_folder, "targets_to_protect.png"), dpi=600, bbox_inches='tight')
+    # plt.savefig(os.path.join(output_folder, "targets_to_protect.png"), dpi=600, bbox_inches='tight')
 
     return np.unique(raster_data)
 

@@ -38,7 +38,7 @@ plt.rcParams.update(
 import sys
 sys.path.append(os.getcwd())
 
-module = importlib.import_module('guarding-policies.dynamic-guarding-model-v1.abm_model_HEC_with_landscape_deterrent_policies_with_ranger_proximity')
+module = importlib.import_module('guarding-policies.static-guarding-model-v1.abm_model_HEC_with_landscape_deterrent_policies_with_ranger_proximity_learning_model')
 batch_run_model = module.batch_run_model
 
 
@@ -200,7 +200,7 @@ def make_trajectory_summary_plots_v1(base_path, output_folder, num_cropraiding_s
                     boundary_patches_guarded = gdal.Open(os.path.join(base_path, simulation_repeats[0], "env", "defender_coverage_matrix.tif")).ReadAsArray()
                     agricultural_plts = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
 
-                    boundary_patches = gdal.Open("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
+                    boundary_patches = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
 
                     boundary_patches_unguarded = boundary_patches - boundary_patches_guarded
 
@@ -416,7 +416,7 @@ def make_trajectory_summary_plots_v2(base_path, output_folder, num_cropraiding_s
                     boundary_patches_guarded = gdal.Open(os.path.join(base_path, simulation_repeats[0], "env", "defender_coverage_matrix.tif")).ReadAsArray()
                     agricultural_plts = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
 
-                    boundary_patches = gdal.Open("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
+                    boundary_patches = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif").ReadAsArray()
 
                     boundary_patches_unguarded = boundary_patches - boundary_patches_guarded
 
@@ -613,9 +613,9 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
 
     return
 
-def create_defender_coverage_matrix(targets_to_cover):
+def create_defender_coverage_matrix(coverage_matrix_path, targets_to_cover):
 
-    potential_coverage_matrix = gdal.Open(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
+    potential_coverage_matrix = gdal.Open(os.path.join(coverage_matrix_path)).ReadAsArray()
     
     coverage_matrix = np.zeros_like(potential_coverage_matrix)
 
@@ -623,7 +623,7 @@ def create_defender_coverage_matrix(targets_to_cover):
 
     for target_id in target_ids:
         mask = potential_coverage_matrix == target_id
-        coverage_matrix[mask] = target_id
+        coverage_matrix[mask] = 1
 
     return coverage_matrix
 
@@ -651,7 +651,7 @@ def plot_and_save_defender_coverage(coverage_matrix, output_folder, figsize=(8, 
         dpi=300,
     )
 
-    source_file = gdal.Open("game_theory_codes/OUR-MODEL/coverage_matrix_init/potential_coverage_matrix.tif")
+    source_file = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix/boundary_raster_discretised.tif")
 
     cols = source_file.RasterXSize
     rows = source_file.RasterYSize
@@ -675,7 +675,6 @@ def plot_and_save_defender_coverage(coverage_matrix, output_folder, figsize=(8, 
     return 
 
 def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTORIES):
-
 
 
 
@@ -712,7 +711,6 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
 
 
 
-
     TOTAL_DAMAGE_VALUE = 0
     num_simulation_repeats = 0
 
@@ -744,14 +742,14 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
                     if value == 2:
                         target_values_under_attack.append(food_matrix[r,c])
 
-            fig, ax = plt.subplots(figsize=(6,6))
-            im = ax.imshow(agent_locations_matrix, cmap='viridis')
-            fig.colorbar(im, ax=ax, label='Agent Locations (1 = agent present)', shrink=0.5)
-            ax.set_title(f'{simulation_folder}')
-            ax.set_xticks([])
-            ax.set_yticks([])
-            plt.savefig(os.path.join(output_folder, f"{simulation_folder}.png"), bbox_inches="tight", dpi=300)
-            plt.close()
+            # fig, ax = plt.subplots(figsize=(6,6))
+            # im = ax.imshow(agent_locations_matrix, cmap='viridis')
+            # fig.colorbar(im, ax=ax, label='Agent Locations (1 = agent present)', shrink=0.5)
+            # ax.set_title(f'{simulation_folder}')
+            # ax.set_xticks([])
+            # ax.set_yticks([])
+            # plt.savefig(os.path.join(output_folder, f"{simulation_folder}.png"), bbox_inches="tight", dpi=300)
+            # plt.close()
 
             num_simulation_repeats += 1
 
@@ -799,6 +797,55 @@ def run_single_play(model_params, experiment_name, output_folder, NUM_STRATEGIC_
 
     return  
 
+def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
+
+    try:
+        source_ds = gdal.Open(input_file, gdal.GA_Update)
+        if source_ds is None:
+            print("Error: Could not open the input file.")
+            return
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return
+    
+    geo_transform = source_ds.GetGeoTransform()
+    x_size = source_ds.RasterXSize
+    y_size = source_ds.RasterYSize
+
+    band = source_ds.GetRasterBand(1)
+    raster_data = band.ReadAsArray()
+
+    lon_min, lat_min, lon_max, lat_max = latlon_extent
+
+    x_res = geo_transform[1]
+    y_res = geo_transform[5] 
+
+    x_coords = np.arange(x_size) * x_res + geo_transform[0]
+    y_coords = np.arange(y_size) * y_res + geo_transform[3]
+
+    x_out_of_bounds = (x_coords < lon_min) | (x_coords > lon_max)
+    y_out_of_bounds = (y_coords < lat_min) | (y_coords > lat_max)
+
+    x_mask, y_mask = np.meshgrid(x_out_of_bounds, y_out_of_bounds)
+    out_of_bounds_mask = x_mask | y_mask
+
+    raster_data[out_of_bounds_mask] = 0
+
+    cmap = plt.cm.get_cmap('tab20').copy()
+    cmap.set_under('white')
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+
+    cax = ax.imshow(raster_data, cmap=cmap, vmin=0.1, 
+                    extent=(geo_transform[0], geo_transform[0] + x_size * x_res, 
+                            geo_transform[3] + y_size * y_res, geo_transform[3]))
+    ax.set_xlabel('Longitude')
+    ax.set_ylabel('Latitude')
+
+    plt.savefig(os.path.join(output_folder, "targets_to_protect.png"), dpi=600, bbox_inches='tight')
+
+    return np.unique(raster_data)
+
 
 
 
@@ -814,143 +861,173 @@ def run_single_play(model_params, experiment_name, output_folder, NUM_STRATEGIC_
 
 if __name__ == "__main__":
 
-    model_params = {
-            "year": 2010,
-            "month": "Mar",
-            "num_bull_elephants": 1,
-            "area_size": 1100,
-            "spatial_resolution": 30,
-            "max_food_val_cropland": 100,
-            "max_food_val_forest": 25,
-            "prob_food_forest": 0.10,
-            "prob_food_cropland": 1.0,
-            "prob_water_sources": 0.05,
-            "thermoregulation_threshold": 28,
-            "num_days_agent_survives_in_deprivation": 10,
-            "knowledge_from_fringe": 1500,
-            "prob_crop_damage": 0.05,
-            "prob_infrastructure_damage": 0.01,
-            "percent_memory_elephant": 0.375,
-            "radius_food_search": 750,
-            "radius_water_search": 750,
-            "radius_forest_search": 1500,
-            "fitness_threshold": 0.4,
-            "terrain_radius": 750,
-            "slope_tolerance": 35,
-            "num_processes": 12,
-            "iterations": 12,
-            "max_time_steps": 288 * 30,
-            "aggression_threshold_enter_cropland": 1.0,
-            "human_habituation_tolerance": 1.0,
-            "elephant_agent_visibility_radius": 500,
-            "plot_stepwise_target_selection": False,
-            "threshold_days_of_food_deprivation": 0,
-            "threshold_days_of_water_deprivation": 3,
-            "number_of_feasible_movement_directions": 4,
-            "track_in_mlflow": False,
-            "elephant_starting_location": "user_input",
-            "elephant_starting_latitude": [[1052166]],
-            "elephant_starting_longitude": [[8572829]],
-            "elephant_aggression_value": 0.8,
-            "elephant_crop_habituation": True,
-            "ranger_proximity_threshold": None,
-            "cost_ranger_proximity_threshold": None,
-        }
+    boundary_raster_discretised = "boundary_raster_discretised_600m"
+
+    coverage_matrix_path = "guarding-policies/static-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
+
+    latlon_extent = (8563700, 1043400, 8574155, 1056000) 
+
+    targets = clip_raster_by_latlon_extent(coverage_matrix_path, "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/", latlon_extent)
+
+    df = pd.read_csv("guarding-policies/static-guarding-model-v1/find_boundary_patch_reward_penalty_values-v2_4/" + boundary_raster_discretised + "/boundary_patch_reward_penalty_matrix.csv")
+
+    sorted_df = df.sort_values(by='reward', ascending=False)
+
+    boundary_patches = gdal.Open("guarding-policies/static-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif")
+
+    filtered_df = sorted_df[sorted_df['boundary_patch_id'].isin(targets)]
+
+    proximity_filter_parameter = [0.999]
+    cost_function_threshold_parameter = [0]
     
-    NUM_STRATEGIC_TRAJECTORIES = 12
-
-    experiment_name = "mitigation-measures-within-plantations-FPL-UE_v3_1"
-
-    elephant_category = "solitary_bulls"
-
-    starting_location = (
-        "latitude-"
-        + str(model_params["elephant_starting_latitude"])
-        + "-longitude-"
-        + str(model_params["elephant_starting_longitude"])
-    )
-
-    landscape_food_probability = (
-        "landscape-food-probability-forest-"
-        + str(model_params["prob_food_forest"])
-        + "-cropland-"
-        + str(model_params["prob_food_cropland"])
-    )
-
-    food_availability_sceanario = "random-food-distribition-within-agricultural-plots-and-other-plantation-cells"
-
-    water_availability_sceanario = "water-source-rivers-landscape-" + str(model_params["prob_water_sources"])
-
-    food_memory_matrix_type = "random-memory-forest-and_plantation-fringe-model"
+    import itertools
     
-    water_memory_matrix_type = "full-memory-forest-and_plantation-model"
+    parameter_combinations = list(itertools.product(proximity_filter_parameter, cost_function_threshold_parameter))
 
-    num_days_agent_survives_in_deprivation = (
-        "num_days_agent_survives_in_deprivation-"
-        + str(model_params["num_days_agent_survives_in_deprivation"])
-    )
-
-    maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(
-        model_params["max_food_val_forest"]
-    )
-
-    elephant_thermoregulation_threshold = (
-        "thermoregulation-threshold-temperature-"
-        + str(model_params["thermoregulation_threshold"])
-    )
-
-    threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(
-        model_params["threshold_days_of_food_deprivation"]
-    )
-
-    threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(
-        model_params["threshold_days_of_water_deprivation"]
-    )
-
-    slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
-
-    elephant_aggression_value = "elephant_aggression_value_" + str(
-        model_params["elephant_aggression_value"]
-    )
-
-    targets_to_cover = [0]
-
-    target_folder = f"protected_targets_{'_'.join(map(str, targets_to_cover))}"
-
-    simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
-
-    output_folder = os.path.join(
-        "guarding-policies/dynamic-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-without-intervention/",
-        experiment_name,
-        starting_location,
-        elephant_category,
-        food_availability_sceanario,
-        landscape_food_probability,
-        water_availability_sceanario,
-        food_memory_matrix_type,
-        water_memory_matrix_type,
-        num_days_agent_survives_in_deprivation,
-        maximum_food_in_a_forest_cell,
-        elephant_thermoregulation_threshold,
-        threshold_food_derivation_days,
-        threshold_water_derivation_days,
-        slope_tolerance,
-        num_days_agent_survives_in_deprivation,
-        elephant_aggression_value,
-        str(model_params["year"]),
-        str(model_params["month"]),
-        target_folder,
-        simulation_repeats
-    )
-
-    coverage_matrix = create_defender_coverage_matrix(targets_to_cover)
+    num_resources_k = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     
-    plot_and_save_defender_coverage(coverage_matrix, "game_theory_codes/OUR-MODEL/coverage_matrix_init/")
+    for ranger_proximity_threshold, cost_ranger_proximity_threshold in parameter_combinations:
 
-    run_single_play(
-        model_params=model_params,
-        experiment_name=experiment_name,
-        output_folder=output_folder,
-        NUM_STRATEGIC_TRAJECTORIES=NUM_STRATEGIC_TRAJECTORIES,
-        NUM_GAME_STEPS = 1
-    )
+        for k in num_resources_k: 
+            top_k_rows = filtered_df.head(k)
+            targets_to_cover = top_k_rows['boundary_patch_id'].tolist()
+
+            model_params = {
+                    "year": 2010,
+                    "month": "Mar",
+                    "num_bull_elephants": 1,
+                    "area_size": 1100,
+                    "spatial_resolution": 30,
+                    "max_food_val_cropland": 100,
+                    "max_food_val_forest": 25,
+                    "prob_food_forest": 0.10,
+                    "prob_food_cropland": 1.0,
+                    "prob_water_sources": 0.05,
+                    "thermoregulation_threshold": 28,
+                    "num_days_agent_survives_in_deprivation": 10,
+                    "knowledge_from_fringe": 1500,
+                    "prob_crop_damage": 0.05,
+                    "prob_infrastructure_damage": 0.01,
+                    "percent_memory_elephant": 0.375,
+                    "radius_food_search": 750,
+                    "radius_water_search": 750,
+                    "radius_forest_search": 1500,
+                    "fitness_threshold": 0.4,
+                    "terrain_radius": 750,
+                    "slope_tolerance": 30,
+                    "num_processes": 12,
+                    "iterations": 12,
+                    "max_time_steps": 288 * 30,
+                    "aggression_threshold_enter_cropland": 1.0,
+                    "human_habituation_tolerance": 1.0,
+                    "elephant_agent_visibility_radius": 500,
+                    "plot_stepwise_target_selection": False,
+                    "threshold_days_of_food_deprivation": 0,
+                    "threshold_days_of_water_deprivation": 3,
+                    "number_of_feasible_movement_directions": 4,
+                    "track_in_mlflow": False,
+                    "elephant_starting_location": "user_input",
+                    "elephant_starting_latitude": [[1052166]],
+                    "elephant_starting_longitude": [[8572829]],
+                    "elephant_aggression_value": 0.8,
+                    "elephant_crop_habituation": True,
+                    "ranger_proximity_threshold": ranger_proximity_threshold,
+                    "cost_ranger_proximity_threshold": cost_ranger_proximity_threshold
+                }
+            
+            NUM_STRATEGIC_TRAJECTORIES = 12
+
+            experiment_name = "mitigation-measures-within-plantations"
+
+            elephant_category = "solitary_bulls"
+
+            starting_location = (
+                "latitude-"
+                + str(model_params["elephant_starting_latitude"])
+                + "-longitude-"
+                + str(model_params["elephant_starting_longitude"])
+            )
+
+            landscape_food_probability = (
+                "landscape-food-probability-forest-"
+                + str(model_params["prob_food_forest"])
+                + "-cropland-"
+                + str(model_params["prob_food_cropland"])
+            )
+
+            food_availability_sceanario = "random-food-distribition-within-agricultural-plots"
+
+            water_availability_sceanario = "water-source-rivers-landscape-" + str(model_params["prob_water_sources"])
+
+            food_memory_matrix_type = "random-memory-forest-and_plantation-fringe-model"
+            
+            water_memory_matrix_type = "full-memory-forest-and_plantation-model"
+
+            num_days_agent_survives_in_deprivation = (
+                "num_days_agent_survives_in_deprivation-"
+                + str(model_params["num_days_agent_survives_in_deprivation"])
+            )
+
+            maximum_food_in_a_forest_cell = "maximum-food-in-a-forest-cell-" + str(
+                model_params["max_food_val_forest"]
+            )
+
+            elephant_thermoregulation_threshold = (
+                "thermoregulation-threshold-temperature-"
+                + str(model_params["thermoregulation_threshold"])
+            )
+
+            threshold_food_derivation_days = "threshold_days_of_food_deprivation-" + str(
+                model_params["threshold_days_of_food_deprivation"]
+            )
+
+            threshold_water_derivation_days = "threshold_days_of_water_deprivation-" + str(
+                model_params["threshold_days_of_water_deprivation"]
+            )
+
+            slope_tolerance = "slope_tolerance-" + str(model_params["slope_tolerance"])
+
+            elephant_aggression_value = "elephant_aggression_value_" + str(
+                model_params["elephant_aggression_value"]
+            )
+
+            target_folder = f"num_protected_targets_" + str(k)
+
+            simulation_repeats = f'num_strategic_traj_{NUM_STRATEGIC_TRAJECTORIES}_num_iterations_{model_params["iterations"]}'
+            
+            output_folder = os.path.join(
+                "guarding-policies/static-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/game_model-v3_1-run-model-with-intervention-v2-partial-knowledge/",
+                experiment_name,
+                starting_location,
+                elephant_category,
+                food_availability_sceanario,
+                landscape_food_probability,
+                water_availability_sceanario,
+                food_memory_matrix_type,
+                water_memory_matrix_type,
+                num_days_agent_survives_in_deprivation,
+                maximum_food_in_a_forest_cell,
+                elephant_thermoregulation_threshold,
+                threshold_food_derivation_days,
+                threshold_water_derivation_days,
+                slope_tolerance,
+                num_days_agent_survives_in_deprivation,
+                elephant_aggression_value,
+                str(model_params["year"]),
+                str(model_params["month"]),
+                target_folder,
+                simulation_repeats,
+                boundary_raster_discretised
+            )
+
+            coverage_matrix = create_defender_coverage_matrix(coverage_matrix_path, targets_to_cover)
+            
+            plot_and_save_defender_coverage(coverage_matrix, "game_theory_codes/OUR-MODEL/coverage_matrix_init/")
+
+            run_single_play(
+                model_params=model_params,
+                experiment_name=experiment_name,
+                output_folder=output_folder,
+                NUM_STRATEGIC_TRAJECTORIES=NUM_STRATEGIC_TRAJECTORIES,
+                NUM_GAME_STEPS = 1
+            )

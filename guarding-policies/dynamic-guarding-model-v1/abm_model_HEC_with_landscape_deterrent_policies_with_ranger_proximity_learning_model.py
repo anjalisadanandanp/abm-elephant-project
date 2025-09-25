@@ -117,7 +117,17 @@ class Elephant(GeoAgent):
 
         self.proximity_to_water_sources = self.model.calculate_proximity_map(landscape_matrix=self.water_memory_cells, target_class=1, name="water_sources")
         self.proximity_to_food_sources = self.model.calculate_proximity_map(landscape_matrix=self.food_memory_cells, target_class=1, name="food_sources")
+        
+        self.proximity_to_rangers = np.zeros_like(self.model.COVERAGE_MATRIX)
 
+        source = os.path.join(self.model.folder_root, "env", "DEM.tif")
+        with rio.open(source) as src:
+            ras_meta = src.profile
+
+        loc = os.path.join(self.model.folder_root, "env", "proximity_to_rangers_" + self.unique_id + "_.tif")
+        with rio.open(loc, 'w', **ras_meta) as dst:
+            dst.write(self.proximity_to_rangers, 1)
+        
         self.crop_damage_matrix = np.zeros_like(self.model.LANDUSE)
         self.infrastructure_damage_matrix = np.zeros_like(self.model.LANDUSE)
 
@@ -425,7 +435,10 @@ class Elephant(GeoAgent):
         #choose neigborhood cells of the current cell
         coverage_matrix = np.array(self.model.COVERAGE_MATRIX)[i-num_neighbors:i+num_neighbors+1,j-num_neighbors:j+num_neighbors+1]
 
-        if np.any(coverage_matrix > 0):    
+        if np.any(coverage_matrix > 0):  
+              
+            print("updating the memory of ranger proximity for elephant:", self.unique_id, "at day:", self.model.model_day)
+            
             self.danger_to_life = True
             self.conflict_with_humans = True 
             attacked_targets = np.unique(coverage_matrix)
@@ -451,7 +464,18 @@ class Elephant(GeoAgent):
             
             # self.target_attacked = self.model.COVERAGE_MATRIX[i][j] 
             self.target_attacked = attacked_targets[0] 
-            return  
+            
+            self.proximity_to_rangers[i-num_neighbors:i+num_neighbors+1, j-num_neighbors:j+num_neighbors+1] = coverage_matrix
+
+            source = os.path.join(self.model.folder_root, "env", "DEM.tif")
+            with rio.open(source) as src:
+                ras_meta = src.profile
+                
+            loc = os.path.join(self.model.folder_root, "env", "proximity_to_rangers_" + self.unique_id + "_day_" + str(self.model.model_day) + "_.tif")
+            with rio.open(loc, 'w', **ras_meta) as dst:
+                dst.write(self.proximity_to_rangers, 1)
+            
+            return
 
         else:
             self.danger_to_life = False   
@@ -937,12 +961,74 @@ class Elephant(GeoAgent):
         idx = np.argsort(scores)[::-1]
 
         theta_slope = [direction[i] for i in idx[0:self.model.number_of_feasible_movement_directions]]
+
         
+
+        if self.model.ranger_proximity_threshold != None:
+
+            coverage_matrix = np.array(self.proximity_to_rangers)[self.ROW - radius//2:self.ROW + radius//2 + 1, self.COL - radius//2:self.COL + radius//2 + 1]
+            
+            if np.any(coverage_matrix > self.model.ranger_proximity_threshold):
+            
+                direction_0 = coverage_matrix[data == 1]
+                direction_1 = coverage_matrix[data == 2]
+                direction_2 = coverage_matrix[data == 3]
+                direction_3 = coverage_matrix[data == 4]
+                direction_4 = coverage_matrix[data == 5]
+                direction_5 = coverage_matrix[data == 6]
+                direction_6 = coverage_matrix[data == 7]
+                direction_7 = coverage_matrix[data == 8]
+
+                direction_0_low = [x for x in direction_0.flatten() if x >= self.model.ranger_proximity_threshold]
+                direction_1_low = [x for x in direction_1.flatten() if x >= self.model.ranger_proximity_threshold]
+                direction_2_low = [x for x in direction_2.flatten() if x >= self.model.ranger_proximity_threshold]
+                direction_3_low = [x for x in direction_3.flatten() if x >= self.model.ranger_proximity_threshold]
+                direction_4_low = [x for x in direction_4.flatten() if x >= self.model.ranger_proximity_threshold]
+                direction_5_low = [x for x in direction_5.flatten() if x >= self.model.ranger_proximity_threshold]
+                direction_6_low = [x for x in direction_6.flatten() if x >= self.model.ranger_proximity_threshold]
+                direction_7_low = [x for x in direction_7.flatten() if x >= self.model.ranger_proximity_threshold]
+
+                cost_0 = sum(x for x in direction_0_low)
+                cost_1 = sum(x for x in direction_1_low)
+                cost_2 = sum(x for x in direction_2_low)
+                cost_3 = sum(x for x in direction_3_low)
+                cost_4 = sum(x for x in direction_4_low)
+                cost_5 = sum(x for x in direction_5_low)
+                cost_6 = sum(x for x in direction_6_low)
+                cost_7 = sum(x for x in direction_7_low)
+
+                cost_low = [cost_0, cost_1, cost_2, cost_3, cost_4, cost_5, cost_6, cost_7]
+                direction = [135, 90, 45, 0, 315, 270, 225, 180]
+                
+                okay_directions = [remaining_directions for remaining_directions, remaining_costs in zip(direction,cost_low) if remaining_costs < self.model.cost_ranger_proximity_threshold]
+                
+                # lists_to_shuffle = list(zip(direction, cost_low))
+                # sorted_list = sorted(lists_to_shuffle, key=lambda item: item[1])
+                # directions_to_remove = sorted_list[:self.model.number_of_feasible_movement_directions]
+                # remaining_directions, remaining_costs = zip(*directions_to_remove)
+                # remaining_directions = list(remaining_directions)
+                # remaining_costs = list(remaining_costs)
+                # print("removing directions leading to rangers:", remaining_directions, remaining_costs)
+                
+                theta_slope = [item for item in theta_slope if item in okay_directions]
+                # print("slope direction v1:", theta_slope)
+                
+            else:
+                pass
+            
+            if theta_slope == []:
+                okay_directions = [remaining_directions for remaining_directions, remaining_costs in zip(direction, cost_low) if remaining_costs == np.min(cost_low)]
+                # print("slope direction v2:", okay_directions)
+                theta_slope = okay_directions
+
+        else:
+            pass
+                
         theta = theta_slope
 
         #choose a direction to move
         movement_direction = np.random.choice(theta)
-
+        
         if movement_direction == 135:
             #create an array with 0 when data array != 1
             filter = np.zeros_like(data)
@@ -2238,8 +2324,9 @@ class conflict_model(Model):
         elephant_starting_latitude,                 #starting latitude of the elephant agents
         elephant_starting_longitude,                #starting longitude of the elephant agents
         elephant_aggression_value,                  #aggression value of the elephant agents
-        elephant_crop_habituation,                  #elephant crop habituation value
-        num_protected_targets
+        elephant_crop_habituation,
+        ranger_proximity_threshold,
+        cost_ranger_proximity_threshold 
         ):
 
 
@@ -2293,7 +2380,8 @@ class conflict_model(Model):
         self.elephant_aggression_value = elephant_aggression_value
         self.elephant_crop_habituation = elephant_crop_habituation
 
-        self.num_protected_targets = num_protected_targets
+        self.ranger_proximity_threshold = ranger_proximity_threshold
+        self.cost_ranger_proximity_threshold = cost_ranger_proximity_threshold
         #-------------------------------------------------------------------
 
 
@@ -2352,7 +2440,7 @@ class conflict_model(Model):
         shutil.copy(os.path.join(env_folder_seethathode, "DEM.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "LULC.tif"), os.path.join(self.folder_root, "env"))
         shutil.copy(os.path.join(env_folder_seethathode, "population.tif"), os.path.join(self.folder_root, "env"))
-        # shutil.copy(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/defender_coverage_matrix.tif"), os.path.join(self.folder_root, "env"))
+        shutil.copy(os.path.join("game_theory_codes/OUR-MODEL/coverage_matrix_init/defender_coverage_matrix.tif"), os.path.join(self.folder_root, "env"))
 
 
 
@@ -2363,9 +2451,7 @@ class conflict_model(Model):
         self.WATER = self.WATER_MATRIX()
         self.LANDSCAPE_STATUS = self.LANDSCAPE_CELL_STATUS()
         self.AGRICULTURAL_PLOTS, self.INFRASTRUCTURE_MATRIX = self.PROPERTY_MATRIX()
-
-        self.model_day = 0
-        self.update_defender_coverage_matrix()
+        self.COVERAGE_MATRIX = self.COVERAGE_MATRIX()
         #-------------------------------------------------------------------
 
 
@@ -2670,10 +2756,10 @@ class conflict_model(Model):
         WATER = gdal.Open(fid).ReadAsArray()  
         return WATER.tolist() 
     #-----------------------------------------------------------------------------------------------------
-    def coverage_matrix(self):
+    def COVERAGE_MATRIX(self):
         """ Returns the water matrix model of the study area"""
         
-        fid = os.path.join(self.folder_root , "env", "defender_coverage_matrix_" + str(self.model_day) + ".tif")
+        fid = os.path.join(self.folder_root , "env", "defender_coverage_matrix.tif")
         coverage_matrix = gdal.Open(fid).ReadAsArray()  
 
         geotransform = gdal.Open(fid).GetGeoTransform()
@@ -3103,143 +3189,9 @@ class conflict_model(Model):
 
         return  
     #----------------------------------------------------------------------------------------------------
-    def update_defender_coverage_matrix(self):
-
-
-        def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
-
-            try:
-                source_ds = gdal.Open(input_file, gdal.GA_Update)
-                if source_ds is None:
-                    print("Error: Could not open the input file.")
-                    return
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                return
-            
-            geo_transform = source_ds.GetGeoTransform()
-            x_size = source_ds.RasterXSize
-            y_size = source_ds.RasterYSize
-
-            band = source_ds.GetRasterBand(1)
-            raster_data = band.ReadAsArray()
-
-            lon_min, lat_min, lon_max, lat_max = latlon_extent
-
-            x_res = geo_transform[1]
-            y_res = geo_transform[5] 
-
-            x_coords = np.arange(x_size) * x_res + geo_transform[0]
-            y_coords = np.arange(y_size) * y_res + geo_transform[3]
-
-            x_out_of_bounds = (x_coords < lon_min) | (x_coords > lon_max)
-            y_out_of_bounds = (y_coords < lat_min) | (y_coords > lat_max)
-
-            x_mask, y_mask = np.meshgrid(x_out_of_bounds, y_out_of_bounds)
-            out_of_bounds_mask = x_mask | y_mask
-
-            raster_data[out_of_bounds_mask] = 0
-
-            cmap = plt.cm.get_cmap('tab20').copy()
-            cmap.set_under('white')
-
-            fig, ax = plt.subplots(figsize=(8, 8))
-
-            cax = ax.imshow(raster_data, cmap=cmap, vmin=0.1, 
-                            extent=(geo_transform[0], geo_transform[0] + x_size * x_res, 
-                                    geo_transform[3] + y_size * y_res, geo_transform[3]))
-            ax.set_xlabel('Longitude')
-            ax.set_ylabel('Latitude')
-
-            plt.savefig(os.path.join(output_folder, "targets_to_protect.png"), dpi=600, bbox_inches='tight')
-
-            return np.unique(raster_data)
-
-
-        boundary_raster_discretised = "boundary_raster_discretised_600m"
-        coverage_matrix_path = "guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif"
-        latlon_extent = (8563700, 1043400, 8574155, 1056000) 
-        targets = clip_raster_by_latlon_extent(coverage_matrix_path, "guarding-policies/dynamic-guarding-model-v1/model-runs/exploratory_search_on_evading_trajectories/", latlon_extent)
-        df = pd.read_csv("guarding-policies/dynamic-guarding-model-v1/find_boundary_patch_reward_penalty_values-v2_4/" + boundary_raster_discretised + "/boundary_patch_reward_penalty_matrix.csv")
-        sorted_df = df.sort_values(by='reward', ascending=False)
-        boundary_patches = gdal.Open("guarding-policies/dynamic-guarding-model-v1/create-strategy-matrix-v2/" + boundary_raster_discretised + "/boundary_raster_discretised.tif")
-        filtered_df = sorted_df[sorted_df['boundary_patch_id'].isin(targets)]
-        top_k_rows = filtered_df.head(self.num_protected_targets+5)
-        top_k_rows['probability'] = top_k_rows['reward'] / top_k_rows['reward'].sum()
-        
-        targets_to_cover = np.random.choice(
-            top_k_rows['boundary_patch_id'],
-            size=self.num_protected_targets,
-            p=top_k_rows['probability'],
-            replace=False
-        ).tolist()
-
-
-        potential_coverage_matrix = gdal.Open(coverage_matrix_path).ReadAsArray()
-        
-        coverage_matrix = np.zeros_like(potential_coverage_matrix)
-
-        target_ids = [value for index, value in enumerate(targets_to_cover) if value != 0]
-
-        for target_id in target_ids:
-            mask = potential_coverage_matrix == target_id
-            coverage_matrix[mask] = 1
-
-        fig, ax = plt.subplots(figsize=(8,8))
-        
-        cmap = mcolors.ListedColormap(["white", "red"])
-        
-        im = ax.imshow(coverage_matrix, cmap=cmap, vmin=0, vmax=1)
-        
-        ax.set_xticks([])
-        ax.set_yticks([])
-
-        from matplotlib.patches import Patch
-
-        legend_elements = [
-            Patch(facecolor="red", edgecolor='black', label='Protected'),
-            Patch(facecolor="white", edgecolor='black', label='Unprotected')
-        ]
-        ax.legend(handles=legend_elements, loc="upper right")
-
-        plt.savefig(
-            os.path.join(self.folder_root , "env", "defender_coverage_matrix_" + str(self.model_day) + ".png"),
-            bbox_inches="tight",
-            dpi=300,
-        )
-
-        source_file = gdal.Open(coverage_matrix_path)
-
-        cols = source_file.RasterXSize
-        rows = source_file.RasterYSize
-        projection = source_file.GetProjection()
-        geotransform = source_file.GetGeoTransform()
-
-        output_file = os.path.join(self.folder_root , "env", "defender_coverage_matrix_" + str(self.model_day) + ".tif")
-
-        driver = gdal.GetDriverByName("GTiff")
-        output_dataset = driver.Create(output_file, cols, rows, 1, gdal.GDT_Byte)
-
-        output_dataset.SetProjection(projection)
-        output_dataset.SetGeoTransform(geotransform)
-
-        output_band = output_dataset.GetRasterBand(1)
-        output_band.WriteArray(coverage_matrix.astype(np.uint8))
-
-        source_file = None
-        output_dataset = None
-
-        self.COVERAGE_MATRIX = self.coverage_matrix()
-
-        return
-        #----------------------------------------------------------------------------------------------------
-    #----------------------------------------------------------------------------------------------------
     def step(self):
 
         # print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
-        
-        if self.model_time%288 == 0:
-            self.update_defender_coverage_matrix()
 
         self.update_hourly_temp()
         self.update_season()

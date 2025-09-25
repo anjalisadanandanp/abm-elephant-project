@@ -932,7 +932,8 @@ if __name__ == "__main__":
                     "elephant_aggression_value": 0.8,
                     "elephant_crop_habituation": True,
                     "ranger_proximity_threshold": ranger_proximity_threshold,
-                    "cost_ranger_proximity_threshold": cost_ranger_proximity_threshold
+                    "cost_ranger_proximity_threshold": cost_ranger_proximity_threshold,
+                    "num_protected_targets": k
                 }
             
             NUM_STRATEGIC_TRAJECTORIES = 12

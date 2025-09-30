@@ -791,12 +791,17 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
     for boundary_patch in df_dict_of_attacked_targets["target"].values:
 
         reward = df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0]/sum(df_dict_of_attacked_targets["count"].values)
-        penalty = step_penalty/len(df_dict_of_attacked_targets)
-
-        print("boundary patch:", boundary_patch, "reward:", reward, "penalty:", penalty)
-
         targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "reward"] += reward
-        targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "penalty"] -= penalty
+
+        print("boundary_patch:", boundary_patch, "reward:", reward)
+
+    potential_targets = np.unique(gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray())
+
+    for boundary_patch in potential_targets:
+        if boundary_patch not in df_dict_of_attacked_targets["target"].values and boundary_patch != 0:
+            penalty = step_penalty/len(potential_targets)
+            targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "penalty"] -= penalty
+            print("boundary_patch:", boundary_patch, "penalty:", penalty)
 
     targets_df.to_csv(os.path.join(os.getcwd(), "guarding-policies/FPL-UE-v1/coverage_matrix_init", "game_step_" + str(int(current_game_step + 1)), "boundary_patch_reward_penalty_matrix.csv"), index=False)
 
@@ -1252,12 +1257,14 @@ def update_estimated_reward(
     K: np.ndarray,
     attacker_strategy: np.ndarray,
     defender_strategy: np.ndarray,
-    targets_df: pd.DataFrame) -> np.ndarray:
+    targets_df: pd.DataFrame,
+    w1: float,
+    w2: float) -> np.ndarray:
 
     attacker_strategy = np.array(attacker_strategy)
     defender_strategy = np.array(defender_strategy)
 
-    r = (targets_df['reward'] - targets_df['penalty']).values
+    r = (targets_df['reward']*w1 - targets_df['penalty']*w2).values
     r_t = [a * b for a, b in zip(attacker_strategy, r)]
 
     updated_reward = estimated_reward.copy()
@@ -1410,7 +1417,7 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
 
     return np.unique(raster_data)
 
-def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M,  max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES):
+def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M,  max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2):
 
 
 
@@ -1481,11 +1488,9 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         targets_df, step_penalty = update_targets_df(output_folder=os.path.join(output_folder, "game_step_" + str(i)), targets_df=targets_df, current_game_step=i)
 
 
-
-
         K = GR_algorithm(defender_strategies, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
-        estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
+        estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df, w1, w2)
 
         df = pd.DataFrame(estimated_reward, columns=['reward_estimate'])
         df.to_csv(os.path.join("guarding-policies/FPL-UE-v1/coverage_matrix_init", "game_step_" + str(i), "reward_estimate.csv"))
@@ -1521,7 +1526,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
 
 
-def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, MAX_GAME_STEPS, max_gamma, min_gamma, num_steps_gamma_decay, eta, M, NUM_STRATEGIC_TRAJECTORIES):
+def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, MAX_GAME_STEPS, max_gamma, min_gamma, num_steps_gamma_decay, eta, M, NUM_STRATEGIC_TRAJECTORIES, w1, w2):
 
 
 
@@ -1552,7 +1557,7 @@ def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAP
 
 
 
-    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M, max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES)
+    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M, max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2)
 
 
 
@@ -1594,11 +1599,13 @@ if __name__ == "__main__":
 
             BUDGET_K = k                   # Maximum number of cells that can be protected by the defenders at every time-step
             MAX_GAME_STEPS = 25                         # Maximum number of time-steps in the game
-            max_gamma = 0.25                             # Exploration/Exploitation Trade-off parameter
-            min_gamma = 0.05                            # Exploration/Exploitation Trade-off parameter
-            num_steps_gamma_decay = 10                  # Exploration/Exploitation Trade-off parameter
+            max_gamma = 0.05                             # Exploration/Exploitation Trade-off parameter
+            min_gamma = 0.0                              # Exploration/Exploitation Trade-off parameter
+            num_steps_gamma_decay = 5                  # Exploration/Exploitation Trade-off parameter
             eta = 10.0                                   # reward perturbation parameter
             M = 30                                      # parameter in the GR algorithm
+            w1 = 0.25                                    #weight of reward in reward-estimation
+            w2 = 0.75                                    #weight of penalty in reward-estimation
 
             FPL_UE_params = (
                 "budget_k_"
@@ -1642,7 +1649,7 @@ if __name__ == "__main__":
                     "slope_tolerance": 30,
                     "num_processes": 12,
                     "iterations": 12,
-                    "max_time_steps": 288 * 30,
+                    "max_time_steps": 288 * 21,
                     "aggression_threshold_enter_cropland": 1.0,
                     "human_habituation_tolerance": 1.0,
                     "elephant_agent_visibility_radius": 500,
@@ -1724,7 +1731,7 @@ if __name__ == "__main__":
 
 
             output_folder = os.path.join(
-                "guarding-policies/FPL-UE-v1/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
+                "guarding-policies/FPL-UE-v1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge-static-policy/",
                 experiment_name,
                 starting_location,
                 elephant_category,
@@ -1763,7 +1770,9 @@ if __name__ == "__main__":
                 num_steps_gamma_decay = num_steps_gamma_decay,
                 eta = eta,
                 M = M,
-                NUM_STRATEGIC_TRAJECTORIES = NUM_STRATEGIC_TRAJECTORIES
+                NUM_STRATEGIC_TRAJECTORIES = NUM_STRATEGIC_TRAJECTORIES,
+                w1 = w1,
+                w2 = w2
             )
 
 

@@ -20,3 +20,5 @@ game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v2_1/*
 
 guarding-policies/static-guarding-model-v1/model-runs/*
 guarding-policies/dynamic-guarding-model-v1/model-runs/*
+guarding-policies/FPL-UE-v1/model-runs/*
+guarding-policies/FPL-UE-v1/coverage_matrix_init/*

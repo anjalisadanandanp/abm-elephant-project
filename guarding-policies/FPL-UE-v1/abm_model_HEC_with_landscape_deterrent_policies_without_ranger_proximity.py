@@ -452,7 +452,7 @@ class Elephant(GeoAgent):
             self.attacked_target_lat = lat
             self.attacked_target_lon = lon
 
-            print("Elephant agent:", self.unique_id, "at row:", self.ROW, "col:", self.COL, "is attacking target id:", self.target_attacked)
+            # print("Elephant agent:", self.unique_id, "at row:", self.ROW, "col:", self.COL, "is attacking target id:", self.target_attacked)
 
             return  
 
@@ -3177,9 +3177,8 @@ class conflict_model(Model):
     #----------------------------------------------------------------------------------------------------
     def step(self):
 
-        # print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
-        
         if self.model_time%288 == 0:
+            # print("day:", self.model_day, "hour:", self.hour_in_day, "minutes elapsed:", self.model_minutes, "time step:", self.model_time)
             self.update_defender_coverage_matrix(path=self.path_to_defender_coverage_matrices)
 
         self.update_hourly_temp()

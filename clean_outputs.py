@@ -155,6 +155,8 @@ def find_folders_without_agent(root_dir):
                     
     return folders_to_clean
 
+
+
 folders_to_clean = find_folders_without_agent(os.getcwd())
 
 #write folders to clean to a text file

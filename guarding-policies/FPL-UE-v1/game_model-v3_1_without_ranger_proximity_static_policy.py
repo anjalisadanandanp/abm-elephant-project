@@ -107,7 +107,12 @@ def make_trajectory_summary_plots_v1(base_path, output_folder, num_cropraiding_s
         
         return indices
     
-    simulation_repeats = os.listdir(base_path)
+    # simulation_repeats = os.listdir(base_path)
+    
+    simulation_repeats = [
+    item for item in os.listdir(base_path) 
+    if os.path.isdir(os.path.join(base_path, item))
+    ]
 
     try:
         simulation_repeats.remove("attacker_strategy_matrix.png")
@@ -319,7 +324,13 @@ def make_trajectory_summary_plots_v2(base_path, output_folder, num_cropraiding_s
         
         return indices
     
-    simulation_repeats = os.listdir(base_path)
+    # simulation_repeats = os.listdir(base_path)
+    
+    simulation_repeats = [
+    item for item in os.listdir(base_path) 
+    if os.path.isdir(os.path.join(base_path, item))
+    ]
+
 
     try:
         simulation_repeats.remove("attacker_strategy_matrix.png")
@@ -501,7 +512,12 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
                     dst.write(feature)
         return
 
-    simulation_repeats = os.listdir(base_path)
+    # simulation_repeats = os.listdir(base_path)
+    simulation_repeats = [
+    item for item in os.listdir(base_path) 
+    if os.path.isdir(os.path.join(base_path, item))
+    ]
+
 
     try:
         simulation_repeats.remove("attacker_strategy_matrix.png")
@@ -604,15 +620,21 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
 
     return
 
-def update_targets_df(output_folder, targets_df, current_game_step, num_cropraiding_steps=12):
+def update_targets_df(output_folder, targets_df, current_game_step, MAX_STEP_CROP_RAIDING_VAL, MAX_STEP_TRAJECTORIES_ENCOUNTERED, lr):
 
     # print("\n#----------------UPDATING TARGETS DATAFRAME BASED ON OBSERVATIONS----------------#")
 
     def find_rewards_based_on_intercepted_trajectories(output_folder):
 
         dict_of_attacked_targets = {}
+        
+        simulation_repeats = [
+        item for item in os.listdir(output_folder) 
+        if os.path.isdir(os.path.join(output_folder, item))
+        ]
 
-        for simulation_folder in os.listdir(output_folder):
+
+        for simulation_folder in simulation_repeats:
 
             try:
 
@@ -689,7 +711,7 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
 
         simulation_repeats = os.listdir(output_folder)
 
-        simulation_repeats = [
+        simulation_folders = [
             os.path.join(output_folder, item)
             for item in simulation_repeats
             if os.path.isdir(os.path.join(output_folder, item))
@@ -697,36 +719,40 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
 
         agricultural_plots_attacked = {}
 
-        for simulation_repeat in simulation_repeats:
-
-            agent_data = pd.read_csv(os.path.join(simulation_repeat, "output_files", "agent_data.csv"))
-
-            geotransform = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").GetGeoTransform()
-            ag_xmin, ag_xres, ag_xskew, ag_ymax, ag_yskew, ag_yres = geotransform
-
-            landuse_matrix = gdal.Open(os.path.join(simulation_repeat, "env", "LULC.tif")).ReadAsArray()
-            agricultural_plts = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
-
-            rows, cols = lat_lon_to_pixel(
-                agent_data["latitude"].values, agent_data["longitude"].values, 
-                ag_xmin, ag_ymax, ag_xres, ag_yres
-            )
+        for simulation_repeat in simulation_folders:
             
-            landuse_values = landuse_matrix[rows, cols]
+            try:
 
-            indices = find_cropland_use_indices(landuse_values)
-            
-            for sequence in indices:
+                agent_data = pd.read_csv(os.path.join(simulation_repeat, "output_files", "agent_data.csv"))
 
-                for i in range(sequence[1] - sequence[0]):
+                geotransform = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").GetGeoTransform()
+                ag_xmin, ag_xres, ag_xskew, ag_ymax, ag_yskew, ag_yres = geotransform
 
-                    if agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]] != 0:
+                landuse_matrix = gdal.Open(os.path.join(simulation_repeat, "env", "LULC.tif")).ReadAsArray()
+                agricultural_plts = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
 
-                        if agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]] not in agricultural_plots_attacked:
-                            agricultural_plots_attacked[agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]]] = 0
-                        
-                        agricultural_plots_attacked[agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]]] += 1
+                rows, cols = lat_lon_to_pixel(
+                    agent_data["latitude"].values, agent_data["longitude"].values, 
+                    ag_xmin, ag_ymax, ag_xres, ag_yres
+                )
+                
+                landuse_values = landuse_matrix[rows, cols]
 
+                indices = find_cropland_use_indices(landuse_values)
+                
+                for sequence in indices:
+
+                    for i in range(sequence[1] - sequence[0]):
+
+                        if agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]] != 0:
+
+                            if agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]] not in agricultural_plots_attacked:
+                                agricultural_plots_attacked[agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]]] = 0
+                            
+                            agricultural_plots_attacked[agricultural_plts[rows[sequence[0] + i], cols[sequence[0] + i]]] += 1
+
+            except:
+                pass
 
         # print("\n")
 
@@ -771,27 +797,38 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
         plt.close()
 
         agricultural_plts = gdal.Open("create-landholding-matrix/agricultural_plots_assignment.tif").ReadAsArray()
-        food_matrix = gdal.Open(os.path.join(simulation_repeats[0], "env", "food_matrix_0.1_1.0_.tif")).ReadAsArray()
+        food_matrix = gdal.Open(os.path.join(simulation_folders[0], "env", "food_matrix_0.1_1.0_.tif")).ReadAsArray()
 
         total_crop_raid_loss = 0
+        
         for plot, count in agricultural_plots_attacked.items():
             food_val = np.sum(food_matrix[agricultural_plts == plot])
             total_crop_raid_loss += food_val * count
-
-        total_food_value = np.sum(food_matrix[agricultural_plts != 0])
-
+            
         print(f"\nTotal crop raid loss across the landscape: {total_crop_raid_loss} (kg)\n")
 
-        return total_crop_raid_loss/total_food_value
+        return total_crop_raid_loss
         
     df_dict_of_attacked_targets = find_rewards_based_on_intercepted_trajectories(output_folder)
+    
+    print("trajectories attacking protected targets:", df_dict_of_attacked_targets)
 
-    step_penalty = find_penalties_based_on_intercepted_trajectories(output_folder)
+    total_crop_raid_loss = find_penalties_based_on_intercepted_trajectories(output_folder)
+    
+    print("total_crop_raid_loss:", total_crop_raid_loss)
+    
+    if total_crop_raid_loss > MAX_STEP_CROP_RAIDING_VAL:
+        MAX_STEP_CROP_RAIDING_VAL = total_crop_raid_loss
 
     for boundary_patch in df_dict_of_attacked_targets["target"].values:
+        
+        if df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0] > MAX_STEP_TRAJECTORIES_ENCOUNTERED:
+            MAX_STEP_TRAJECTORIES_ENCOUNTERED = df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0]
 
-        reward = df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0]/sum(df_dict_of_attacked_targets["count"].values)
-        targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "reward"] += reward
+    for boundary_patch in df_dict_of_attacked_targets["target"].values:
+        
+        reward = df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0]/MAX_STEP_TRAJECTORIES_ENCOUNTERED
+        targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "reward"] += lr*reward
 
         print("boundary_patch:", boundary_patch, "reward:", reward)
 
@@ -799,17 +836,26 @@ def update_targets_df(output_folder, targets_df, current_game_step, num_cropraid
 
     for boundary_patch in potential_targets:
         if boundary_patch not in df_dict_of_attacked_targets["target"].values and boundary_patch != 0:
-            penalty = step_penalty/len(potential_targets)
-            targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "penalty"] -= penalty
+            penalty = total_crop_raid_loss/MAX_STEP_CROP_RAIDING_VAL
+            targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "penalty"] -= lr*penalty
             print("boundary_patch:", boundary_patch, "penalty:", penalty)
+            
+    min_r = targets_df['reward'].min()
+    max_r = targets_df['reward'].max()
+
+    min_p = targets_df['penalty'].min()
+    max_p = targets_df['penalty'].max()
+    
+    targets_df['reward'] = 0.5 * (targets_df['reward'] - min_r) / (max_r - min_r)
+    targets_df['penalty'] = -0.5 + 0.5 * (targets_df['penalty'] - min_p) / (max_p - min_p)
 
     targets_df.to_csv(os.path.join(os.getcwd(), "guarding-policies/FPL-UE-v1/coverage_matrix_init", "game_step_" + str(int(current_game_step + 1)), "boundary_patch_reward_penalty_matrix.csv"), index=False)
 
-    return targets_df, step_penalty
+    return targets_df, total_crop_raid_loss, MAX_STEP_CROP_RAIDING_VAL, MAX_STEP_TRAJECTORIES_ENCOUNTERED
 
 def create_defender_coverage_matrix(defender_strategy):
 
-    potential_coverage_matrix = gdal.Open(os.path.join("/home2/anjali/GitHub/abm-elephant-project/guarding-policies/FPL-UE-v1/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
+    potential_coverage_matrix = gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
     
     coverage_matrix = np.zeros_like(potential_coverage_matrix)
 
@@ -948,9 +994,9 @@ def generate_defender_strategies(BUDGET_K, NUM_LANDSCAPE_CELLS, targets_df):
     potential_targets = targets_df["boundary_patch_id"].tolist()
 
     potential_coverage_matrix = select_cells_at_distance(
-        target_lat=1052166,
+        target_lat=1051500,
         target_lon=8572829,
-        distance_cells=125,
+        distance_cells=225,
         distance_type='euclidean'
     )
 
@@ -1052,7 +1098,7 @@ def select_defender_strategy(
 
     if flag: 
 
-        # print("Random Strategy Selected")
+        print("Random Strategy Selected")
 
         potential_coverage_matrix = gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
         unique_values = np.unique(potential_coverage_matrix)
@@ -1063,11 +1109,11 @@ def select_defender_strategy(
 
     else:  
 
-        # print("Optimal Strategy Selected")
-
-        # n = len(estimated_reward)
-        # z = np.random.exponential(scale=1/eta, size=n)
-        # perturbed_reward = estimated_reward + z
+        print("Optimal Strategy Selected")
+        
+        n = len(estimated_reward)
+        z = np.random.exponential(scale=1/eta, size=n)
+        perturbed_reward = estimated_reward + z
 
         perturbed_reward = estimated_reward
 
@@ -1092,8 +1138,13 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
 
         batch_run_model(model_params, experiment_name, output_folder)
 
-        runs = os.listdir(output_folder)
-
+        # runs = os.listdir(output_folder)
+        
+        runs = [
+        item for item in os.listdir(output_folder) 
+        if os.path.isdir(os.path.join(output_folder, item))
+        ]
+        
         num_strategic_trajectories  =  0
 
         for run in runs:
@@ -1109,8 +1160,13 @@ def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTO
 
 
     dict_of_attacked_targets = {}
+    
+    simulation_folders = [
+    item for item in os.listdir(output_folder) 
+    if os.path.isdir(os.path.join(output_folder, item))
+    ]
 
-    for simulation_folder in os.listdir(output_folder):
+    for simulation_folder in simulation_folders:
 
         try:
 
@@ -1417,7 +1473,7 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
 
     return np.unique(raster_data)
 
-def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M,  max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2):
+def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M,  max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2, lr):
 
 
 
@@ -1439,12 +1495,18 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
     print("generated defender strategies!")
     
+    MAX_STEP_CROP_RAIDING_VAL = -9999
+    MAX_STEP_TRAJECTORIES_ENCOUNTERED = -9999
+    
     for i in range(1, MAX_GAME_STEPS+1):
 
         print("\n----- GameStep", i ,"-----")
-
-        gamma = max_gamma - (max_gamma - min_gamma) * (i / num_steps_gamma_decay)
-
+        
+        if num_steps_gamma_decay != None:
+            gamma = max_gamma - (max_gamma - min_gamma) * (i / num_steps_gamma_decay)
+        else:
+            gamma = 0
+            
         if gamma < min_gamma:
             gamma = min_gamma
             
@@ -1485,8 +1547,15 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         path.mkdir(parents=True, exist_ok=True)
 
 
-        targets_df, step_penalty = update_targets_df(output_folder=os.path.join(output_folder, "game_step_" + str(i)), targets_df=targets_df, current_game_step=i)
-
+        targets_df, step_penalty, MAX_STEP_CROP_RAIDING_VAL, MAX_STEP_TRAJECTORIES_ENCOUNTERED = update_targets_df(output_folder=os.path.join(output_folder, "game_step_" + str(i)), 
+                                                     targets_df=targets_df, 
+                                                     current_game_step=i,
+                                                     MAX_STEP_CROP_RAIDING_VAL = MAX_STEP_CROP_RAIDING_VAL,
+                                                     MAX_STEP_TRAJECTORIES_ENCOUNTERED = MAX_STEP_TRAJECTORIES_ENCOUNTERED,
+                                                     lr = lr)
+        
+        print("MAX_STEP_CROP_RAIDING_VAL: ", MAX_STEP_CROP_RAIDING_VAL)
+        print("MAX_STEP_TRAJECTORIES_ENCOUNTERED: ", MAX_STEP_TRAJECTORIES_ENCOUNTERED)
 
         K = GR_algorithm(defender_strategies, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
@@ -1526,7 +1595,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
 
 
-def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, MAX_GAME_STEPS, max_gamma, min_gamma, num_steps_gamma_decay, eta, M, NUM_STRATEGIC_TRAJECTORIES, w1, w2):
+def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, MAX_GAME_STEPS, max_gamma, min_gamma, num_steps_gamma_decay, eta, M, NUM_STRATEGIC_TRAJECTORIES, w1, w2, lr):
 
 
 
@@ -1557,7 +1626,7 @@ def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAP
 
 
 
-    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M, max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2)
+    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M, max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2, lr)
 
 
 
@@ -1598,14 +1667,15 @@ if __name__ == "__main__":
         for k in num_resources_k: 
 
             BUDGET_K = k                   # Maximum number of cells that can be protected by the defenders at every time-step
-            MAX_GAME_STEPS = 25                         # Maximum number of time-steps in the game
-            max_gamma = 0.05                             # Exploration/Exploitation Trade-off parameter
-            min_gamma = 0.0                              # Exploration/Exploitation Trade-off parameter
-            num_steps_gamma_decay = 5                  # Exploration/Exploitation Trade-off parameter
-            eta = 10.0                                   # reward perturbation parameter
+            MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
+            max_gamma = 0.80                             # Exploration/Exploitation Trade-off parameter
+            min_gamma = 0.10                             # Exploration/Exploitation Trade-off parameter
+            num_steps_gamma_decay = 15                  # Exploration/Exploitation Trade-off parameter
+            eta = 10                                   # reward perturbation parameter
             M = 30                                      # parameter in the GR algorithm
-            w1 = 0.25                                    #weight of reward in reward-estimation
-            w2 = 0.75                                    #weight of penalty in reward-estimation
+            w1 = 1.0                                    #weight of reward in reward-estimation
+            w2 = 1.0                                    #weight of penalty in reward-estimation
+            lr = 0.50
 
             FPL_UE_params = (
                 "budget_k_"
@@ -1622,7 +1692,11 @@ if __name__ == "__main__":
                 + str(eta)
                 + "-M_"
                 + str(M)
+                + "_lr_"
+                + str(lr)
             )
+            
+            reward_weighing = "reward_weight_" + str(w1) + "penalty_weight_" + str(w2)
 
             model_params = {
                     "year": 2010,
@@ -1647,9 +1721,9 @@ if __name__ == "__main__":
                     "fitness_threshold": 0.4,
                     "terrain_radius": 750,
                     "slope_tolerance": 30,
-                    "num_processes": 12,
-                    "iterations": 12,
-                    "max_time_steps": 288 * 21,
+                    "num_processes": 21,
+                    "iterations": 21,
+                    "max_time_steps": 288 * 30,
                     "aggression_threshold_enter_cropland": 1.0,
                     "human_habituation_tolerance": 1.0,
                     "elephant_agent_visibility_radius": 500,
@@ -1668,7 +1742,7 @@ if __name__ == "__main__":
                     "num_protected_targets": k
                 }
             
-            NUM_STRATEGIC_TRAJECTORIES = 12
+            NUM_STRATEGIC_TRAJECTORIES = 21
 
             experiment_name = "mitigation-measures-within-plantations"
 
@@ -1753,7 +1827,8 @@ if __name__ == "__main__":
                 target_folder,
                 simulation_repeats,
                 boundary_raster_discretised,
-                FPL_UE_params
+                FPL_UE_params,
+                reward_weighing
             )
 
 
@@ -1772,7 +1847,8 @@ if __name__ == "__main__":
                 M = M,
                 NUM_STRATEGIC_TRAJECTORIES = NUM_STRATEGIC_TRAJECTORIES,
                 w1 = w1,
-                w2 = w2
+                w2 = w2,
+                lr = lr
             )
 
 

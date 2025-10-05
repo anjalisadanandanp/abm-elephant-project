@@ -86,3 +86,3064 @@ Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 target_id:  48
 target_id:  169
 target_id:  186
+Covered target 48.0 was attacked 2 times.
+Covered target 169.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 169, 186]
+Attacked target IDs: [48, 169]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+1   169.0      1
+
+Total crop raid loss across the landscape: 30714.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 30714.0
+boundary_patch: 48.0 normalized reward: 0.3333333333333333
+boundary_patch: 169.0 normalized reward: 0.16666666666666666
+boundary_patch: 54 normalized penalty: -0.270927791401302
+boundary_patch: 66 normalized penalty: -0.270927791401302
+boundary_patch: 74 normalized penalty: -0.270927791401302
+boundary_patch: 79 normalized penalty: -0.270927791401302
+boundary_patch: 81 normalized penalty: -0.270927791401302
+boundary_patch: 82 normalized penalty: -0.270927791401302
+boundary_patch: 85 normalized penalty: -0.270927791401302
+boundary_patch: 87 normalized penalty: -0.270927791401302
+boundary_patch: 91 normalized penalty: -0.270927791401302
+boundary_patch: 95 normalized penalty: -0.270927791401302
+boundary_patch: 135 normalized penalty: -0.270927791401302
+boundary_patch: 138 normalized penalty: -0.270927791401302
+boundary_patch: 139 normalized penalty: -0.270927791401302
+boundary_patch: 140 normalized penalty: -0.270927791401302
+boundary_patch: 145 normalized penalty: -0.270927791401302
+boundary_patch: 148 normalized penalty: -0.270927791401302
+boundary_patch: 149 normalized penalty: -0.270927791401302
+boundary_patch: 155 normalized penalty: -0.270927791401302
+boundary_patch: 157 normalized penalty: -0.270927791401302
+boundary_patch: 162 normalized penalty: -0.270927791401302
+boundary_patch: 166 normalized penalty: -0.270927791401302
+boundary_patch: 171 normalized penalty: -0.270927791401302
+boundary_patch: 176 normalized penalty: -0.270927791401302
+boundary_patch: 181 normalized penalty: -0.270927791401302
+boundary_patch: 184 normalized penalty: -0.270927791401302
+boundary_patch: 186 normalized penalty: -0.270927791401302
+MAX_STEP_CROP_RAIDING_VAL:  56683.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 3 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  48
+target_id:  169
+target_id:  186
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 169, 186]
+Attacked target IDs: []
+trajectories successfully intercepted by guards (reward): Empty DataFrame
+Columns: [target, count]
+Index: []
+
+Total crop raid loss across the landscape: 52213.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 52213.0
+boundary_patch: 48 normalized penalty: -0.46057018859269977
+boundary_patch: 54 normalized penalty: -0.46057018859269977
+boundary_patch: 66 normalized penalty: -0.46057018859269977
+boundary_patch: 74 normalized penalty: -0.46057018859269977
+boundary_patch: 79 normalized penalty: -0.46057018859269977
+boundary_patch: 81 normalized penalty: -0.46057018859269977
+boundary_patch: 82 normalized penalty: -0.46057018859269977
+boundary_patch: 85 normalized penalty: -0.46057018859269977
+boundary_patch: 87 normalized penalty: -0.46057018859269977
+boundary_patch: 91 normalized penalty: -0.46057018859269977
+boundary_patch: 95 normalized penalty: -0.46057018859269977
+boundary_patch: 135 normalized penalty: -0.46057018859269977
+boundary_patch: 138 normalized penalty: -0.46057018859269977
+boundary_patch: 139 normalized penalty: -0.46057018859269977
+boundary_patch: 140 normalized penalty: -0.46057018859269977
+boundary_patch: 145 normalized penalty: -0.46057018859269977
+boundary_patch: 148 normalized penalty: -0.46057018859269977
+boundary_patch: 149 normalized penalty: -0.46057018859269977
+boundary_patch: 155 normalized penalty: -0.46057018859269977
+boundary_patch: 157 normalized penalty: -0.46057018859269977
+boundary_patch: 162 normalized penalty: -0.46057018859269977
+boundary_patch: 166 normalized penalty: -0.46057018859269977
+boundary_patch: 169 normalized penalty: -0.46057018859269977
+boundary_patch: 171 normalized penalty: -0.46057018859269977
+boundary_patch: 176 normalized penalty: -0.46057018859269977
+boundary_patch: 181 normalized penalty: -0.46057018859269977
+boundary_patch: 184 normalized penalty: -0.46057018859269977
+boundary_patch: 186 normalized penalty: -0.46057018859269977
+MAX_STEP_CROP_RAIDING_VAL:  56683.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.0
+
+----- GameStep 4 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  48
+target_id:  169
+target_id:  186
+Covered target 186.0 was attacked 1 times.
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+Protected target IDs: [48, 169, 186]
+Attacked target IDs: [48, 186]
+trajectories successfully intercepted by guards (reward):    target  count
+0   186.0      1
+1    48.0      2
+
+Total crop raid loss across the landscape: 62597.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 62597.0
+boundary_patch: 186.0 normalized reward: 0.16666666666666666
+boundary_patch: 48.0 normalized reward: 0.3333333333333333
+boundary_patch: 54 normalized penalty: -0.5
+boundary_patch: 66 normalized penalty: -0.5
+boundary_patch: 74 normalized penalty: -0.5
+boundary_patch: 79 normalized penalty: -0.5
+boundary_patch: 81 normalized penalty: -0.5
+boundary_patch: 82 normalized penalty: -0.5
+boundary_patch: 85 normalized penalty: -0.5
+boundary_patch: 87 normalized penalty: -0.5
+boundary_patch: 91 normalized penalty: -0.5
+boundary_patch: 95 normalized penalty: -0.5
+boundary_patch: 135 normalized penalty: -0.5
+boundary_patch: 138 normalized penalty: -0.5
+boundary_patch: 139 normalized penalty: -0.5
+boundary_patch: 140 normalized penalty: -0.5
+boundary_patch: 145 normalized penalty: -0.5
+boundary_patch: 148 normalized penalty: -0.5
+boundary_patch: 149 normalized penalty: -0.5
+boundary_patch: 155 normalized penalty: -0.5
+boundary_patch: 157 normalized penalty: -0.5
+boundary_patch: 162 normalized penalty: -0.5
+boundary_patch: 166 normalized penalty: -0.5
+boundary_patch: 169 normalized penalty: -0.5
+boundary_patch: 171 normalized penalty: -0.5
+boundary_patch: 176 normalized penalty: -0.5
+boundary_patch: 181 normalized penalty: -0.5
+boundary_patch: 184 normalized penalty: -0.5
+MAX_STEP_CROP_RAIDING_VAL:  62597.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+step utility for defender: 0.5
+
+----- GameStep 5 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  48
+target_id:  169
+target_id:  186
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 169, 186]
+Attacked target IDs: [48]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+
+Total crop raid loss across the landscape: 23438.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 23438.0
+boundary_patch: 48.0 normalized reward: 0.3333333333333333
+boundary_patch: 54 normalized penalty: -0.1872134447337732
+boundary_patch: 66 normalized penalty: -0.1872134447337732
+boundary_patch: 74 normalized penalty: -0.1872134447337732
+boundary_patch: 79 normalized penalty: -0.1872134447337732
+boundary_patch: 81 normalized penalty: -0.1872134447337732
+boundary_patch: 82 normalized penalty: -0.1872134447337732
+boundary_patch: 85 normalized penalty: -0.1872134447337732
+boundary_patch: 87 normalized penalty: -0.1872134447337732
+boundary_patch: 91 normalized penalty: -0.1872134447337732
+boundary_patch: 95 normalized penalty: -0.1872134447337732
+boundary_patch: 135 normalized penalty: -0.1872134447337732
+boundary_patch: 138 normalized penalty: -0.1872134447337732
+boundary_patch: 139 normalized penalty: -0.1872134447337732
+boundary_patch: 140 normalized penalty: -0.1872134447337732
+boundary_patch: 145 normalized penalty: -0.1872134447337732
+boundary_patch: 148 normalized penalty: -0.1872134447337732
+boundary_patch: 149 normalized penalty: -0.1872134447337732
+boundary_patch: 155 normalized penalty: -0.1872134447337732
+boundary_patch: 157 normalized penalty: -0.1872134447337732
+boundary_patch: 162 normalized penalty: -0.1872134447337732
+boundary_patch: 166 normalized penalty: -0.1872134447337732
+boundary_patch: 169 normalized penalty: -0.1872134447337732
+boundary_patch: 171 normalized penalty: -0.1872134447337732
+boundary_patch: 176 normalized penalty: -0.1872134447337732
+boundary_patch: 181 normalized penalty: -0.1872134447337732
+boundary_patch: 184 normalized penalty: -0.1872134447337732
+boundary_patch: 186 normalized penalty: -0.1872134447337732
+MAX_STEP_CROP_RAIDING_VAL:  62597.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+step utility for defender: 0.3333333333333333
+
+----- GameStep 6 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  48
+target_id:  169
+target_id:  186
+Covered target 48.0 was attacked 2 times.
+Covered target 169.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 169, 186]
+Attacked target IDs: [48, 169]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+1   169.0      2
+
+Total crop raid loss across the landscape: 29234.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 29234.0
+boundary_patch: 48.0 normalized reward: 0.3333333333333333
+boundary_patch: 169.0 normalized reward: 0.3333333333333333
+boundary_patch: 54 normalized penalty: -0.23350959311149097
+boundary_patch: 66 normalized penalty: -0.23350959311149097
+boundary_patch: 74 normalized penalty: -0.23350959311149097
+boundary_patch: 79 normalized penalty: -0.23350959311149097
+boundary_patch: 81 normalized penalty: -0.23350959311149097
+boundary_patch: 82 normalized penalty: -0.23350959311149097
+boundary_patch: 85 normalized penalty: -0.23350959311149097
+boundary_patch: 87 normalized penalty: -0.23350959311149097
+boundary_patch: 91 normalized penalty: -0.23350959311149097
+boundary_patch: 95 normalized penalty: -0.23350959311149097
+boundary_patch: 135 normalized penalty: -0.23350959311149097
+boundary_patch: 138 normalized penalty: -0.23350959311149097
+boundary_patch: 139 normalized penalty: -0.23350959311149097
+boundary_patch: 140 normalized penalty: -0.23350959311149097
+boundary_patch: 145 normalized penalty: -0.23350959311149097
+boundary_patch: 148 normalized penalty: -0.23350959311149097
+boundary_patch: 149 normalized penalty: -0.23350959311149097
+boundary_patch: 155 normalized penalty: -0.23350959311149097
+boundary_patch: 157 normalized penalty: -0.23350959311149097
+boundary_patch: 162 normalized penalty: -0.23350959311149097
+boundary_patch: 166 normalized penalty: -0.23350959311149097
+boundary_patch: 171 normalized penalty: -0.23350959311149097
+boundary_patch: 176 normalized penalty: -0.23350959311149097
+boundary_patch: 181 normalized penalty: -0.23350959311149097
+boundary_patch: 184 normalized penalty: -0.23350959311149097
+boundary_patch: 186 normalized penalty: -0.23350959311149097
+MAX_STEP_CROP_RAIDING_VAL:  62597.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+step utility for defender: 0.6666666666666666
+
+----- GameStep 7 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  48
+target_id:  169
+target_id:  186
+Covered target 169.0 was attacked 3 times.
+Covered target 186.0 was attacked 1 times.
+Covered target 48.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+Protected target IDs: [48, 169, 186]
+Attacked target IDs: [48, 169, 186]
+trajectories successfully intercepted by guards (reward):    target  count
+0   169.0      3
+1   186.0      1
+2    48.0      1
+
+Total crop raid loss across the landscape: 107890.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 107890.0
+boundary_patch: 169.0 normalized reward: 0.5
+boundary_patch: 186.0 normalized reward: 0.16666666666666666
+boundary_patch: 48.0 normalized reward: 0.16666666666666666
+boundary_patch: 54 normalized penalty: -0.5
+boundary_patch: 66 normalized penalty: -0.5
+boundary_patch: 74 normalized penalty: -0.5
+boundary_patch: 79 normalized penalty: -0.5
+boundary_patch: 81 normalized penalty: -0.5
+boundary_patch: 82 normalized penalty: -0.5
+boundary_patch: 85 normalized penalty: -0.5
+boundary_patch: 87 normalized penalty: -0.5
+boundary_patch: 91 normalized penalty: -0.5
+boundary_patch: 95 normalized penalty: -0.5
+boundary_patch: 135 normalized penalty: -0.5
+boundary_patch: 138 normalized penalty: -0.5
+boundary_patch: 139 normalized penalty: -0.5
+boundary_patch: 140 normalized penalty: -0.5
+boundary_patch: 145 normalized penalty: -0.5
+boundary_patch: 148 normalized penalty: -0.5
+boundary_patch: 149 normalized penalty: -0.5
+boundary_patch: 155 normalized penalty: -0.5
+boundary_patch: 157 normalized penalty: -0.5
+boundary_patch: 162 normalized penalty: -0.5
+boundary_patch: 166 normalized penalty: -0.5
+boundary_patch: 171 normalized penalty: -0.5
+boundary_patch: 176 normalized penalty: -0.5
+boundary_patch: 181 normalized penalty: -0.5
+boundary_patch: 184 normalized penalty: -0.5
+MAX_STEP_CROP_RAIDING_VAL:  107890.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+step utility for defender: 0.8333333333333333
+
+----- GameStep 8 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  48
+target_id:  169
+target_id:  186
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 169, 186]
+Attacked target IDs: [48]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+
+Total crop raid loss across the landscape: 20642.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 20642.0
+boundary_patch: 48.0 normalized reward: 0.3333333333333333
+boundary_patch: 54 normalized penalty: -0.09566224858652332
+boundary_patch: 66 normalized penalty: -0.09566224858652332
+boundary_patch: 74 normalized penalty: -0.09566224858652332
+boundary_patch: 79 normalized penalty: -0.09566224858652332
+boundary_patch: 81 normalized penalty: -0.09566224858652332
+boundary_patch: 82 normalized penalty: -0.09566224858652332
+boundary_patch: 85 normalized penalty: -0.09566224858652332
+boundary_patch: 87 normalized penalty: -0.09566224858652332
+boundary_patch: 91 normalized penalty: -0.09566224858652332
+boundary_patch: 95 normalized penalty: -0.09566224858652332
+boundary_patch: 135 normalized penalty: -0.09566224858652332
+boundary_patch: 138 normalized penalty: -0.09566224858652332
+boundary_patch: 139 normalized penalty: -0.09566224858652332
+boundary_patch: 140 normalized penalty: -0.09566224858652332
+boundary_patch: 145 normalized penalty: -0.09566224858652332
+boundary_patch: 148 normalized penalty: -0.09566224858652332
+boundary_patch: 149 normalized penalty: -0.09566224858652332
+boundary_patch: 155 normalized penalty: -0.09566224858652332
+boundary_patch: 157 normalized penalty: -0.09566224858652332
+boundary_patch: 162 normalized penalty: -0.09566224858652332
+boundary_patch: 166 normalized penalty: -0.09566224858652332
+boundary_patch: 169 normalized penalty: -0.09566224858652332
+boundary_patch: 171 normalized penalty: -0.09566224858652332
+boundary_patch: 176 normalized penalty: -0.09566224858652332
+boundary_patch: 181 normalized penalty: -0.09566224858652332
+boundary_patch: 184 normalized penalty: -0.09566224858652332
+boundary_patch: 186 normalized penalty: -0.09566224858652332
+MAX_STEP_CROP_RAIDING_VAL:  107890.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+step utility for defender: 0.3333333333333333
+
+----- GameStep 9 -----
+gamma: 0.25
+Random Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+ 0]
+target_id:  91
+target_id:  169
+target_id:  184
+Covered target 91.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [91, 169, 184]
+Attacked target IDs: [91]
+trajectories successfully intercepted by guards (reward):    target  count
+0    91.0      2
+
+Total crop raid loss across the landscape: 11564.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 11564.0
+boundary_patch: 91.0 normalized reward: 0.3333333333333333
+boundary_patch: 48 normalized penalty: -0.053591621095560295
+boundary_patch: 54 normalized penalty: -0.053591621095560295
+boundary_patch: 66 normalized penalty: -0.053591621095560295
+boundary_patch: 74 normalized penalty: -0.053591621095560295
+boundary_patch: 79 normalized penalty: -0.053591621095560295
+boundary_patch: 81 normalized penalty: -0.053591621095560295
+boundary_patch: 82 normalized penalty: -0.053591621095560295
+boundary_patch: 85 normalized penalty: -0.053591621095560295
+boundary_patch: 87 normalized penalty: -0.053591621095560295
+boundary_patch: 95 normalized penalty: -0.053591621095560295
+boundary_patch: 135 normalized penalty: -0.053591621095560295
+boundary_patch: 138 normalized penalty: -0.053591621095560295
+boundary_patch: 139 normalized penalty: -0.053591621095560295
+boundary_patch: 140 normalized penalty: -0.053591621095560295
+boundary_patch: 145 normalized penalty: -0.053591621095560295
+boundary_patch: 148 normalized penalty: -0.053591621095560295
+boundary_patch: 149 normalized penalty: -0.053591621095560295
+boundary_patch: 155 normalized penalty: -0.053591621095560295
+boundary_patch: 157 normalized penalty: -0.053591621095560295
+boundary_patch: 162 normalized penalty: -0.053591621095560295
+boundary_patch: 166 normalized penalty: -0.053591621095560295
+boundary_patch: 169 normalized penalty: -0.053591621095560295
+boundary_patch: 171 normalized penalty: -0.053591621095560295
+boundary_patch: 176 normalized penalty: -0.053591621095560295
+boundary_patch: 181 normalized penalty: -0.053591621095560295
+boundary_patch: 184 normalized penalty: -0.053591621095560295
+boundary_patch: 186 normalized penalty: -0.053591621095560295
+MAX_STEP_CROP_RAIDING_VAL:  107890.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.3333333333333333
+
+----- GameStep 10 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 48.0 was attacked 3 times.
+Covered target 91.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [48, 91]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      3
+1    91.0      1
+
+Total crop raid loss across the landscape: 0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 0
+boundary_patch: 48.0 normalized reward: 0.5
+boundary_patch: 91.0 normalized reward: 0.16666666666666666
+boundary_patch: 54 normalized penalty: -0.0
+boundary_patch: 66 normalized penalty: -0.0
+boundary_patch: 74 normalized penalty: -0.0
+boundary_patch: 79 normalized penalty: -0.0
+boundary_patch: 81 normalized penalty: -0.0
+boundary_patch: 82 normalized penalty: -0.0
+boundary_patch: 85 normalized penalty: -0.0
+boundary_patch: 87 normalized penalty: -0.0
+boundary_patch: 95 normalized penalty: -0.0
+boundary_patch: 135 normalized penalty: -0.0
+boundary_patch: 138 normalized penalty: -0.0
+boundary_patch: 139 normalized penalty: -0.0
+boundary_patch: 140 normalized penalty: -0.0
+boundary_patch: 145 normalized penalty: -0.0
+boundary_patch: 148 normalized penalty: -0.0
+boundary_patch: 149 normalized penalty: -0.0
+boundary_patch: 155 normalized penalty: -0.0
+boundary_patch: 157 normalized penalty: -0.0
+boundary_patch: 162 normalized penalty: -0.0
+boundary_patch: 166 normalized penalty: -0.0
+boundary_patch: 169 normalized penalty: -0.0
+boundary_patch: 171 normalized penalty: -0.0
+boundary_patch: 176 normalized penalty: -0.0
+boundary_patch: 181 normalized penalty: -0.0
+boundary_patch: 184 normalized penalty: -0.0
+boundary_patch: 186 normalized penalty: -0.0
+MAX_STEP_CROP_RAIDING_VAL:  107890.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  3
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6666666666666666
+
+----- GameStep 11 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 48.0 was attacked 5 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [48]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      5
+
+Total crop raid loss across the landscape: 113861.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 113861.0
+boundary_patch: 48.0 normalized reward: 0.5
+boundary_patch: 54 normalized penalty: -0.5
+boundary_patch: 66 normalized penalty: -0.5
+boundary_patch: 74 normalized penalty: -0.5
+boundary_patch: 79 normalized penalty: -0.5
+boundary_patch: 81 normalized penalty: -0.5
+boundary_patch: 82 normalized penalty: -0.5
+boundary_patch: 85 normalized penalty: -0.5
+boundary_patch: 87 normalized penalty: -0.5
+boundary_patch: 91 normalized penalty: -0.5
+boundary_patch: 95 normalized penalty: -0.5
+boundary_patch: 135 normalized penalty: -0.5
+boundary_patch: 138 normalized penalty: -0.5
+boundary_patch: 139 normalized penalty: -0.5
+boundary_patch: 140 normalized penalty: -0.5
+boundary_patch: 145 normalized penalty: -0.5
+boundary_patch: 148 normalized penalty: -0.5
+boundary_patch: 149 normalized penalty: -0.5
+boundary_patch: 155 normalized penalty: -0.5
+boundary_patch: 157 normalized penalty: -0.5
+boundary_patch: 162 normalized penalty: -0.5
+boundary_patch: 166 normalized penalty: -0.5
+boundary_patch: 169 normalized penalty: -0.5
+boundary_patch: 171 normalized penalty: -0.5
+boundary_patch: 176 normalized penalty: -0.5
+boundary_patch: 181 normalized penalty: -0.5
+boundary_patch: 184 normalized penalty: -0.5
+boundary_patch: 186 normalized penalty: -0.5
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 12 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 48.0 was attacked 1 times.
+Covered target 91.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [48, 91]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      1
+1    91.0      1
+
+Total crop raid loss across the landscape: 17508.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 17508.0
+boundary_patch: 48.0 normalized reward: 0.1
+boundary_patch: 91.0 normalized reward: 0.1
+boundary_patch: 54 normalized penalty: -0.0768832172561281
+boundary_patch: 66 normalized penalty: -0.0768832172561281
+boundary_patch: 74 normalized penalty: -0.0768832172561281
+boundary_patch: 79 normalized penalty: -0.0768832172561281
+boundary_patch: 81 normalized penalty: -0.0768832172561281
+boundary_patch: 82 normalized penalty: -0.0768832172561281
+boundary_patch: 85 normalized penalty: -0.0768832172561281
+boundary_patch: 87 normalized penalty: -0.0768832172561281
+boundary_patch: 95 normalized penalty: -0.0768832172561281
+boundary_patch: 135 normalized penalty: -0.0768832172561281
+boundary_patch: 138 normalized penalty: -0.0768832172561281
+boundary_patch: 139 normalized penalty: -0.0768832172561281
+boundary_patch: 140 normalized penalty: -0.0768832172561281
+boundary_patch: 145 normalized penalty: -0.0768832172561281
+boundary_patch: 148 normalized penalty: -0.0768832172561281
+boundary_patch: 149 normalized penalty: -0.0768832172561281
+boundary_patch: 155 normalized penalty: -0.0768832172561281
+boundary_patch: 157 normalized penalty: -0.0768832172561281
+boundary_patch: 162 normalized penalty: -0.0768832172561281
+boundary_patch: 166 normalized penalty: -0.0768832172561281
+boundary_patch: 169 normalized penalty: -0.0768832172561281
+boundary_patch: 171 normalized penalty: -0.0768832172561281
+boundary_patch: 176 normalized penalty: -0.0768832172561281
+boundary_patch: 181 normalized penalty: -0.0768832172561281
+boundary_patch: 184 normalized penalty: -0.0768832172561281
+boundary_patch: 186 normalized penalty: -0.0768832172561281
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.2
+
+----- GameStep 13 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 91.0 was attacked 1 times.
+Covered target 48.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [48, 91]
+trajectories successfully intercepted by guards (reward):    target  count
+0    91.0      1
+1    48.0      1
+
+Total crop raid loss across the landscape: 81769.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 81769.0
+boundary_patch: 91.0 normalized reward: 0.1
+boundary_patch: 48.0 normalized reward: 0.1
+boundary_patch: 54 normalized penalty: -0.3590737829458726
+boundary_patch: 66 normalized penalty: -0.3590737829458726
+boundary_patch: 74 normalized penalty: -0.3590737829458726
+boundary_patch: 79 normalized penalty: -0.3590737829458726
+boundary_patch: 81 normalized penalty: -0.3590737829458726
+boundary_patch: 82 normalized penalty: -0.3590737829458726
+boundary_patch: 85 normalized penalty: -0.3590737829458726
+boundary_patch: 87 normalized penalty: -0.3590737829458726
+boundary_patch: 95 normalized penalty: -0.3590737829458726
+boundary_patch: 135 normalized penalty: -0.3590737829458726
+boundary_patch: 138 normalized penalty: -0.3590737829458726
+boundary_patch: 139 normalized penalty: -0.3590737829458726
+boundary_patch: 140 normalized penalty: -0.3590737829458726
+boundary_patch: 145 normalized penalty: -0.3590737829458726
+boundary_patch: 148 normalized penalty: -0.3590737829458726
+boundary_patch: 149 normalized penalty: -0.3590737829458726
+boundary_patch: 155 normalized penalty: -0.3590737829458726
+boundary_patch: 157 normalized penalty: -0.3590737829458726
+boundary_patch: 162 normalized penalty: -0.3590737829458726
+boundary_patch: 166 normalized penalty: -0.3590737829458726
+boundary_patch: 169 normalized penalty: -0.3590737829458726
+boundary_patch: 171 normalized penalty: -0.3590737829458726
+boundary_patch: 176 normalized penalty: -0.3590737829458726
+boundary_patch: 181 normalized penalty: -0.3590737829458726
+boundary_patch: 184 normalized penalty: -0.3590737829458726
+boundary_patch: 186 normalized penalty: -0.3590737829458726
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+step utility for defender: 0.2
+
+----- GameStep 14 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [48]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+
+Total crop raid loss across the landscape: 11237.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 11237.0
+boundary_patch: 48.0 normalized reward: 0.2
+boundary_patch: 54 normalized penalty: -0.0493452543012972
+boundary_patch: 66 normalized penalty: -0.0493452543012972
+boundary_patch: 74 normalized penalty: -0.0493452543012972
+boundary_patch: 79 normalized penalty: -0.0493452543012972
+boundary_patch: 81 normalized penalty: -0.0493452543012972
+boundary_patch: 82 normalized penalty: -0.0493452543012972
+boundary_patch: 85 normalized penalty: -0.0493452543012972
+boundary_patch: 87 normalized penalty: -0.0493452543012972
+boundary_patch: 91 normalized penalty: -0.0493452543012972
+boundary_patch: 95 normalized penalty: -0.0493452543012972
+boundary_patch: 135 normalized penalty: -0.0493452543012972
+boundary_patch: 138 normalized penalty: -0.0493452543012972
+boundary_patch: 139 normalized penalty: -0.0493452543012972
+boundary_patch: 140 normalized penalty: -0.0493452543012972
+boundary_patch: 145 normalized penalty: -0.0493452543012972
+boundary_patch: 148 normalized penalty: -0.0493452543012972
+boundary_patch: 149 normalized penalty: -0.0493452543012972
+boundary_patch: 155 normalized penalty: -0.0493452543012972
+boundary_patch: 157 normalized penalty: -0.0493452543012972
+boundary_patch: 162 normalized penalty: -0.0493452543012972
+boundary_patch: 166 normalized penalty: -0.0493452543012972
+boundary_patch: 169 normalized penalty: -0.0493452543012972
+boundary_patch: 171 normalized penalty: -0.0493452543012972
+boundary_patch: 176 normalized penalty: -0.0493452543012972
+boundary_patch: 181 normalized penalty: -0.0493452543012972
+boundary_patch: 184 normalized penalty: -0.0493452543012972
+boundary_patch: 186 normalized penalty: -0.0493452543012972
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.2
+
+----- GameStep 15 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 48.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [48]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      3
+
+Total crop raid loss across the landscape: 12085.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 12085.0
+boundary_patch: 48.0 normalized reward: 0.30000000000000004
+boundary_patch: 54 normalized penalty: -0.05306909301692415
+boundary_patch: 66 normalized penalty: -0.05306909301692415
+boundary_patch: 74 normalized penalty: -0.05306909301692415
+boundary_patch: 79 normalized penalty: -0.05306909301692415
+boundary_patch: 81 normalized penalty: -0.05306909301692415
+boundary_patch: 82 normalized penalty: -0.05306909301692415
+boundary_patch: 85 normalized penalty: -0.05306909301692415
+boundary_patch: 87 normalized penalty: -0.05306909301692415
+boundary_patch: 91 normalized penalty: -0.05306909301692415
+boundary_patch: 95 normalized penalty: -0.05306909301692415
+boundary_patch: 135 normalized penalty: -0.05306909301692415
+boundary_patch: 138 normalized penalty: -0.05306909301692415
+boundary_patch: 139 normalized penalty: -0.05306909301692415
+boundary_patch: 140 normalized penalty: -0.05306909301692415
+boundary_patch: 145 normalized penalty: -0.05306909301692415
+boundary_patch: 148 normalized penalty: -0.05306909301692415
+boundary_patch: 149 normalized penalty: -0.05306909301692415
+boundary_patch: 155 normalized penalty: -0.05306909301692415
+boundary_patch: 157 normalized penalty: -0.05306909301692415
+boundary_patch: 162 normalized penalty: -0.05306909301692415
+boundary_patch: 166 normalized penalty: -0.05306909301692415
+boundary_patch: 169 normalized penalty: -0.05306909301692415
+boundary_patch: 171 normalized penalty: -0.05306909301692415
+boundary_patch: 176 normalized penalty: -0.05306909301692415
+boundary_patch: 181 normalized penalty: -0.05306909301692415
+boundary_patch: 184 normalized penalty: -0.05306909301692415
+boundary_patch: 186 normalized penalty: -0.05306909301692415
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.30000000000000004
+
+----- GameStep 16 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 91.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [91]
+trajectories successfully intercepted by guards (reward):    target  count
+0    91.0      3
+
+Total crop raid loss across the landscape: 12337.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 12337.0
+boundary_patch: 91.0 normalized reward: 0.30000000000000004
+boundary_patch: 48 normalized penalty: -0.05417570546543593
+boundary_patch: 54 normalized penalty: -0.05417570546543593
+boundary_patch: 66 normalized penalty: -0.05417570546543593
+boundary_patch: 74 normalized penalty: -0.05417570546543593
+boundary_patch: 79 normalized penalty: -0.05417570546543593
+boundary_patch: 81 normalized penalty: -0.05417570546543593
+boundary_patch: 82 normalized penalty: -0.05417570546543593
+boundary_patch: 85 normalized penalty: -0.05417570546543593
+boundary_patch: 87 normalized penalty: -0.05417570546543593
+boundary_patch: 95 normalized penalty: -0.05417570546543593
+boundary_patch: 135 normalized penalty: -0.05417570546543593
+boundary_patch: 138 normalized penalty: -0.05417570546543593
+boundary_patch: 139 normalized penalty: -0.05417570546543593
+boundary_patch: 140 normalized penalty: -0.05417570546543593
+boundary_patch: 145 normalized penalty: -0.05417570546543593
+boundary_patch: 148 normalized penalty: -0.05417570546543593
+boundary_patch: 149 normalized penalty: -0.05417570546543593
+boundary_patch: 155 normalized penalty: -0.05417570546543593
+boundary_patch: 157 normalized penalty: -0.05417570546543593
+boundary_patch: 162 normalized penalty: -0.05417570546543593
+boundary_patch: 166 normalized penalty: -0.05417570546543593
+boundary_patch: 169 normalized penalty: -0.05417570546543593
+boundary_patch: 171 normalized penalty: -0.05417570546543593
+boundary_patch: 176 normalized penalty: -0.05417570546543593
+boundary_patch: 181 normalized penalty: -0.05417570546543593
+boundary_patch: 184 normalized penalty: -0.05417570546543593
+boundary_patch: 186 normalized penalty: -0.05417570546543593
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.30000000000000004
+
+----- GameStep 17 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  169
+Covered target 48.0 was attacked 2 times.
+Covered target 91.0 was attacked 2 times.
+Covered target 169.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 169]
+Attacked target IDs: [48, 91, 169]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+1    91.0      2
+2   169.0      1
+
+Total crop raid loss across the landscape: 39325.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 39325.0
+boundary_patch: 48.0 normalized reward: 0.2
+boundary_patch: 91.0 normalized reward: 0.2
+boundary_patch: 169.0 normalized reward: 0.1
+boundary_patch: 54 normalized penalty: -0.17268862911795962
+boundary_patch: 66 normalized penalty: -0.17268862911795962
+boundary_patch: 74 normalized penalty: -0.17268862911795962
+boundary_patch: 79 normalized penalty: -0.17268862911795962
+boundary_patch: 81 normalized penalty: -0.17268862911795962
+boundary_patch: 82 normalized penalty: -0.17268862911795962
+boundary_patch: 85 normalized penalty: -0.17268862911795962
+boundary_patch: 87 normalized penalty: -0.17268862911795962
+boundary_patch: 95 normalized penalty: -0.17268862911795962
+boundary_patch: 135 normalized penalty: -0.17268862911795962
+boundary_patch: 138 normalized penalty: -0.17268862911795962
+boundary_patch: 139 normalized penalty: -0.17268862911795962
+boundary_patch: 140 normalized penalty: -0.17268862911795962
+boundary_patch: 145 normalized penalty: -0.17268862911795962
+boundary_patch: 148 normalized penalty: -0.17268862911795962
+boundary_patch: 149 normalized penalty: -0.17268862911795962
+boundary_patch: 155 normalized penalty: -0.17268862911795962
+boundary_patch: 157 normalized penalty: -0.17268862911795962
+boundary_patch: 162 normalized penalty: -0.17268862911795962
+boundary_patch: 166 normalized penalty: -0.17268862911795962
+boundary_patch: 171 normalized penalty: -0.17268862911795962
+boundary_patch: 176 normalized penalty: -0.17268862911795962
+boundary_patch: 181 normalized penalty: -0.17268862911795962
+boundary_patch: 184 normalized penalty: -0.17268862911795962
+boundary_patch: 186 normalized penalty: -0.17268862911795962
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 18 -----
+gamma: 0.25
+Random Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  66
+target_id:  95
+target_id:  169
+Covered target 66.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [66, 95, 169]
+Attacked target IDs: [66]
+trajectories successfully intercepted by guards (reward):    target  count
+0    66.0      2
+
+Total crop raid loss across the landscape: 4498.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 4498.0
+boundary_patch: 66.0 normalized reward: 0.2
+boundary_patch: 48 normalized penalty: -0.019752153942087285
+boundary_patch: 54 normalized penalty: -0.019752153942087285
+boundary_patch: 74 normalized penalty: -0.019752153942087285
+boundary_patch: 79 normalized penalty: -0.019752153942087285
+boundary_patch: 81 normalized penalty: -0.019752153942087285
+boundary_patch: 82 normalized penalty: -0.019752153942087285
+boundary_patch: 85 normalized penalty: -0.019752153942087285
+boundary_patch: 87 normalized penalty: -0.019752153942087285
+boundary_patch: 91 normalized penalty: -0.019752153942087285
+boundary_patch: 95 normalized penalty: -0.019752153942087285
+boundary_patch: 135 normalized penalty: -0.019752153942087285
+boundary_patch: 138 normalized penalty: -0.019752153942087285
+boundary_patch: 139 normalized penalty: -0.019752153942087285
+boundary_patch: 140 normalized penalty: -0.019752153942087285
+boundary_patch: 145 normalized penalty: -0.019752153942087285
+boundary_patch: 148 normalized penalty: -0.019752153942087285
+boundary_patch: 149 normalized penalty: -0.019752153942087285
+boundary_patch: 155 normalized penalty: -0.019752153942087285
+boundary_patch: 157 normalized penalty: -0.019752153942087285
+boundary_patch: 162 normalized penalty: -0.019752153942087285
+boundary_patch: 166 normalized penalty: -0.019752153942087285
+boundary_patch: 169 normalized penalty: -0.019752153942087285
+boundary_patch: 171 normalized penalty: -0.019752153942087285
+boundary_patch: 176 normalized penalty: -0.019752153942087285
+boundary_patch: 181 normalized penalty: -0.019752153942087285
+boundary_patch: 184 normalized penalty: -0.019752153942087285
+boundary_patch: 186 normalized penalty: -0.019752153942087285
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.2
+
+----- GameStep 19 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  66
+target_id:  91
+Covered target 66.0 was attacked 3 times.
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 66, 91]
+Attacked target IDs: [48, 66]
+trajectories successfully intercepted by guards (reward):    target  count
+0    66.0      3
+1    48.0      2
+
+Total crop raid loss across the landscape: 1999.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 1999.0
+boundary_patch: 66.0 normalized reward: 0.30000000000000004
+boundary_patch: 48.0 normalized reward: 0.2
+boundary_patch: 54 normalized penalty: -0.008778247161012113
+boundary_patch: 74 normalized penalty: -0.008778247161012113
+boundary_patch: 79 normalized penalty: -0.008778247161012113
+boundary_patch: 81 normalized penalty: -0.008778247161012113
+boundary_patch: 82 normalized penalty: -0.008778247161012113
+boundary_patch: 85 normalized penalty: -0.008778247161012113
+boundary_patch: 87 normalized penalty: -0.008778247161012113
+boundary_patch: 91 normalized penalty: -0.008778247161012113
+boundary_patch: 95 normalized penalty: -0.008778247161012113
+boundary_patch: 135 normalized penalty: -0.008778247161012113
+boundary_patch: 138 normalized penalty: -0.008778247161012113
+boundary_patch: 139 normalized penalty: -0.008778247161012113
+boundary_patch: 140 normalized penalty: -0.008778247161012113
+boundary_patch: 145 normalized penalty: -0.008778247161012113
+boundary_patch: 148 normalized penalty: -0.008778247161012113
+boundary_patch: 149 normalized penalty: -0.008778247161012113
+boundary_patch: 155 normalized penalty: -0.008778247161012113
+boundary_patch: 157 normalized penalty: -0.008778247161012113
+boundary_patch: 162 normalized penalty: -0.008778247161012113
+boundary_patch: 166 normalized penalty: -0.008778247161012113
+boundary_patch: 169 normalized penalty: -0.008778247161012113
+boundary_patch: 171 normalized penalty: -0.008778247161012113
+boundary_patch: 176 normalized penalty: -0.008778247161012113
+boundary_patch: 181 normalized penalty: -0.008778247161012113
+boundary_patch: 184 normalized penalty: -0.008778247161012113
+boundary_patch: 186 normalized penalty: -0.008778247161012113
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 20 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  66
+target_id:  91
+Covered target 66.0 was attacked 1 times.
+Covered target 48.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 66, 91]
+Attacked target IDs: [48, 66]
+trajectories successfully intercepted by guards (reward):    target  count
+0    66.0      1
+1    48.0      1
+
+Total crop raid loss across the landscape: 59919.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 59919.0
+boundary_patch: 66.0 normalized reward: 0.1
+boundary_patch: 48.0 normalized reward: 0.1
+boundary_patch: 54 normalized penalty: -0.2631234575491169
+boundary_patch: 74 normalized penalty: -0.2631234575491169
+boundary_patch: 79 normalized penalty: -0.2631234575491169
+boundary_patch: 81 normalized penalty: -0.2631234575491169
+boundary_patch: 82 normalized penalty: -0.2631234575491169
+boundary_patch: 85 normalized penalty: -0.2631234575491169
+boundary_patch: 87 normalized penalty: -0.2631234575491169
+boundary_patch: 91 normalized penalty: -0.2631234575491169
+boundary_patch: 95 normalized penalty: -0.2631234575491169
+boundary_patch: 135 normalized penalty: -0.2631234575491169
+boundary_patch: 138 normalized penalty: -0.2631234575491169
+boundary_patch: 139 normalized penalty: -0.2631234575491169
+boundary_patch: 140 normalized penalty: -0.2631234575491169
+boundary_patch: 145 normalized penalty: -0.2631234575491169
+boundary_patch: 148 normalized penalty: -0.2631234575491169
+boundary_patch: 149 normalized penalty: -0.2631234575491169
+boundary_patch: 155 normalized penalty: -0.2631234575491169
+boundary_patch: 157 normalized penalty: -0.2631234575491169
+boundary_patch: 162 normalized penalty: -0.2631234575491169
+boundary_patch: 166 normalized penalty: -0.2631234575491169
+boundary_patch: 169 normalized penalty: -0.2631234575491169
+boundary_patch: 171 normalized penalty: -0.2631234575491169
+boundary_patch: 176 normalized penalty: -0.2631234575491169
+boundary_patch: 181 normalized penalty: -0.2631234575491169
+boundary_patch: 184 normalized penalty: -0.2631234575491169
+boundary_patch: 186 normalized penalty: -0.2631234575491169
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.2
+
+----- GameStep 21 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  66
+target_id:  91
+Covered target 91.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 66, 91]
+Attacked target IDs: [91]
+trajectories successfully intercepted by guards (reward):    target  count
+0    91.0      2
+
+Total crop raid loss across the landscape: 31748.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 31748.0
+boundary_patch: 91.0 normalized reward: 0.2
+boundary_patch: 48 normalized penalty: -0.13941560323552402
+boundary_patch: 54 normalized penalty: -0.13941560323552402
+boundary_patch: 66 normalized penalty: -0.13941560323552402
+boundary_patch: 74 normalized penalty: -0.13941560323552402
+boundary_patch: 79 normalized penalty: -0.13941560323552402
+boundary_patch: 81 normalized penalty: -0.13941560323552402
+boundary_patch: 82 normalized penalty: -0.13941560323552402
+boundary_patch: 85 normalized penalty: -0.13941560323552402
+boundary_patch: 87 normalized penalty: -0.13941560323552402
+boundary_patch: 95 normalized penalty: -0.13941560323552402
+boundary_patch: 135 normalized penalty: -0.13941560323552402
+boundary_patch: 138 normalized penalty: -0.13941560323552402
+boundary_patch: 139 normalized penalty: -0.13941560323552402
+boundary_patch: 140 normalized penalty: -0.13941560323552402
+boundary_patch: 145 normalized penalty: -0.13941560323552402
+boundary_patch: 148 normalized penalty: -0.13941560323552402
+boundary_patch: 149 normalized penalty: -0.13941560323552402
+boundary_patch: 155 normalized penalty: -0.13941560323552402
+boundary_patch: 157 normalized penalty: -0.13941560323552402
+boundary_patch: 162 normalized penalty: -0.13941560323552402
+boundary_patch: 166 normalized penalty: -0.13941560323552402
+boundary_patch: 169 normalized penalty: -0.13941560323552402
+boundary_patch: 171 normalized penalty: -0.13941560323552402
+boundary_patch: 176 normalized penalty: -0.13941560323552402
+boundary_patch: 181 normalized penalty: -0.13941560323552402
+boundary_patch: 184 normalized penalty: -0.13941560323552402
+boundary_patch: 186 normalized penalty: -0.13941560323552402
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.2
+
+----- GameStep 22 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  66
+target_id:  91
+Covered target 48.0 was attacked 4 times.
+Covered target 66.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 66, 91]
+Attacked target IDs: [48, 66]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      4
+1    66.0      1
+
+Total crop raid loss across the landscape: 19130.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 19130.0
+boundary_patch: 48.0 normalized reward: 0.4
+boundary_patch: 66.0 normalized reward: 0.1
+boundary_patch: 54 normalized penalty: -0.08400593706361266
+boundary_patch: 74 normalized penalty: -0.08400593706361266
+boundary_patch: 79 normalized penalty: -0.08400593706361266
+boundary_patch: 81 normalized penalty: -0.08400593706361266
+boundary_patch: 82 normalized penalty: -0.08400593706361266
+boundary_patch: 85 normalized penalty: -0.08400593706361266
+boundary_patch: 87 normalized penalty: -0.08400593706361266
+boundary_patch: 91 normalized penalty: -0.08400593706361266
+boundary_patch: 95 normalized penalty: -0.08400593706361266
+boundary_patch: 135 normalized penalty: -0.08400593706361266
+boundary_patch: 138 normalized penalty: -0.08400593706361266
+boundary_patch: 139 normalized penalty: -0.08400593706361266
+boundary_patch: 140 normalized penalty: -0.08400593706361266
+boundary_patch: 145 normalized penalty: -0.08400593706361266
+boundary_patch: 148 normalized penalty: -0.08400593706361266
+boundary_patch: 149 normalized penalty: -0.08400593706361266
+boundary_patch: 155 normalized penalty: -0.08400593706361266
+boundary_patch: 157 normalized penalty: -0.08400593706361266
+boundary_patch: 162 normalized penalty: -0.08400593706361266
+boundary_patch: 166 normalized penalty: -0.08400593706361266
+boundary_patch: 169 normalized penalty: -0.08400593706361266
+boundary_patch: 171 normalized penalty: -0.08400593706361266
+boundary_patch: 176 normalized penalty: -0.08400593706361266
+boundary_patch: 181 normalized penalty: -0.08400593706361266
+boundary_patch: 184 normalized penalty: -0.08400593706361266
+boundary_patch: 186 normalized penalty: -0.08400593706361266
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 23 -----
+gamma: 0.25
+Random Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  54
+target_id:  135
+target_id:  186
+Covered target 186.0 was attacked 1 times.
+Covered target 135.0 was attacked 3 times.
+Covered target 54.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+Protected target IDs: [54, 135, 186]
+Attacked target IDs: [54, 135, 186]
+trajectories successfully intercepted by guards (reward):    target  count
+0   186.0      1
+1   135.0      3
+2    54.0      1
+
+Total crop raid loss across the landscape: 10325.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 10325.0
+boundary_patch: 186.0 normalized reward: 0.1
+boundary_patch: 135.0 normalized reward: 0.30000000000000004
+boundary_patch: 54.0 normalized reward: 0.1
+boundary_patch: 48 normalized penalty: -0.04534037115430218
+boundary_patch: 66 normalized penalty: -0.04534037115430218
+boundary_patch: 74 normalized penalty: -0.04534037115430218
+boundary_patch: 79 normalized penalty: -0.04534037115430218
+boundary_patch: 81 normalized penalty: -0.04534037115430218
+boundary_patch: 82 normalized penalty: -0.04534037115430218
+boundary_patch: 85 normalized penalty: -0.04534037115430218
+boundary_patch: 87 normalized penalty: -0.04534037115430218
+boundary_patch: 91 normalized penalty: -0.04534037115430218
+boundary_patch: 95 normalized penalty: -0.04534037115430218
+boundary_patch: 138 normalized penalty: -0.04534037115430218
+boundary_patch: 139 normalized penalty: -0.04534037115430218
+boundary_patch: 140 normalized penalty: -0.04534037115430218
+boundary_patch: 145 normalized penalty: -0.04534037115430218
+boundary_patch: 148 normalized penalty: -0.04534037115430218
+boundary_patch: 149 normalized penalty: -0.04534037115430218
+boundary_patch: 155 normalized penalty: -0.04534037115430218
+boundary_patch: 157 normalized penalty: -0.04534037115430218
+boundary_patch: 162 normalized penalty: -0.04534037115430218
+boundary_patch: 166 normalized penalty: -0.04534037115430218
+boundary_patch: 169 normalized penalty: -0.04534037115430218
+boundary_patch: 171 normalized penalty: -0.04534037115430218
+boundary_patch: 176 normalized penalty: -0.04534037115430218
+boundary_patch: 181 normalized penalty: -0.04534037115430218
+boundary_patch: 184 normalized penalty: -0.04534037115430218
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 24 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  135
+Covered target 135.0 was attacked 7 times.
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 135]
+Attacked target IDs: [48, 135]
+trajectories successfully intercepted by guards (reward):    target  count
+0   135.0      7
+1    48.0      2
+
+Total crop raid loss across the landscape: 25571.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 25571.0
+boundary_patch: 135.0 normalized reward: 0.5
+boundary_patch: 48.0 normalized reward: 0.14285714285714285
+boundary_patch: 54 normalized penalty: -0.11229042428926499
+boundary_patch: 66 normalized penalty: -0.11229042428926499
+boundary_patch: 74 normalized penalty: -0.11229042428926499
+boundary_patch: 79 normalized penalty: -0.11229042428926499
+boundary_patch: 81 normalized penalty: -0.11229042428926499
+boundary_patch: 82 normalized penalty: -0.11229042428926499
+boundary_patch: 85 normalized penalty: -0.11229042428926499
+boundary_patch: 87 normalized penalty: -0.11229042428926499
+boundary_patch: 91 normalized penalty: -0.11229042428926499
+boundary_patch: 95 normalized penalty: -0.11229042428926499
+boundary_patch: 138 normalized penalty: -0.11229042428926499
+boundary_patch: 139 normalized penalty: -0.11229042428926499
+boundary_patch: 140 normalized penalty: -0.11229042428926499
+boundary_patch: 145 normalized penalty: -0.11229042428926499
+boundary_patch: 148 normalized penalty: -0.11229042428926499
+boundary_patch: 149 normalized penalty: -0.11229042428926499
+boundary_patch: 155 normalized penalty: -0.11229042428926499
+boundary_patch: 157 normalized penalty: -0.11229042428926499
+boundary_patch: 162 normalized penalty: -0.11229042428926499
+boundary_patch: 166 normalized penalty: -0.11229042428926499
+boundary_patch: 169 normalized penalty: -0.11229042428926499
+boundary_patch: 171 normalized penalty: -0.11229042428926499
+boundary_patch: 176 normalized penalty: -0.11229042428926499
+boundary_patch: 181 normalized penalty: -0.11229042428926499
+boundary_patch: 184 normalized penalty: -0.11229042428926499
+boundary_patch: 186 normalized penalty: -0.11229042428926499
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  7
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6428571428571428
+
+----- GameStep 25 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  91
+target_id:  135
+Covered target 91.0 was attacked 2 times.
+Covered target 135.0 was attacked 6 times.
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 91, 135]
+Attacked target IDs: [48, 91, 135]
+trajectories successfully intercepted by guards (reward):    target  count
+0    91.0      2
+1   135.0      6
+2    48.0      2
+
+Total crop raid loss across the landscape: 19003.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 19003.0
+boundary_patch: 91.0 normalized reward: 0.14285714285714285
+boundary_patch: 135.0 normalized reward: 0.42857142857142855
+boundary_patch: 48.0 normalized reward: 0.14285714285714285
+boundary_patch: 54 normalized penalty: -0.08344823952011664
+boundary_patch: 66 normalized penalty: -0.08344823952011664
+boundary_patch: 74 normalized penalty: -0.08344823952011664
+boundary_patch: 79 normalized penalty: -0.08344823952011664
+boundary_patch: 81 normalized penalty: -0.08344823952011664
+boundary_patch: 82 normalized penalty: -0.08344823952011664
+boundary_patch: 85 normalized penalty: -0.08344823952011664
+boundary_patch: 87 normalized penalty: -0.08344823952011664
+boundary_patch: 95 normalized penalty: -0.08344823952011664
+boundary_patch: 138 normalized penalty: -0.08344823952011664
+boundary_patch: 139 normalized penalty: -0.08344823952011664
+boundary_patch: 140 normalized penalty: -0.08344823952011664
+boundary_patch: 145 normalized penalty: -0.08344823952011664
+boundary_patch: 148 normalized penalty: -0.08344823952011664
+boundary_patch: 149 normalized penalty: -0.08344823952011664
+boundary_patch: 155 normalized penalty: -0.08344823952011664
+boundary_patch: 157 normalized penalty: -0.08344823952011664
+boundary_patch: 162 normalized penalty: -0.08344823952011664
+boundary_patch: 166 normalized penalty: -0.08344823952011664
+boundary_patch: 169 normalized penalty: -0.08344823952011664
+boundary_patch: 171 normalized penalty: -0.08344823952011664
+boundary_patch: 176 normalized penalty: -0.08344823952011664
+boundary_patch: 181 normalized penalty: -0.08344823952011664
+boundary_patch: 184 normalized penalty: -0.08344823952011664
+boundary_patch: 186 normalized penalty: -0.08344823952011664
+MAX_STEP_CROP_RAIDING_VAL:  113861.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  7
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.7142857142857142
+generated defender strategies!
+
+----- GameStep 1 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+ 0]
+target_id:  54
+target_id:  87
+target_id:  157
+target_id:  184
+Covered target 87.0 was attacked 1 times.
+Covered target 157.0 was attacked 1 times.
+Covered target 54.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [54, 87, 157, 184]
+Attacked target IDs: [54, 87, 157]
+trajectories successfully intercepted by guards (reward):    target  count
+0    87.0      1
+1   157.0      1
+2    54.0      1
+
+Total crop raid loss across the landscape: 58650.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 58650.0
+boundary_patch: 87.0 normalized reward: 0.5
+boundary_patch: 157.0 normalized reward: 0.5
+boundary_patch: 54.0 normalized reward: 0.5
+boundary_patch: 48 normalized penalty: -0.5
+boundary_patch: 66 normalized penalty: -0.5
+boundary_patch: 74 normalized penalty: -0.5
+boundary_patch: 79 normalized penalty: -0.5
+boundary_patch: 81 normalized penalty: -0.5
+boundary_patch: 82 normalized penalty: -0.5
+boundary_patch: 85 normalized penalty: -0.5
+boundary_patch: 91 normalized penalty: -0.5
+boundary_patch: 95 normalized penalty: -0.5
+boundary_patch: 135 normalized penalty: -0.5
+boundary_patch: 138 normalized penalty: -0.5
+boundary_patch: 139 normalized penalty: -0.5
+boundary_patch: 140 normalized penalty: -0.5
+boundary_patch: 145 normalized penalty: -0.5
+boundary_patch: 148 normalized penalty: -0.5
+boundary_patch: 149 normalized penalty: -0.5
+boundary_patch: 155 normalized penalty: -0.5
+boundary_patch: 162 normalized penalty: -0.5
+boundary_patch: 166 normalized penalty: -0.5
+boundary_patch: 169 normalized penalty: -0.5
+boundary_patch: 171 normalized penalty: -0.5
+boundary_patch: 176 normalized penalty: -0.5
+boundary_patch: 181 normalized penalty: -0.5
+boundary_patch: 184 normalized penalty: -0.5
+boundary_patch: 186 normalized penalty: -0.5
+MAX_STEP_CROP_RAIDING_VAL:  58650.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  1
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 1.5
+
+----- GameStep 2 -----
+gamma: 0.25
+Random Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  81
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 91.0 was attacked 1 times.
+Covered target 138.0 was attacked 3 times.
+Covered target 139.0 was attacked 4 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [81, 91, 138, 139]
+Attacked target IDs: [91, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0    91.0      1
+1   138.0      3
+2   139.0      4
+
+Total crop raid loss across the landscape: 10344.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 10344.0
+boundary_patch: 91.0 normalized reward: 0.125
+boundary_patch: 138.0 normalized reward: 0.375
+boundary_patch: 139.0 normalized reward: 0.5
+boundary_patch: 48 normalized penalty: -0.0881841432225064
+boundary_patch: 54 normalized penalty: -0.0881841432225064
+boundary_patch: 66 normalized penalty: -0.0881841432225064
+boundary_patch: 74 normalized penalty: -0.0881841432225064
+boundary_patch: 79 normalized penalty: -0.0881841432225064
+boundary_patch: 81 normalized penalty: -0.0881841432225064
+boundary_patch: 82 normalized penalty: -0.0881841432225064
+boundary_patch: 85 normalized penalty: -0.0881841432225064
+boundary_patch: 87 normalized penalty: -0.0881841432225064
+boundary_patch: 95 normalized penalty: -0.0881841432225064
+boundary_patch: 135 normalized penalty: -0.0881841432225064
+boundary_patch: 140 normalized penalty: -0.0881841432225064
+boundary_patch: 145 normalized penalty: -0.0881841432225064
+boundary_patch: 148 normalized penalty: -0.0881841432225064
+boundary_patch: 149 normalized penalty: -0.0881841432225064
+boundary_patch: 155 normalized penalty: -0.0881841432225064
+boundary_patch: 157 normalized penalty: -0.0881841432225064
+boundary_patch: 162 normalized penalty: -0.0881841432225064
+boundary_patch: 166 normalized penalty: -0.0881841432225064
+boundary_patch: 169 normalized penalty: -0.0881841432225064
+boundary_patch: 171 normalized penalty: -0.0881841432225064
+boundary_patch: 176 normalized penalty: -0.0881841432225064
+boundary_patch: 181 normalized penalty: -0.0881841432225064
+boundary_patch: 184 normalized penalty: -0.0881841432225064
+boundary_patch: 186 normalized penalty: -0.0881841432225064
+MAX_STEP_CROP_RAIDING_VAL:  58650.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  4
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 1.0
+
+----- GameStep 3 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 87.0 was attacked 1 times.
+Covered target 139.0 was attacked 3 times.
+Covered target 138.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [87, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0    87.0      1
+1   139.0      3
+2   138.0      3
+
+Total crop raid loss across the landscape: 15096.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 15096.0
+boundary_patch: 87.0 normalized reward: 0.125
+boundary_patch: 139.0 normalized reward: 0.375
+boundary_patch: 138.0 normalized reward: 0.375
+boundary_patch: 48 normalized penalty: -0.12869565217391304
+boundary_patch: 54 normalized penalty: -0.12869565217391304
+boundary_patch: 66 normalized penalty: -0.12869565217391304
+boundary_patch: 74 normalized penalty: -0.12869565217391304
+boundary_patch: 79 normalized penalty: -0.12869565217391304
+boundary_patch: 81 normalized penalty: -0.12869565217391304
+boundary_patch: 82 normalized penalty: -0.12869565217391304
+boundary_patch: 85 normalized penalty: -0.12869565217391304
+boundary_patch: 91 normalized penalty: -0.12869565217391304
+boundary_patch: 95 normalized penalty: -0.12869565217391304
+boundary_patch: 135 normalized penalty: -0.12869565217391304
+boundary_patch: 140 normalized penalty: -0.12869565217391304
+boundary_patch: 145 normalized penalty: -0.12869565217391304
+boundary_patch: 148 normalized penalty: -0.12869565217391304
+boundary_patch: 149 normalized penalty: -0.12869565217391304
+boundary_patch: 155 normalized penalty: -0.12869565217391304
+boundary_patch: 157 normalized penalty: -0.12869565217391304
+boundary_patch: 162 normalized penalty: -0.12869565217391304
+boundary_patch: 166 normalized penalty: -0.12869565217391304
+boundary_patch: 169 normalized penalty: -0.12869565217391304
+boundary_patch: 171 normalized penalty: -0.12869565217391304
+boundary_patch: 176 normalized penalty: -0.12869565217391304
+boundary_patch: 181 normalized penalty: -0.12869565217391304
+boundary_patch: 184 normalized penalty: -0.12869565217391304
+boundary_patch: 186 normalized penalty: -0.12869565217391304
+MAX_STEP_CROP_RAIDING_VAL:  58650.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  4
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.875
+
+----- GameStep 4 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 91.0 was attacked 4 times.
+Covered target 87.0 was attacked 1 times.
+Covered target 139.0 was attacked 3 times.
+Covered target 138.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [87, 91, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0    91.0      4
+1    87.0      1
+2   139.0      3
+3   138.0      2
+
+Total crop raid loss across the landscape: 40062.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 40062.0
+boundary_patch: 91.0 normalized reward: 0.5
+boundary_patch: 87.0 normalized reward: 0.125
+boundary_patch: 139.0 normalized reward: 0.375
+boundary_patch: 138.0 normalized reward: 0.25
+boundary_patch: 48 normalized penalty: -0.34153452685422
+boundary_patch: 54 normalized penalty: -0.34153452685422
+boundary_patch: 66 normalized penalty: -0.34153452685422
+boundary_patch: 74 normalized penalty: -0.34153452685422
+boundary_patch: 79 normalized penalty: -0.34153452685422
+boundary_patch: 81 normalized penalty: -0.34153452685422
+boundary_patch: 82 normalized penalty: -0.34153452685422
+boundary_patch: 85 normalized penalty: -0.34153452685422
+boundary_patch: 95 normalized penalty: -0.34153452685422
+boundary_patch: 135 normalized penalty: -0.34153452685422
+boundary_patch: 140 normalized penalty: -0.34153452685422
+boundary_patch: 145 normalized penalty: -0.34153452685422
+boundary_patch: 148 normalized penalty: -0.34153452685422
+boundary_patch: 149 normalized penalty: -0.34153452685422
+boundary_patch: 155 normalized penalty: -0.34153452685422
+boundary_patch: 157 normalized penalty: -0.34153452685422
+boundary_patch: 162 normalized penalty: -0.34153452685422
+boundary_patch: 166 normalized penalty: -0.34153452685422
+boundary_patch: 169 normalized penalty: -0.34153452685422
+boundary_patch: 171 normalized penalty: -0.34153452685422
+boundary_patch: 176 normalized penalty: -0.34153452685422
+boundary_patch: 181 normalized penalty: -0.34153452685422
+boundary_patch: 184 normalized penalty: -0.34153452685422
+boundary_patch: 186 normalized penalty: -0.34153452685422
+MAX_STEP_CROP_RAIDING_VAL:  58650.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  4
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 1.25
+
+----- GameStep 5 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 5 times.
+Covered target 138.0 was attacked 3 times.
+Covered target 91.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [91, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      5
+1   138.0      3
+2    91.0      1
+
+Total crop raid loss across the landscape: 26858.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 26858.0
+boundary_patch: 139.0 normalized reward: 0.5
+boundary_patch: 138.0 normalized reward: 0.30000000000000004
+boundary_patch: 91.0 normalized reward: 0.1
+boundary_patch: 48 normalized penalty: -0.2289684569479966
+boundary_patch: 54 normalized penalty: -0.2289684569479966
+boundary_patch: 66 normalized penalty: -0.2289684569479966
+boundary_patch: 74 normalized penalty: -0.2289684569479966
+boundary_patch: 79 normalized penalty: -0.2289684569479966
+boundary_patch: 81 normalized penalty: -0.2289684569479966
+boundary_patch: 82 normalized penalty: -0.2289684569479966
+boundary_patch: 85 normalized penalty: -0.2289684569479966
+boundary_patch: 87 normalized penalty: -0.2289684569479966
+boundary_patch: 95 normalized penalty: -0.2289684569479966
+boundary_patch: 135 normalized penalty: -0.2289684569479966
+boundary_patch: 140 normalized penalty: -0.2289684569479966
+boundary_patch: 145 normalized penalty: -0.2289684569479966
+boundary_patch: 148 normalized penalty: -0.2289684569479966
+boundary_patch: 149 normalized penalty: -0.2289684569479966
+boundary_patch: 155 normalized penalty: -0.2289684569479966
+boundary_patch: 157 normalized penalty: -0.2289684569479966
+boundary_patch: 162 normalized penalty: -0.2289684569479966
+boundary_patch: 166 normalized penalty: -0.2289684569479966
+boundary_patch: 169 normalized penalty: -0.2289684569479966
+boundary_patch: 171 normalized penalty: -0.2289684569479966
+boundary_patch: 176 normalized penalty: -0.2289684569479966
+boundary_patch: 181 normalized penalty: -0.2289684569479966
+boundary_patch: 184 normalized penalty: -0.2289684569479966
+boundary_patch: 186 normalized penalty: -0.2289684569479966
+MAX_STEP_CROP_RAIDING_VAL:  58650.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.9
+
+----- GameStep 6 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 138.0 was attacked 2 times.
+Covered target 139.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   138.0      2
+1   139.0      3
+
+Total crop raid loss across the landscape: 17922.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 17922.0
+boundary_patch: 138.0 normalized reward: 0.2
+boundary_patch: 139.0 normalized reward: 0.30000000000000004
+boundary_patch: 48 normalized penalty: -0.15278772378516625
+boundary_patch: 54 normalized penalty: -0.15278772378516625
+boundary_patch: 66 normalized penalty: -0.15278772378516625
+boundary_patch: 74 normalized penalty: -0.15278772378516625
+boundary_patch: 79 normalized penalty: -0.15278772378516625
+boundary_patch: 81 normalized penalty: -0.15278772378516625
+boundary_patch: 82 normalized penalty: -0.15278772378516625
+boundary_patch: 85 normalized penalty: -0.15278772378516625
+boundary_patch: 87 normalized penalty: -0.15278772378516625
+boundary_patch: 91 normalized penalty: -0.15278772378516625
+boundary_patch: 95 normalized penalty: -0.15278772378516625
+boundary_patch: 135 normalized penalty: -0.15278772378516625
+boundary_patch: 140 normalized penalty: -0.15278772378516625
+boundary_patch: 145 normalized penalty: -0.15278772378516625
+boundary_patch: 148 normalized penalty: -0.15278772378516625
+boundary_patch: 149 normalized penalty: -0.15278772378516625
+boundary_patch: 155 normalized penalty: -0.15278772378516625
+boundary_patch: 157 normalized penalty: -0.15278772378516625
+boundary_patch: 162 normalized penalty: -0.15278772378516625
+boundary_patch: 166 normalized penalty: -0.15278772378516625
+boundary_patch: 169 normalized penalty: -0.15278772378516625
+boundary_patch: 171 normalized penalty: -0.15278772378516625
+boundary_patch: 176 normalized penalty: -0.15278772378516625
+boundary_patch: 181 normalized penalty: -0.15278772378516625
+boundary_patch: 184 normalized penalty: -0.15278772378516625
+boundary_patch: 186 normalized penalty: -0.15278772378516625
+MAX_STEP_CROP_RAIDING_VAL:  58650.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 7 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 3 times.
+Covered target 138.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      3
+1   138.0      2
+
+Total crop raid loss across the landscape: 12807.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 12807.0
+boundary_patch: 139.0 normalized reward: 0.30000000000000004
+boundary_patch: 138.0 normalized reward: 0.2
+boundary_patch: 48 normalized penalty: -0.10918158567774937
+boundary_patch: 54 normalized penalty: -0.10918158567774937
+boundary_patch: 66 normalized penalty: -0.10918158567774937
+boundary_patch: 74 normalized penalty: -0.10918158567774937
+boundary_patch: 79 normalized penalty: -0.10918158567774937
+boundary_patch: 81 normalized penalty: -0.10918158567774937
+boundary_patch: 82 normalized penalty: -0.10918158567774937
+boundary_patch: 85 normalized penalty: -0.10918158567774937
+boundary_patch: 87 normalized penalty: -0.10918158567774937
+boundary_patch: 91 normalized penalty: -0.10918158567774937
+boundary_patch: 95 normalized penalty: -0.10918158567774937
+boundary_patch: 135 normalized penalty: -0.10918158567774937
+boundary_patch: 140 normalized penalty: -0.10918158567774937
+boundary_patch: 145 normalized penalty: -0.10918158567774937
+boundary_patch: 148 normalized penalty: -0.10918158567774937
+boundary_patch: 149 normalized penalty: -0.10918158567774937
+boundary_patch: 155 normalized penalty: -0.10918158567774937
+boundary_patch: 157 normalized penalty: -0.10918158567774937
+boundary_patch: 162 normalized penalty: -0.10918158567774937
+boundary_patch: 166 normalized penalty: -0.10918158567774937
+boundary_patch: 169 normalized penalty: -0.10918158567774937
+boundary_patch: 171 normalized penalty: -0.10918158567774937
+boundary_patch: 176 normalized penalty: -0.10918158567774937
+boundary_patch: 181 normalized penalty: -0.10918158567774937
+boundary_patch: 184 normalized penalty: -0.10918158567774937
+boundary_patch: 186 normalized penalty: -0.10918158567774937
+MAX_STEP_CROP_RAIDING_VAL:  58650.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5
+
+----- GameStep 8 -----
+gamma: 0.25
+Random Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+ 0]
+target_id:  85
+target_id:  149
+target_id:  166
+target_id:  181
+Covered target 149.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [85, 149, 166, 181]
+Attacked target IDs: [149]
+trajectories successfully intercepted by guards (reward):    target  count
+0   149.0      1
+
+Total crop raid loss across the landscape: 64256.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 64256.0
+boundary_patch: 149.0 normalized reward: 0.1
+boundary_patch: 48 normalized penalty: -0.5
+boundary_patch: 54 normalized penalty: -0.5
+boundary_patch: 66 normalized penalty: -0.5
+boundary_patch: 74 normalized penalty: -0.5
+boundary_patch: 79 normalized penalty: -0.5
+boundary_patch: 81 normalized penalty: -0.5
+boundary_patch: 82 normalized penalty: -0.5
+boundary_patch: 85 normalized penalty: -0.5
+boundary_patch: 87 normalized penalty: -0.5
+boundary_patch: 91 normalized penalty: -0.5
+boundary_patch: 95 normalized penalty: -0.5
+boundary_patch: 135 normalized penalty: -0.5
+boundary_patch: 138 normalized penalty: -0.5
+boundary_patch: 139 normalized penalty: -0.5
+boundary_patch: 140 normalized penalty: -0.5
+boundary_patch: 145 normalized penalty: -0.5
+boundary_patch: 148 normalized penalty: -0.5
+boundary_patch: 155 normalized penalty: -0.5
+boundary_patch: 157 normalized penalty: -0.5
+boundary_patch: 162 normalized penalty: -0.5
+boundary_patch: 166 normalized penalty: -0.5
+boundary_patch: 169 normalized penalty: -0.5
+boundary_patch: 171 normalized penalty: -0.5
+boundary_patch: 176 normalized penalty: -0.5
+boundary_patch: 181 normalized penalty: -0.5
+boundary_patch: 184 normalized penalty: -0.5
+boundary_patch: 186 normalized penalty: -0.5
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.1
+
+----- GameStep 9 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      3
+
+Total crop raid loss across the landscape: 987.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 987.0
+boundary_patch: 139.0 normalized reward: 0.30000000000000004
+boundary_patch: 48 normalized penalty: -0.007680216633466136
+boundary_patch: 54 normalized penalty: -0.007680216633466136
+boundary_patch: 66 normalized penalty: -0.007680216633466136
+boundary_patch: 74 normalized penalty: -0.007680216633466136
+boundary_patch: 79 normalized penalty: -0.007680216633466136
+boundary_patch: 81 normalized penalty: -0.007680216633466136
+boundary_patch: 82 normalized penalty: -0.007680216633466136
+boundary_patch: 85 normalized penalty: -0.007680216633466136
+boundary_patch: 87 normalized penalty: -0.007680216633466136
+boundary_patch: 91 normalized penalty: -0.007680216633466136
+boundary_patch: 95 normalized penalty: -0.007680216633466136
+boundary_patch: 135 normalized penalty: -0.007680216633466136
+boundary_patch: 138 normalized penalty: -0.007680216633466136
+boundary_patch: 140 normalized penalty: -0.007680216633466136
+boundary_patch: 145 normalized penalty: -0.007680216633466136
+boundary_patch: 148 normalized penalty: -0.007680216633466136
+boundary_patch: 149 normalized penalty: -0.007680216633466136
+boundary_patch: 155 normalized penalty: -0.007680216633466136
+boundary_patch: 157 normalized penalty: -0.007680216633466136
+boundary_patch: 162 normalized penalty: -0.007680216633466136
+boundary_patch: 166 normalized penalty: -0.007680216633466136
+boundary_patch: 169 normalized penalty: -0.007680216633466136
+boundary_patch: 171 normalized penalty: -0.007680216633466136
+boundary_patch: 176 normalized penalty: -0.007680216633466136
+boundary_patch: 181 normalized penalty: -0.007680216633466136
+boundary_patch: 184 normalized penalty: -0.007680216633466136
+boundary_patch: 186 normalized penalty: -0.007680216633466136
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.30000000000000004
+
+----- GameStep 10 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 5 times.
+Covered target 138.0 was attacked 3 times.
+Covered target 91.0 was attacked 2 times.
+Covered target 87.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [87, 91, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      5
+1   138.0      3
+2    91.0      2
+3    87.0      1
+
+Total crop raid loss across the landscape: 24702.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 24702.0
+boundary_patch: 139.0 normalized reward: 0.5
+boundary_patch: 138.0 normalized reward: 0.30000000000000004
+boundary_patch: 91.0 normalized reward: 0.2
+boundary_patch: 87.0 normalized reward: 0.1
+boundary_patch: 48 normalized penalty: -0.19221551294820716
+boundary_patch: 54 normalized penalty: -0.19221551294820716
+boundary_patch: 66 normalized penalty: -0.19221551294820716
+boundary_patch: 74 normalized penalty: -0.19221551294820716
+boundary_patch: 79 normalized penalty: -0.19221551294820716
+boundary_patch: 81 normalized penalty: -0.19221551294820716
+boundary_patch: 82 normalized penalty: -0.19221551294820716
+boundary_patch: 85 normalized penalty: -0.19221551294820716
+boundary_patch: 95 normalized penalty: -0.19221551294820716
+boundary_patch: 135 normalized penalty: -0.19221551294820716
+boundary_patch: 140 normalized penalty: -0.19221551294820716
+boundary_patch: 145 normalized penalty: -0.19221551294820716
+boundary_patch: 148 normalized penalty: -0.19221551294820716
+boundary_patch: 149 normalized penalty: -0.19221551294820716
+boundary_patch: 155 normalized penalty: -0.19221551294820716
+boundary_patch: 157 normalized penalty: -0.19221551294820716
+boundary_patch: 162 normalized penalty: -0.19221551294820716
+boundary_patch: 166 normalized penalty: -0.19221551294820716
+boundary_patch: 169 normalized penalty: -0.19221551294820716
+boundary_patch: 171 normalized penalty: -0.19221551294820716
+boundary_patch: 176 normalized penalty: -0.19221551294820716
+boundary_patch: 181 normalized penalty: -0.19221551294820716
+boundary_patch: 184 normalized penalty: -0.19221551294820716
+boundary_patch: 186 normalized penalty: -0.19221551294820716
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 1.1
+
+----- GameStep 11 -----
+gamma: 0.25
+Random Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  79
+target_id:  82
+target_id:  157
+target_id:  171
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [79, 82, 157, 171]
+Attacked target IDs: []
+trajectories successfully intercepted by guards (reward): Empty DataFrame
+Columns: [target, count]
+Index: []
+
+Total crop raid loss across the landscape: 35333.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 35333.0
+boundary_patch: 48 normalized penalty: -0.27493930527888444
+boundary_patch: 54 normalized penalty: -0.27493930527888444
+boundary_patch: 66 normalized penalty: -0.27493930527888444
+boundary_patch: 74 normalized penalty: -0.27493930527888444
+boundary_patch: 79 normalized penalty: -0.27493930527888444
+boundary_patch: 81 normalized penalty: -0.27493930527888444
+boundary_patch: 82 normalized penalty: -0.27493930527888444
+boundary_patch: 85 normalized penalty: -0.27493930527888444
+boundary_patch: 87 normalized penalty: -0.27493930527888444
+boundary_patch: 91 normalized penalty: -0.27493930527888444
+boundary_patch: 95 normalized penalty: -0.27493930527888444
+boundary_patch: 135 normalized penalty: -0.27493930527888444
+boundary_patch: 138 normalized penalty: -0.27493930527888444
+boundary_patch: 139 normalized penalty: -0.27493930527888444
+boundary_patch: 140 normalized penalty: -0.27493930527888444
+boundary_patch: 145 normalized penalty: -0.27493930527888444
+boundary_patch: 148 normalized penalty: -0.27493930527888444
+boundary_patch: 149 normalized penalty: -0.27493930527888444
+boundary_patch: 155 normalized penalty: -0.27493930527888444
+boundary_patch: 157 normalized penalty: -0.27493930527888444
+boundary_patch: 162 normalized penalty: -0.27493930527888444
+boundary_patch: 166 normalized penalty: -0.27493930527888444
+boundary_patch: 169 normalized penalty: -0.27493930527888444
+boundary_patch: 171 normalized penalty: -0.27493930527888444
+boundary_patch: 176 normalized penalty: -0.27493930527888444
+boundary_patch: 181 normalized penalty: -0.27493930527888444
+boundary_patch: 184 normalized penalty: -0.27493930527888444
+boundary_patch: 186 normalized penalty: -0.27493930527888444
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.0
+
+----- GameStep 12 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 5 times.
+Covered target 138.0 was attacked 5 times.
+Covered target 91.0 was attacked 2 times.
+Covered target 87.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [87, 91, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      5
+1   138.0      5
+2    91.0      2
+3    87.0      1
+
+Total crop raid loss across the landscape: 3695.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 3695.0
+boundary_patch: 139.0 normalized reward: 0.5
+boundary_patch: 138.0 normalized reward: 0.5
+boundary_patch: 91.0 normalized reward: 0.2
+boundary_patch: 87.0 normalized reward: 0.1
+boundary_patch: 48 normalized penalty: -0.028752178784860558
+boundary_patch: 54 normalized penalty: -0.028752178784860558
+boundary_patch: 66 normalized penalty: -0.028752178784860558
+boundary_patch: 74 normalized penalty: -0.028752178784860558
+boundary_patch: 79 normalized penalty: -0.028752178784860558
+boundary_patch: 81 normalized penalty: -0.028752178784860558
+boundary_patch: 82 normalized penalty: -0.028752178784860558
+boundary_patch: 85 normalized penalty: -0.028752178784860558
+boundary_patch: 95 normalized penalty: -0.028752178784860558
+boundary_patch: 135 normalized penalty: -0.028752178784860558
+boundary_patch: 140 normalized penalty: -0.028752178784860558
+boundary_patch: 145 normalized penalty: -0.028752178784860558
+boundary_patch: 148 normalized penalty: -0.028752178784860558
+boundary_patch: 149 normalized penalty: -0.028752178784860558
+boundary_patch: 155 normalized penalty: -0.028752178784860558
+boundary_patch: 157 normalized penalty: -0.028752178784860558
+boundary_patch: 162 normalized penalty: -0.028752178784860558
+boundary_patch: 166 normalized penalty: -0.028752178784860558
+boundary_patch: 169 normalized penalty: -0.028752178784860558
+boundary_patch: 171 normalized penalty: -0.028752178784860558
+boundary_patch: 176 normalized penalty: -0.028752178784860558
+boundary_patch: 181 normalized penalty: -0.028752178784860558
+boundary_patch: 184 normalized penalty: -0.028752178784860558
+boundary_patch: 186 normalized penalty: -0.028752178784860558
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 1.2999999999999998
+
+----- GameStep 13 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 5 times.
+Covered target 138.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      5
+1   138.0      3
+
+Total crop raid loss across the landscape: 35071.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 35071.0
+boundary_patch: 139.0 normalized reward: 0.5
+boundary_patch: 138.0 normalized reward: 0.30000000000000004
+boundary_patch: 48 normalized penalty: -0.27290058515936255
+boundary_patch: 54 normalized penalty: -0.27290058515936255
+boundary_patch: 66 normalized penalty: -0.27290058515936255
+boundary_patch: 74 normalized penalty: -0.27290058515936255
+boundary_patch: 79 normalized penalty: -0.27290058515936255
+boundary_patch: 81 normalized penalty: -0.27290058515936255
+boundary_patch: 82 normalized penalty: -0.27290058515936255
+boundary_patch: 85 normalized penalty: -0.27290058515936255
+boundary_patch: 87 normalized penalty: -0.27290058515936255
+boundary_patch: 91 normalized penalty: -0.27290058515936255
+boundary_patch: 95 normalized penalty: -0.27290058515936255
+boundary_patch: 135 normalized penalty: -0.27290058515936255
+boundary_patch: 140 normalized penalty: -0.27290058515936255
+boundary_patch: 145 normalized penalty: -0.27290058515936255
+boundary_patch: 148 normalized penalty: -0.27290058515936255
+boundary_patch: 149 normalized penalty: -0.27290058515936255
+boundary_patch: 155 normalized penalty: -0.27290058515936255
+boundary_patch: 157 normalized penalty: -0.27290058515936255
+boundary_patch: 162 normalized penalty: -0.27290058515936255
+boundary_patch: 166 normalized penalty: -0.27290058515936255
+boundary_patch: 169 normalized penalty: -0.27290058515936255
+boundary_patch: 171 normalized penalty: -0.27290058515936255
+boundary_patch: 176 normalized penalty: -0.27290058515936255
+boundary_patch: 181 normalized penalty: -0.27290058515936255
+boundary_patch: 184 normalized penalty: -0.27290058515936255
+boundary_patch: 186 normalized penalty: -0.27290058515936255
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.8
+
+----- GameStep 14 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 4 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 87.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [87, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      4
+1   138.0      2
+2    87.0      1
+
+Total crop raid loss across the landscape: 20464.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 20464.0
+boundary_patch: 139.0 normalized reward: 0.4
+boundary_patch: 138.0 normalized reward: 0.2
+boundary_patch: 87.0 normalized reward: 0.1
+boundary_patch: 48 normalized penalty: -0.15923804780876494
+boundary_patch: 54 normalized penalty: -0.15923804780876494
+boundary_patch: 66 normalized penalty: -0.15923804780876494
+boundary_patch: 74 normalized penalty: -0.15923804780876494
+boundary_patch: 79 normalized penalty: -0.15923804780876494
+boundary_patch: 81 normalized penalty: -0.15923804780876494
+boundary_patch: 82 normalized penalty: -0.15923804780876494
+boundary_patch: 85 normalized penalty: -0.15923804780876494
+boundary_patch: 91 normalized penalty: -0.15923804780876494
+boundary_patch: 95 normalized penalty: -0.15923804780876494
+boundary_patch: 135 normalized penalty: -0.15923804780876494
+boundary_patch: 140 normalized penalty: -0.15923804780876494
+boundary_patch: 145 normalized penalty: -0.15923804780876494
+boundary_patch: 148 normalized penalty: -0.15923804780876494
+boundary_patch: 149 normalized penalty: -0.15923804780876494
+boundary_patch: 155 normalized penalty: -0.15923804780876494
+boundary_patch: 157 normalized penalty: -0.15923804780876494
+boundary_patch: 162 normalized penalty: -0.15923804780876494
+boundary_patch: 166 normalized penalty: -0.15923804780876494
+boundary_patch: 169 normalized penalty: -0.15923804780876494
+boundary_patch: 171 normalized penalty: -0.15923804780876494
+boundary_patch: 176 normalized penalty: -0.15923804780876494
+boundary_patch: 181 normalized penalty: -0.15923804780876494
+boundary_patch: 184 normalized penalty: -0.15923804780876494
+boundary_patch: 186 normalized penalty: -0.15923804780876494
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.7
+
+----- GameStep 15 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 4 times.
+Covered target 138.0 was attacked 5 times.
+Covered target 91.0 was attacked 5 times.
+Covered target 87.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [87, 91, 138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      4
+1   138.0      5
+2    91.0      5
+3    87.0      2
+
+Total crop raid loss across the landscape: 42935.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 42935.0
+boundary_patch: 139.0 normalized reward: 0.4
+boundary_patch: 138.0 normalized reward: 0.5
+boundary_patch: 91.0 normalized reward: 0.5
+boundary_patch: 87.0 normalized reward: 0.2
+boundary_patch: 48 normalized penalty: -0.3340933142430279
+boundary_patch: 54 normalized penalty: -0.3340933142430279
+boundary_patch: 66 normalized penalty: -0.3340933142430279
+boundary_patch: 74 normalized penalty: -0.3340933142430279
+boundary_patch: 79 normalized penalty: -0.3340933142430279
+boundary_patch: 81 normalized penalty: -0.3340933142430279
+boundary_patch: 82 normalized penalty: -0.3340933142430279
+boundary_patch: 85 normalized penalty: -0.3340933142430279
+boundary_patch: 95 normalized penalty: -0.3340933142430279
+boundary_patch: 135 normalized penalty: -0.3340933142430279
+boundary_patch: 140 normalized penalty: -0.3340933142430279
+boundary_patch: 145 normalized penalty: -0.3340933142430279
+boundary_patch: 148 normalized penalty: -0.3340933142430279
+boundary_patch: 149 normalized penalty: -0.3340933142430279
+boundary_patch: 155 normalized penalty: -0.3340933142430279
+boundary_patch: 157 normalized penalty: -0.3340933142430279
+boundary_patch: 162 normalized penalty: -0.3340933142430279
+boundary_patch: 166 normalized penalty: -0.3340933142430279
+boundary_patch: 169 normalized penalty: -0.3340933142430279
+boundary_patch: 171 normalized penalty: -0.3340933142430279
+boundary_patch: 176 normalized penalty: -0.3340933142430279
+boundary_patch: 181 normalized penalty: -0.3340933142430279
+boundary_patch: 184 normalized penalty: -0.3340933142430279
+boundary_patch: 186 normalized penalty: -0.3340933142430279
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 1.6
+
+----- GameStep 16 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 2 times.
+Covered target 138.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      2
+1   138.0      1
+
+Total crop raid loss across the landscape: 4550.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 4550.0
+boundary_patch: 139.0 normalized reward: 0.2
+boundary_patch: 138.0 normalized reward: 0.1
+boundary_patch: 48 normalized penalty: -0.035405253984063745
+boundary_patch: 54 normalized penalty: -0.035405253984063745
+boundary_patch: 66 normalized penalty: -0.035405253984063745
+boundary_patch: 74 normalized penalty: -0.035405253984063745
+boundary_patch: 79 normalized penalty: -0.035405253984063745
+boundary_patch: 81 normalized penalty: -0.035405253984063745
+boundary_patch: 82 normalized penalty: -0.035405253984063745
+boundary_patch: 85 normalized penalty: -0.035405253984063745
+boundary_patch: 87 normalized penalty: -0.035405253984063745
+boundary_patch: 91 normalized penalty: -0.035405253984063745
+boundary_patch: 95 normalized penalty: -0.035405253984063745
+boundary_patch: 135 normalized penalty: -0.035405253984063745
+boundary_patch: 140 normalized penalty: -0.035405253984063745
+boundary_patch: 145 normalized penalty: -0.035405253984063745
+boundary_patch: 148 normalized penalty: -0.035405253984063745
+boundary_patch: 149 normalized penalty: -0.035405253984063745
+boundary_patch: 155 normalized penalty: -0.035405253984063745
+boundary_patch: 157 normalized penalty: -0.035405253984063745
+boundary_patch: 162 normalized penalty: -0.035405253984063745
+boundary_patch: 166 normalized penalty: -0.035405253984063745
+boundary_patch: 169 normalized penalty: -0.035405253984063745
+boundary_patch: 171 normalized penalty: -0.035405253984063745
+boundary_patch: 176 normalized penalty: -0.035405253984063745
+boundary_patch: 181 normalized penalty: -0.035405253984063745
+boundary_patch: 184 normalized penalty: -0.035405253984063745
+boundary_patch: 186 normalized penalty: -0.035405253984063745
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.30000000000000004
+
+----- GameStep 17 -----
+gamma: 0.25
+Optimal Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  87
+target_id:  91
+target_id:  138
+target_id:  139
+Covered target 139.0 was attacked 3 times.
+Covered target 138.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [87, 91, 138, 139]
+Attacked target IDs: [138, 139]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      3
+1   138.0      3
+
+Total crop raid loss across the landscape: 11631.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 11631.0
+boundary_patch: 139.0 normalized reward: 0.30000000000000004
+boundary_patch: 138.0 normalized reward: 0.30000000000000004
+boundary_patch: 48 normalized penalty: -0.09050516683266932
+boundary_patch: 54 normalized penalty: -0.09050516683266932
+boundary_patch: 66 normalized penalty: -0.09050516683266932
+boundary_patch: 74 normalized penalty: -0.09050516683266932
+boundary_patch: 79 normalized penalty: -0.09050516683266932
+boundary_patch: 81 normalized penalty: -0.09050516683266932
+boundary_patch: 82 normalized penalty: -0.09050516683266932
+boundary_patch: 85 normalized penalty: -0.09050516683266932
+boundary_patch: 87 normalized penalty: -0.09050516683266932
+boundary_patch: 91 normalized penalty: -0.09050516683266932
+boundary_patch: 95 normalized penalty: -0.09050516683266932
+boundary_patch: 135 normalized penalty: -0.09050516683266932
+boundary_patch: 140 normalized penalty: -0.09050516683266932
+boundary_patch: 145 normalized penalty: -0.09050516683266932
+boundary_patch: 148 normalized penalty: -0.09050516683266932
+boundary_patch: 149 normalized penalty: -0.09050516683266932
+boundary_patch: 155 normalized penalty: -0.09050516683266932
+boundary_patch: 157 normalized penalty: -0.09050516683266932
+boundary_patch: 162 normalized penalty: -0.09050516683266932
+boundary_patch: 166 normalized penalty: -0.09050516683266932
+boundary_patch: 169 normalized penalty: -0.09050516683266932
+boundary_patch: 171 normalized penalty: -0.09050516683266932
+boundary_patch: 176 normalized penalty: -0.09050516683266932
+boundary_patch: 181 normalized penalty: -0.09050516683266932
+boundary_patch: 184 normalized penalty: -0.09050516683266932
+boundary_patch: 186 normalized penalty: -0.09050516683266932
+MAX_STEP_CROP_RAIDING_VAL:  64256.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  5
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Random Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Optimal Strategy Selected
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6000000000000001
+
+----- GameStep 18 -----
+gamma: 0.25
+Random Strategy Selected
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  74
+target_id:  85
+target_id:  162
+target_id:  176

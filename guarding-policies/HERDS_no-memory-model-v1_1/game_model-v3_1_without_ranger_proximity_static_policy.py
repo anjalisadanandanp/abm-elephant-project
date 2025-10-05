@@ -1740,7 +1740,7 @@ if __name__ == "__main__":
         for k in num_resources_k: 
 
             BUDGET_K = k                   # Maximum number of cells that can be protected by the defenders at every time-step
-            MAX_GAME_STEPS = 25                         # Maximum number of time-steps in the game
+            MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
             eta = 10                                   # reward perturbation parameter
             M = 12                                      # parameter in the GR algorithm
 

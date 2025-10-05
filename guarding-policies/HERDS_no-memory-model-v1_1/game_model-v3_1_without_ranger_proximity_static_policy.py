@@ -43,7 +43,7 @@ plt.rcParams.update(
 import sys
 sys.path.append(os.getcwd())
 
-module = importlib.import_module('guarding-policies.FPL-UE-v1.abm_model_HEC_with_landscape_deterrent_policies_without_ranger_proximity')
+module = importlib.import_module('guarding-policies.HERDS_no-memory-model-v1_1.abm_model_HEC_with_landscape_deterrent_policies_without_ranger_proximity')
 batch_run_model = module.batch_run_model
 
 
@@ -620,9 +620,7 @@ def make_trajectory_summary_plots_v3(base_path, output_folder):
 
     return
 
-def update_targets_df(output_folder, targets_df, current_game_step, MAX_STEP_CROP_RAIDING_VAL, MAX_STEP_TRAJECTORIES_ENCOUNTERED, lr):
-
-    # print("\n#----------------UPDATING TARGETS DATAFRAME BASED ON OBSERVATIONS----------------#")
+def update_targets_df(output_folder, targets_df, current_game_step, MAX_STEP_CROP_RAIDING_VAL, MAX_STEP_TRAJECTORIES_ENCOUNTERED):
 
     def find_rewards_based_on_intercepted_trajectories(output_folder):
 
@@ -695,7 +693,7 @@ def update_targets_df(output_folder, targets_df, current_game_step, MAX_STEP_CRO
         
     def find_penalties_based_on_intercepted_trajectories(output_folder):
 
-        boundary_patch_matrix = gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
+        boundary_patch_matrix = gdal.Open(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
         agricultural_plot_matrix = gdal.Open(os.path.join("create-landholding-matrix/agricultural_plots_assignment.tif")).ReadAsArray()
 
         boundary_patch_unique = np.unique(boundary_patch_matrix)
@@ -756,7 +754,7 @@ def update_targets_df(output_folder, targets_df, current_game_step, MAX_STEP_CRO
 
         # print("\n")
 
-        covered_targets_matrix = gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/game_step_1/defender_coverage_matrix.tif")).ReadAsArray()
+        covered_targets_matrix = gdal.Open(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/game_step_1/defender_coverage_matrix.tif")).ReadAsArray()
         covered_targets = np.unique(covered_targets_matrix)
         covered_targets = covered_targets[covered_targets != 0]
 
@@ -808,14 +806,19 @@ def update_targets_df(output_folder, targets_df, current_game_step, MAX_STEP_CRO
         print(f"\nTotal crop raid loss across the landscape: {total_crop_raid_loss} (kg)\n")
 
         return total_crop_raid_loss
-        
+    
+    
+    targets_df["reward"] = 0
+    targets_df["penalty"] = 0
+    
+    
     df_dict_of_attacked_targets = find_rewards_based_on_intercepted_trajectories(output_folder)
     
-    print("trajectories attacking protected targets:", df_dict_of_attacked_targets)
+    print("trajectories successfully intercepted by guards (reward):", df_dict_of_attacked_targets)
 
     total_crop_raid_loss = find_penalties_based_on_intercepted_trajectories(output_folder)
     
-    print("total_crop_raid_loss:", total_crop_raid_loss)
+    print("total crop raid loss from non-intercepted trajectories (penalty):", total_crop_raid_loss)
     
     if total_crop_raid_loss > MAX_STEP_CROP_RAIDING_VAL:
         MAX_STEP_CROP_RAIDING_VAL = total_crop_raid_loss
@@ -824,38 +827,41 @@ def update_targets_df(output_folder, targets_df, current_game_step, MAX_STEP_CRO
         
         if df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0] > MAX_STEP_TRAJECTORIES_ENCOUNTERED:
             MAX_STEP_TRAJECTORIES_ENCOUNTERED = df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0]
+    
+    if MAX_STEP_TRAJECTORIES_ENCOUNTERED > 0:
+        reward_normalizer = 1.0 / MAX_STEP_TRAJECTORIES_ENCOUNTERED
+    else:
+        reward_normalizer = 0.0
 
     for boundary_patch in df_dict_of_attacked_targets["target"].values:
-        
-        reward = df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0]/MAX_STEP_TRAJECTORIES_ENCOUNTERED
-        targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "reward"] += lr*reward
+        count = df_dict_of_attacked_targets.loc[df_dict_of_attacked_targets["target"] == boundary_patch, "count"].values[0]
+        reward = (count * reward_normalizer) * 0.5
+        targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "reward"] = reward
+        print("boundary_patch:", boundary_patch, "normalized reward:", reward)
 
-        print("boundary_patch:", boundary_patch, "reward:", reward)
+    potential_targets = np.unique(gdal.Open(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray())
 
-    potential_targets = np.unique(gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray())
+    if MAX_STEP_CROP_RAIDING_VAL > 0:
+        penalty_normalizer = 1.0 / MAX_STEP_CROP_RAIDING_VAL
+    
+    else:
+        penalty_normalizer = 0.0
 
     for boundary_patch in potential_targets:
         if boundary_patch not in df_dict_of_attacked_targets["target"].values and boundary_patch != 0:
-            penalty = total_crop_raid_loss/MAX_STEP_CROP_RAIDING_VAL
-            targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "penalty"] -= lr*penalty
-            print("boundary_patch:", boundary_patch, "penalty:", penalty)
-            
-    min_r = targets_df['reward'].min()
-    max_r = targets_df['reward'].max()
 
-    min_p = targets_df['penalty'].min()
-    max_p = targets_df['penalty'].max()
-    
-    targets_df['reward'] = 0.5 * (targets_df['reward'] - min_r) / (max_r - min_r)
-    targets_df['penalty'] = -0.5 + 0.5 * (targets_df['penalty'] - min_p) / (max_p - min_p)
+            penalty = -(total_crop_raid_loss * penalty_normalizer) * 0.5
 
-    targets_df.to_csv(os.path.join(os.getcwd(), "guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(int(current_game_step + 1)), "boundary_patch_reward_penalty_matrix.csv"), index=False)
+            targets_df.loc[targets_df["boundary_patch_id"] == boundary_patch, "penalty"] = penalty
+            print("boundary_patch:", boundary_patch, "normalized penalty:", penalty)
+
+    targets_df.to_csv(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(int(current_game_step + 1)), "boundary_patch_reward_penalty_matrix.csv"), index=False)
 
     return targets_df, total_crop_raid_loss, MAX_STEP_CROP_RAIDING_VAL, MAX_STEP_TRAJECTORIES_ENCOUNTERED
 
 def create_defender_coverage_matrix(defender_strategy):
 
-    potential_coverage_matrix = gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
+    potential_coverage_matrix = gdal.Open(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
     
     coverage_matrix = np.zeros_like(potential_coverage_matrix)
 
@@ -914,7 +920,7 @@ def plot_and_save_defender_coverage(coverage_matrix, output_folder, figsize=(8, 
 
 
 
-    source_file = gdal.Open("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/potential_coverage_matrix.tif")
+    source_file = gdal.Open(OUTPUT_FOLDER + "/coverage_matrix_init/potential_coverage_matrix.tif")
 
     cols = source_file.RasterXSize
     rows = source_file.RasterYSize
@@ -1010,7 +1016,7 @@ def generate_defender_strategies(coverage_matrix_path, BUDGET_K, NUM_LANDSCAPE_C
     unique_values = np.unique(potential_coverage_matrix)
     non_zero_unique_values = unique_values[unique_values != 0]
 
-    print("boundary patches to monitor:", non_zero_unique_values, "total numbers:", len(non_zero_unique_values), "BUDGET_K", BUDGET_K)
+    # print("boundary patches to monitor:", non_zero_unique_values, "total numbers:", len(non_zero_unique_values), "BUDGET_K", BUDGET_K)
 
     fig, ax = plt.subplots(figsize=(8, 8))
     cmap = mcolors.ListedColormap(['white', 'black'])
@@ -1024,7 +1030,7 @@ def generate_defender_strategies(coverage_matrix_path, BUDGET_K, NUM_LANDSCAPE_C
 
     ax.legend(handles=legend_elements, loc="upper right")
     plt.savefig(
-        os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "potential_coverage_matrix.png"),
+        os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "potential_coverage_matrix.png"),
         bbox_inches="tight",
         dpi=500,
     )
@@ -1045,7 +1051,7 @@ def generate_defender_strategies(coverage_matrix_path, BUDGET_K, NUM_LANDSCAPE_C
     projection = source_file.GetProjection()
     geotransform = source_file.GetGeoTransform()
 
-    output_file = "guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/potential_coverage_matrix.tif"
+    output_file = os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/potential_coverage_matrix.tif")
 
     driver = gdal.GetDriverByName("GTiff")
     output_dataset = driver.Create(output_file, cols, rows, 1, gdal.GDT_Byte)
@@ -1101,7 +1107,7 @@ def select_defender_strategy(
 
         print("Random Strategy Selected")
 
-        potential_coverage_matrix = gdal.Open(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
+        potential_coverage_matrix = gdal.Open(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
         unique_values = np.unique(potential_coverage_matrix)
         non_zero_unique_values = list(unique_values[unique_values != 0])
         random_sample = random.sample(non_zero_unique_values, budget_k)
@@ -1354,14 +1360,12 @@ def update_estimated_reward(
     K: np.ndarray,
     attacker_strategy: np.ndarray,
     defender_strategy: np.ndarray,
-    targets_df: pd.DataFrame,
-    w1: float,
-    w2: float) -> np.ndarray:
+    targets_df: pd.DataFrame) -> np.ndarray:
 
     attacker_strategy = np.array(attacker_strategy)
     defender_strategy = np.array(defender_strategy)
 
-    r = (targets_df['reward']*w1 - targets_df['penalty']*w2).values
+    r = (targets_df['reward'] - targets_df['penalty']).values
     r_t = [a * b for a, b in zip(attacker_strategy, r)]
 
     updated_reward = estimated_reward.copy()
@@ -1389,7 +1393,7 @@ def plot_defender_regret(defender_regret_values):
     
     plt.tight_layout()
 
-    plt.savefig('guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/defender_regret_plot.png', dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(OUTPUT_FOLDER, 'coverage_matrix_init/defender_regret_plot.png'), dpi=300, bbox_inches='tight')
     
     plt.close()
 
@@ -1411,7 +1415,7 @@ def PLOT_CROP_DAMAGE(STEP_DAMAGES):
     
     plt.tight_layout()
 
-    plt.savefig('guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/crop_damage_with_step.png', dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(OUTPUT_FOLDER, 'coverage_matrix_init/crop_damage_with_step.png'), dpi=300, bbox_inches='tight')
     
     plt.close()
 
@@ -1514,7 +1518,7 @@ def clip_raster_by_latlon_extent(input_file, output_folder, latlon_extent):
 
     return np.unique(raster_data)
 
-def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M,  max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2, lr):
+def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M,  max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES):
 
 
 
@@ -1529,7 +1533,6 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
     defender_strategy_history = []
     attacker_strategy_history = []
 
-    defender_regret_values = []
     STEP_DAMAGES = []
 
     defender_strategies, TARGETS_TO_MONITOR = generate_defender_strategies(coverage_matrix_path, BUDGET_K, NUM_LANDSCAPE_CELLS, targets_df)
@@ -1544,7 +1547,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         print("\n----- GameStep", i ,"-----")
         
         if num_steps_gamma_decay != None:
-            gamma = max_gamma - (max_gamma - min_gamma) * (i / num_steps_gamma_decay)
+            gamma = max_gamma - (max_gamma - min_gamma) * (i / (num_steps_gamma_decay + 1))
         else:
             gamma = 0
             
@@ -1569,11 +1572,11 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         path = pathlib.Path(os.path.join(output_folder, "game_step_" + str(i)))
         path.mkdir(parents=True, exist_ok=True)
 
-        path = pathlib.Path(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(i)))
+        path = pathlib.Path(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(i)))
         path.mkdir(parents=True, exist_ok=True)
         
         plot_and_save_defender_coverage(coverage_matrix, os.path.join(output_folder, "game_step_" + str(i)))
-        plot_and_save_defender_coverage(coverage_matrix, os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(i)))
+        plot_and_save_defender_coverage(coverage_matrix, os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(i)))
 
         attacker_strategy_i = run_abm(model_params, experiment_name, os.path.join(output_folder, "game_step_" + str(i)), NUM_STRATEGIC_TRAJECTORIES, NUM_LANDSCAPE_CELLS)
 
@@ -1582,16 +1585,16 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         print(f"Protected target IDs: {targets_df['boundary_patch_id'].loc[np.where(np.array(defender_strategy_i) == 1)[0]].tolist()}")
         print(f"Attacked target IDs: {targets_df['boundary_patch_id'].loc[np.where(np.array(attacker_strategy_i) == 1)[0]].tolist()}")
 
-        make_trajectory_summary_plots_v1(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(i)), num_cropraiding_steps = 12)
-        make_trajectory_summary_plots_v2(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(i)), num_cropraiding_steps = 12)
-        make_trajectory_summary_plots_v3(os.path.join(output_folder, "game_step_" + str(i)), os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(i)))
+        make_trajectory_summary_plots_v1(os.path.join(output_folder, "game_step_" + str(i)), os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(i)), num_cropraiding_steps = 12)
+        make_trajectory_summary_plots_v2(os.path.join(output_folder, "game_step_" + str(i)), os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(i)), num_cropraiding_steps = 12)
+        make_trajectory_summary_plots_v3(os.path.join(output_folder, "game_step_" + str(i)), os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(i)))
 
         defender_strategy_history.append(defender_strategy_i)
         attacker_strategy_history.append(attacker_strategy_i)
 
 
 
-        path = pathlib.Path(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(i + 1)))
+        path = pathlib.Path(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(i + 1)))
         path.mkdir(parents=True, exist_ok=True)
 
 
@@ -1599,18 +1602,17 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
                                                      targets_df=targets_df, 
                                                      current_game_step=i,
                                                      MAX_STEP_CROP_RAIDING_VAL = MAX_STEP_CROP_RAIDING_VAL,
-                                                     MAX_STEP_TRAJECTORIES_ENCOUNTERED = MAX_STEP_TRAJECTORIES_ENCOUNTERED,
-                                                     lr = lr)
+                                                     MAX_STEP_TRAJECTORIES_ENCOUNTERED = MAX_STEP_TRAJECTORIES_ENCOUNTERED)
         
         print("MAX_STEP_CROP_RAIDING_VAL: ", MAX_STEP_CROP_RAIDING_VAL)
         print("MAX_STEP_TRAJECTORIES_ENCOUNTERED: ", MAX_STEP_TRAJECTORIES_ENCOUNTERED)
 
         K = GR_algorithm(defender_strategies_k, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K, TARGETS_TO_MONITOR)
 
-        estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df, w1, w2)
+        estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
 
         df = pd.DataFrame(estimated_reward, columns=['reward_estimate'])
-        df.to_csv(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_" + str(i), "reward_estimate.csv"))
+        df.to_csv(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_" + str(i), "reward_estimate.csv"))
 
 
 
@@ -1622,19 +1624,11 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
         print("step utility for defender:", step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df))
 
-        regret_i = calculate_defender_regret(defender_strategy_history, attacker_strategy_history, best_defender_strategy_t, targets_df)
-
-        print("Defender regret:", regret_i)
-
-        defender_regret_values.append(regret_i)
         STEP_DAMAGES.append(step_penalty)
         
         del defender_strategies_k
 
 
-
-
-    plot_defender_regret(defender_regret_values)
     PLOT_CROP_DAMAGE(STEP_DAMAGES)
 
     return  
@@ -1645,7 +1639,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
 
 
-def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, MAX_GAME_STEPS, max_gamma, min_gamma, num_steps_gamma_decay, eta, M, NUM_STRATEGIC_TRAJECTORIES, w1, w2, lr):
+def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAPE_CELLS, BUDGET_K, MAX_GAME_STEPS, max_gamma, min_gamma, num_steps_gamma_decay, eta, M, NUM_STRATEGIC_TRAJECTORIES):
 
 
 
@@ -1668,15 +1662,15 @@ def optimise_strategy(model_params, experiment_name, output_folder, NUM_LANDSCAP
 
 
 
-    path = pathlib.Path(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init", "game_step_1"))
+    path = pathlib.Path(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init", "game_step_1"))
     path.mkdir(parents=True, exist_ok=True)
 
     
-    targets_df.to_csv(os.path.join("guarding-policies/FPL-UE-v1/model-runs/coverage_matrix_init/game_step_1/boundary_patch_reward_penalty_matrix.csv"), index=False)
+    targets_df.to_csv(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/game_step_1/boundary_patch_reward_penalty_matrix.csv"), index=False)
 
 
 
-    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, TARGETS, BUDGET_K, M, max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES, w1, w2, lr)
+    run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K, M, max_gamma, min_gamma, num_steps_gamma_decay, eta, targets_df, NUM_STRATEGIC_TRAJECTORIES,)
 
 
 
@@ -1734,7 +1728,7 @@ if __name__ == "__main__":
 
     TARGETS = [x for x in TARGETS if x != 0]
 
-    print("Total number of targets to protect:", total_num_targets, TARGETS)
+    print("Total number of targets to protect:", total_num_targets, "\n", "TARGETS:", TARGETS)
 
     coverage_matrix_path = os.path.join("defender_coverage_matrix.tif")
 
@@ -1751,14 +1745,11 @@ if __name__ == "__main__":
 
             BUDGET_K = k                   # Maximum number of cells that can be protected by the defenders at every time-step
             MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
-            max_gamma = 1.0                             # Exploration/Exploitation Trade-off parameter
-            min_gamma = 0.10                             # Exploration/Exploitation Trade-off parameter
-            num_steps_gamma_decay = 15                  # Exploration/Exploitation Trade-off parameter
+            max_gamma = 1.0                              # Exploration/Exploitation Trade-off parameter
+            min_gamma = 0.20                             # Exploration/Exploitation Trade-off parameter
+            num_steps_gamma_decay = 30                  # Exploration/Exploitation Trade-off parameter
             eta = 10                                   # reward perturbation parameter
             M = 15                                      # parameter in the GR algorithm
-            w1 = 1.0                                    #weight of reward in reward-estimation
-            w2 = 1.0                                    #weight of penalty in reward-estimation
-            lr = 1.0
 
             FPL_UE_params = (
                 "budget_k_"
@@ -1775,11 +1766,8 @@ if __name__ == "__main__":
                 + str(eta)
                 + "-M_"
                 + str(M)
-                + "_lr_"
-                + str(lr)
             )
-            
-            reward_weighing = "reward_weight_" + str(w1) + "penalty_weight_" + str(w2)
+    
 
             model_params = {
                     "year": 2010,
@@ -1806,7 +1794,7 @@ if __name__ == "__main__":
                     "slope_tolerance": 30,
                     "num_processes": 12,
                     "iterations": 12,
-                    "max_time_steps": 288 * 30,
+                    "max_time_steps": 288 * 7,
                     "aggression_threshold_enter_cropland": 1.0,
                     "human_habituation_tolerance": 1.0,
                     "elephant_agent_visibility_radius": 500,
@@ -1816,8 +1804,8 @@ if __name__ == "__main__":
                     "number_of_feasible_movement_directions": 4,
                     "track_in_mlflow": False,
                     "elephant_starting_location": "user_input",
-                    "elephant_starting_latitude": [[1052166]],
-                    "elephant_starting_longitude": [[8572829]],
+                    "elephant_starting_latitude": [[1049000]],
+                    "elephant_starting_longitude": [[8570800]],
                     "elephant_aggression_value": 0.8,
                     "elephant_crop_habituation": True,
                     "ranger_proximity_threshold": None,
@@ -1888,7 +1876,7 @@ if __name__ == "__main__":
 
 
             output_folder = os.path.join(
-                "guarding-policies/FPL-UE-v1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge-static-policy/",
+                "guarding-policies/HERDS_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
                 experiment_name,
                 starting_location,
                 elephant_category,
@@ -1911,16 +1899,42 @@ if __name__ == "__main__":
                 simulation_repeats,
                 boundary_raster_discretised,
                 FPL_UE_params,
-                reward_weighing
+                "agent-based-model-runs"
             )
-
-
+            
+            global OUTPUT_FOLDER
+            
+            OUTPUT_FOLDER = os.path.join(
+                "guarding-policies/HERDS_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
+                experiment_name,
+                starting_location,
+                elephant_category,
+                food_availability_sceanario,
+                landscape_food_probability,
+                water_availability_sceanario,
+                food_memory_matrix_type,
+                water_memory_matrix_type,
+                num_days_agent_survives_in_deprivation,
+                maximum_food_in_a_forest_cell,
+                elephant_thermoregulation_threshold,
+                threshold_food_derivation_days,
+                threshold_water_derivation_days,
+                slope_tolerance,
+                num_days_agent_survives_in_deprivation,
+                elephant_aggression_value,
+                str(model_params["year"]),
+                str(model_params["month"]),
+                target_folder,
+                simulation_repeats,
+                boundary_raster_discretised,
+                FPL_UE_params
+            )
+            
             optimise_strategy(
                 model_params=model_params,
                 experiment_name=experiment_name,
                 output_folder=output_folder,
                 NUM_LANDSCAPE_CELLS = total_num_targets,
-                TARGETS = TARGETS,
                 BUDGET_K = BUDGET_K,
                 MAX_GAME_STEPS = MAX_GAME_STEPS,
                 max_gamma = max_gamma, 
@@ -1929,9 +1943,6 @@ if __name__ == "__main__":
                 eta = eta,
                 M = M,
                 NUM_STRATEGIC_TRAJECTORIES = NUM_STRATEGIC_TRAJECTORIES,
-                w1 = w1,
-                w2 = w2,
-                lr = lr
             )
 
 

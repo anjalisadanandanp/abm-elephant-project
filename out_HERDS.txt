@@ -16,3 +16,89 @@ Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 target_id:  54
 target_id:  162
 target_id:  169
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [54, 162, 169]
+Attacked target IDs: []
+trajectories successfully intercepted by guards (reward): Empty DataFrame
+Columns: [target, count]
+Index: []
+
+Total crop raid loss across the landscape: 27332.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 27332.0
+boundary_patch: 48 normalized penalty: -0.5
+boundary_patch: 54 normalized penalty: -0.5
+boundary_patch: 66 normalized penalty: -0.5
+boundary_patch: 74 normalized penalty: -0.5
+boundary_patch: 79 normalized penalty: -0.5
+boundary_patch: 81 normalized penalty: -0.5
+boundary_patch: 82 normalized penalty: -0.5
+boundary_patch: 85 normalized penalty: -0.5
+boundary_patch: 87 normalized penalty: -0.5
+boundary_patch: 91 normalized penalty: -0.5
+boundary_patch: 95 normalized penalty: -0.5
+boundary_patch: 135 normalized penalty: -0.5
+boundary_patch: 138 normalized penalty: -0.5
+boundary_patch: 139 normalized penalty: -0.5
+boundary_patch: 140 normalized penalty: -0.5
+boundary_patch: 145 normalized penalty: -0.5
+boundary_patch: 148 normalized penalty: -0.5
+boundary_patch: 149 normalized penalty: -0.5
+boundary_patch: 155 normalized penalty: -0.5
+boundary_patch: 157 normalized penalty: -0.5
+boundary_patch: 162 normalized penalty: -0.5
+boundary_patch: 166 normalized penalty: -0.5
+boundary_patch: 169 normalized penalty: -0.5
+boundary_patch: 171 normalized penalty: -0.5
+boundary_patch: 176 normalized penalty: -0.5
+boundary_patch: 181 normalized penalty: -0.5
+boundary_patch: 184 normalized penalty: -0.5
+boundary_patch: 186 normalized penalty: -0.5
+MAX_STEP_CROP_RAIDING_VAL:  27332.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  -9999
+exploitation indices: set()
+exploration_indices_list:  [186, 138, 87]
+exploitation indices: set()
+exploration_indices_list:  [91, 166, 184]
+exploitation indices: set()
+exploration_indices_list:  [79, 74, 66]
+exploitation indices: set()
+exploration_indices_list:  [140, 66, 148]
+exploitation indices: set()
+exploration_indices_list:  [81, 135, 139]
+exploitation indices: set()
+exploration_indices_list:  [184, 54, 140]
+exploitation indices: set()
+exploration_indices_list:  [145, 79, 148]
+exploitation indices: set()
+exploration_indices_list:  [91, 85, 48]
+exploitation indices: set()
+exploration_indices_list:  [145, 162, 171]
+exploitation indices: set()
+exploration_indices_list:  [171, 186, 66]
+exploitation indices: set()
+exploration_indices_list:  [138, 66, 135]
+exploitation indices: set()
+exploration_indices_list:  [181, 79, 85]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.0
+
+----- GameStep 2 -----
+gamma: 0.9999634141879779
+Total budget_k: 3, Exploitation cells: 1, Exploration cells: 2
+exploitation indices: {135}
+exploration_indices_list:  [74, 145]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  74
+target_id:  135
+target_id:  145

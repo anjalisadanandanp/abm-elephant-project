@@ -1118,9 +1118,9 @@ def select_defender_strategy(
 
         print("Optimal Strategy Selected")
         
-        # n = len(estimated_reward)
-        # z = np.random.exponential(scale=1/eta, size=n)
-        # perturbed_reward = estimated_reward + z
+        n = len(estimated_reward)
+        z = np.random.exponential(scale=1/eta, size=n)
+        perturbed_reward = estimated_reward + z
 
         perturbed_reward = estimated_reward
 

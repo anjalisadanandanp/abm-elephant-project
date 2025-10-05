@@ -43,7 +43,7 @@ plt.rcParams.update(
 import sys
 sys.path.append(os.getcwd())
 
-module = importlib.import_module('guarding-policies.HERDS_no-memory-model-v1_1.abm_model_HEC_with_landscape_deterrent_policies_without_ranger_proximity')
+module = importlib.import_module('guarding-policies.FPL-UE_no-memory-model-v1_1.abm_model_HEC_with_landscape_deterrent_policies_without_ranger_proximity')
 batch_run_model = module.batch_run_model
 
 
@@ -1065,7 +1065,7 @@ def generate_defender_strategies(coverage_matrix_path, BUDGET_K, NUM_LANDSCAPE_C
     source_file = None
     output_dataset = None
 
-    return defender_strategies, non_zero_unique_values
+    return defender_strategies
 
 def calculate_reward_for_strategy(defender_strategy, perturbed_reward):
     v = np.array(defender_strategy)
@@ -1096,8 +1096,7 @@ def select_defender_strategy(
     estimated_reward: np.ndarray,
     eta: float,
     gamma,
-    NUM_LANDSCAPE_CELLS,
-    budget_k
+    NUM_LANDSCAPE_CELLS
     ) -> np.ndarray:
 
 
@@ -1110,7 +1109,7 @@ def select_defender_strategy(
         potential_coverage_matrix = gdal.Open(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
         unique_values = np.unique(potential_coverage_matrix)
         non_zero_unique_values = list(unique_values[unique_values != 0])
-        random_sample = random.sample(non_zero_unique_values, budget_k)
+        random_sample = random.sample(non_zero_unique_values, 1)
 
         v_t = combination_to_binary_vector(random_sample, NUM_LANDSCAPE_CELLS)
 
@@ -1126,50 +1125,6 @@ def select_defender_strategy(
 
         v_t = find_best_strategy_parallel(defender_strategies, perturbed_reward)
 
-    return v_t
-
-def select_defender_strategy_v2(
-    defender_strategies_k,
-    estimated_reward: np.ndarray,
-    eta: float,
-    gamma,
-    NUM_LANDSCAPE_CELLS,
-    budget_k,
-    TARGETS
-    ) -> np.ndarray:
-
-    exploration_k = int(np.floor(gamma * budget_k))
-    
-    # n = len(estimated_reward)
-    # z = np.random.exponential(scale=1/eta, size=n)
-    # perturbed_reward = estimated_reward + z
-
-    perturbed_reward = estimated_reward
-
-    v_t_exploitation = find_best_strategy_parallel(defender_strategies_k, perturbed_reward)
-    
-    all_indices = set(TARGETS)
-    
-    exploitation_indices = set(np.where(v_t_exploitation == 1)[0])
-    exploitation_indices = set(np.array(list(exploitation_indices)) + 1)
-    
-    print("exploitation indices:", exploitation_indices)
-    
-    available_for_exploration = list(all_indices - exploitation_indices)
-    
-    exploration_indices_list = random.sample(available_for_exploration, exploration_k)
-    
-    print("exploration_indices_list: ", exploration_indices_list)
-
-    final_indices = exploitation_indices.union(set(exploration_indices_list))
-
-    assert len(final_indices) == budget_k
-    
-    v_t = np.zeros(NUM_LANDSCAPE_CELLS, dtype=int)
-    indices_list = list(final_indices)
-    zero_based_indices = np.array(indices_list) - 1
-    v_t[zero_based_indices] = 1
-    
     return v_t
 
 def run_abm(model_params, experiment_name, output_folder, NUM_STRATEGIC_TRAJECTORIES, NUM_LANDSCAPE_CELLS):
@@ -1328,9 +1283,7 @@ def GR_algorithm(defender_strategies_k,
                  gamma,
                  M: int, 
                  estimated_reward: np.ndarray, 
-                 NUM_LANDSCAPE_CELLS, 
-                 budget_k,
-                 TARGETS_TO_MONITOR) -> np.ndarray:
+                 NUM_LANDSCAPE_CELLS) -> np.ndarray:
     """
     Implements the GR (Geometric Resampling) Algorithm.
     """
@@ -1340,7 +1293,7 @@ def GR_algorithm(defender_strategies_k,
     
     while k <= M:
 
-        v_tilde = select_defender_strategy_v2(defender_strategies_k, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, budget_k, TARGETS_TO_MONITOR)
+        v_tilde = select_defender_strategy(defender_strategies_k, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS)
         
         for i in range(n):
             if k < M and v_tilde[i] == 1 and K[i] == 0:
@@ -1535,29 +1488,22 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
     STEP_DAMAGES = []
 
-    defender_strategies, TARGETS_TO_MONITOR = generate_defender_strategies(coverage_matrix_path, BUDGET_K, NUM_LANDSCAPE_CELLS, targets_df)
+    defender_strategies = generate_defender_strategies(coverage_matrix_path, BUDGET_K, NUM_LANDSCAPE_CELLS, targets_df)
 
     print("generated defender strategies!")
     
     MAX_STEP_CROP_RAIDING_VAL = -9999
     MAX_STEP_TRAJECTORIES_ENCOUNTERED = -9999
     
-    gamma = 1.0
+    gamma = 0.25
     
     for i in range(1, MAX_GAME_STEPS+1):
 
         print("\n----- GameStep", i ,"-----")
-            
+        
         print(f"gamma: {gamma}")
 
-        exploration_k = int(np.floor(gamma * BUDGET_K))
-        exploitation_k  = BUDGET_K - exploration_k
-        
-        print(f"Total budget_k: {BUDGET_K}, Exploitation cells: {exploitation_k}, Exploration cells: {exploration_k}")
-        
-        defender_strategies_k, TARGETS_TO_MONITOR_K = generate_defender_strategies(coverage_matrix_path, exploitation_k, NUM_LANDSCAPE_CELLS, targets_df)
-        
-        defender_strategy_i = select_defender_strategy_v2(defender_strategies_k, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K, TARGETS_TO_MONITOR)
+        defender_strategy_i = select_defender_strategy(defender_strategies, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS)
 
         print("Defender strategy:", defender_strategy_i)
 
@@ -1601,7 +1547,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         print("MAX_STEP_CROP_RAIDING_VAL: ", MAX_STEP_CROP_RAIDING_VAL)
         print("MAX_STEP_TRAJECTORIES_ENCOUNTERED: ", MAX_STEP_TRAJECTORIES_ENCOUNTERED)
 
-        K = GR_algorithm(defender_strategies_k, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K, TARGETS_TO_MONITOR)
+        K = GR_algorithm(defender_strategies, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS)
 
         estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
 
@@ -1619,8 +1565,6 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         print("step utility for defender:", step_utility_defender(attacker_strategy_i, defender_strategy_i, targets_df))
 
         STEP_DAMAGES.append(step_penalty)
-        
-        gamma = step_penalty/(MAX_STEP_CROP_RAIDING_VAL + 1)
         
         del defender_strategies_k
 
@@ -1863,7 +1807,7 @@ if __name__ == "__main__":
 
 
             output_folder = os.path.join(
-                "guarding-policies/HERDS_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
+                "guarding-policies/FPL-UE_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
                 experiment_name,
                 starting_location,
                 elephant_category,
@@ -1892,7 +1836,7 @@ if __name__ == "__main__":
             global OUTPUT_FOLDER
             
             OUTPUT_FOLDER = os.path.join(
-                "guarding-policies/HERDS_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
+                "guarding-policies/FPL-UE_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
                 experiment_name,
                 starting_location,
                 elephant_category,

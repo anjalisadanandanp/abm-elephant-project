@@ -883,7 +883,7 @@ def create_defender_coverage_matrix(defender_strategy):
         Patch(facecolor='white', edgecolor='black', label='Unprotected')
     ]
     ax.legend(handles=legend_elements, loc="upper right")
-    plt.savefig("coverage_matrix.png", dpi=300, bbox_inches="tight")
+    plt.savefig("guarding-policies/HERDS_no-memory-model-v1_1/coverage_matrix.png", dpi=300, bbox_inches="tight")
     #-----------plot coverage matrix#-----------#
 
     return coverage_matrix
@@ -1140,9 +1140,9 @@ def select_defender_strategy_v2(
 
     exploration_k = int(np.floor(gamma * budget_k))
     
-    # n = len(estimated_reward)
-    # z = np.random.exponential(scale=1/eta, size=n)
-    # perturbed_reward = estimated_reward + z
+    n = len(estimated_reward)
+    z = np.random.exponential(scale=1/eta, size=n)
+    perturbed_reward = estimated_reward + z
 
     perturbed_reward = estimated_reward
 
@@ -1701,7 +1701,7 @@ if __name__ == "__main__":
     projection = source_file.GetProjection()
     geotransform = source_file.GetGeoTransform()
 
-    output_file = os.path.join("defender_coverage_matrix.tif")
+    output_file = os.path.join("guarding-policies/HERDS_no-memory-model-v1_1/defender_coverage_matrix.tif")
 
     driver = gdal.GetDriverByName("GTiff")
     output_dataset = driver.Create(output_file, cols, rows, 1, gdal.GDT_Byte)
@@ -1716,7 +1716,7 @@ if __name__ == "__main__":
     output_dataset = None
     
     
-    potential_coverage_matrix = gdal.Open(os.path.join("defender_coverage_matrix.tif")).ReadAsArray()
+    potential_coverage_matrix = gdal.Open(output_file).ReadAsArray()
     
     total_num_targets = np.unique(potential_coverage_matrix)[-1]
 
@@ -1726,21 +1726,21 @@ if __name__ == "__main__":
 
     print("Total number of targets to protect:", len(TARGETS), "\n", "TARGETS:", TARGETS)
 
-    coverage_matrix_path = os.path.join("defender_coverage_matrix.tif")
+    coverage_matrix_path = os.path.join(output_file)
 
     proximity_filter_parameter = [0.999]
     cost_function_threshold_parameter = [0]
     
     parameter_combinations = list(itertools.product(proximity_filter_parameter, cost_function_threshold_parameter))
 
-    num_resources_k = [6]
+    num_resources_k = [1, 2, 3, 4, 5, 6, 7, 8]
     
     for ranger_proximity_threshold, cost_ranger_proximity_threshold in parameter_combinations:
 
         for k in num_resources_k: 
 
             BUDGET_K = k                   # Maximum number of cells that can be protected by the defenders at every time-step
-            MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
+            MAX_GAME_STEPS = 25                         # Maximum number of time-steps in the game
             eta = 10                                   # reward perturbation parameter
             M = 12                                      # parameter in the GR algorithm
 
@@ -1781,7 +1781,7 @@ if __name__ == "__main__":
                     "slope_tolerance": 30,
                     "num_processes": 12,
                     "iterations": 12,
-                    "max_time_steps": 288 * 7,
+                    "max_time_steps": 288 * 10,
                     "aggression_threshold_enter_cropland": 1.0,
                     "human_habituation_tolerance": 1.0,
                     "elephant_agent_visibility_radius": 500,

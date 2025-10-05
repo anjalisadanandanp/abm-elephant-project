@@ -883,7 +883,7 @@ def create_defender_coverage_matrix(defender_strategy):
         Patch(facecolor='white', edgecolor='black', label='Unprotected')
     ]
     ax.legend(handles=legend_elements, loc="upper right")
-    plt.savefig("coverage_matrix.png", dpi=300, bbox_inches="tight")
+    plt.savefig("guarding-policies/FPL-UE_no-memory-model-v1_1/coverage_matrix.png", dpi=300, bbox_inches="tight")
     #-----------plot coverage matrix#-----------#
 
     return coverage_matrix
@@ -1096,7 +1096,8 @@ def select_defender_strategy(
     estimated_reward: np.ndarray,
     eta: float,
     gamma,
-    NUM_LANDSCAPE_CELLS
+    NUM_LANDSCAPE_CELLS,
+    BUDGET_K
     ) -> np.ndarray:
 
 
@@ -1109,7 +1110,7 @@ def select_defender_strategy(
         potential_coverage_matrix = gdal.Open(os.path.join(OUTPUT_FOLDER, "coverage_matrix_init/potential_coverage_matrix.tif")).ReadAsArray()
         unique_values = np.unique(potential_coverage_matrix)
         non_zero_unique_values = list(unique_values[unique_values != 0])
-        random_sample = random.sample(non_zero_unique_values, 1)
+        random_sample = random.sample(non_zero_unique_values, BUDGET_K)
 
         v_t = combination_to_binary_vector(random_sample, NUM_LANDSCAPE_CELLS)
 
@@ -1117,9 +1118,9 @@ def select_defender_strategy(
 
         print("Optimal Strategy Selected")
         
-        # n = len(estimated_reward)
-        # z = np.random.exponential(scale=1/eta, size=n)
-        # perturbed_reward = estimated_reward + z
+        n = len(estimated_reward)
+        z = np.random.exponential(scale=1/eta, size=n)
+        perturbed_reward = estimated_reward + z
 
         perturbed_reward = estimated_reward
 
@@ -1283,7 +1284,8 @@ def GR_algorithm(defender_strategies_k,
                  gamma,
                  M: int, 
                  estimated_reward: np.ndarray, 
-                 NUM_LANDSCAPE_CELLS) -> np.ndarray:
+                 NUM_LANDSCAPE_CELLS,
+                 BUDGET_K) -> np.ndarray:
     """
     Implements the GR (Geometric Resampling) Algorithm.
     """
@@ -1293,7 +1295,7 @@ def GR_algorithm(defender_strategies_k,
     
     while k <= M:
 
-        v_tilde = select_defender_strategy(defender_strategies_k, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS)
+        v_tilde = select_defender_strategy(defender_strategies_k, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K)
         
         for i in range(n):
             if k < M and v_tilde[i] == 1 and K[i] == 0:
@@ -1503,7 +1505,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         
         print(f"gamma: {gamma}")
 
-        defender_strategy_i = select_defender_strategy(defender_strategies, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS)
+        defender_strategy_i = select_defender_strategy(defender_strategies, estimated_reward, eta, gamma, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
         print("Defender strategy:", defender_strategy_i)
 
@@ -1547,7 +1549,7 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
         print("MAX_STEP_CROP_RAIDING_VAL: ", MAX_STEP_CROP_RAIDING_VAL)
         print("MAX_STEP_TRAJECTORIES_ENCOUNTERED: ", MAX_STEP_TRAJECTORIES_ENCOUNTERED)
 
-        K = GR_algorithm(defender_strategies, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS)
+        K = GR_algorithm(defender_strategies, eta, gamma, M, estimated_reward, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
         estimated_reward = update_estimated_reward(estimated_reward, K, attacker_strategy_i, defender_strategy_i, targets_df)
 
@@ -1566,8 +1568,6 @@ def run_single_play(model_params, experiment_name, output_folder, MAX_GAME_STEPS
 
         STEP_DAMAGES.append(step_penalty)
         
-        del defender_strategies_k
-
 
     PLOT_CROP_DAMAGE(STEP_DAMAGES)
 
@@ -1645,7 +1645,7 @@ if __name__ == "__main__":
     projection = source_file.GetProjection()
     geotransform = source_file.GetGeoTransform()
 
-    output_file = os.path.join("defender_coverage_matrix.tif")
+    output_file = os.path.join("guarding-policies/FPL-UE_no-memory-model-v1_1/defender_coverage_matrix.tif")
 
     driver = gdal.GetDriverByName("GTiff")
     output_dataset = driver.Create(output_file, cols, rows, 1, gdal.GDT_Byte)
@@ -1660,7 +1660,7 @@ if __name__ == "__main__":
     output_dataset = None
     
     
-    potential_coverage_matrix = gdal.Open(os.path.join("defender_coverage_matrix.tif")).ReadAsArray()
+    potential_coverage_matrix = gdal.Open(output_file).ReadAsArray()
     
     total_num_targets = np.unique(potential_coverage_matrix)[-1]
 
@@ -1670,21 +1670,21 @@ if __name__ == "__main__":
 
     print("Total number of targets to protect:", len(TARGETS), "\n", "TARGETS:", TARGETS)
 
-    coverage_matrix_path = os.path.join("defender_coverage_matrix.tif")
+    coverage_matrix_path = os.path.join(output_file)
 
     proximity_filter_parameter = [0.999]
     cost_function_threshold_parameter = [0]
     
     parameter_combinations = list(itertools.product(proximity_filter_parameter, cost_function_threshold_parameter))
 
-    num_resources_k = [6]
+    num_resources_k = [1, 2, 3, 4, 5, 6, 7, 8]
     
     for ranger_proximity_threshold, cost_ranger_proximity_threshold in parameter_combinations:
 
         for k in num_resources_k: 
 
             BUDGET_K = k                   # Maximum number of cells that can be protected by the defenders at every time-step
-            MAX_GAME_STEPS = 50                         # Maximum number of time-steps in the game
+            MAX_GAME_STEPS = 25                         # Maximum number of time-steps in the game
             eta = 10                                   # reward perturbation parameter
             M = 12                                      # parameter in the GR algorithm
 
@@ -1725,7 +1725,7 @@ if __name__ == "__main__":
                     "slope_tolerance": 30,
                     "num_processes": 12,
                     "iterations": 12,
-                    "max_time_steps": 288 * 7,
+                    "max_time_steps": 288 * 10,
                     "aggression_threshold_enter_cropland": 1.0,
                     "human_habituation_tolerance": 1.0,
                     "elephant_agent_visibility_radius": 500,

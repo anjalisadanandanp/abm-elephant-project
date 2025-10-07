@@ -26648,3 +26648,73 @@ target_id:  140
 target_id:  145
 target_id:  148
 target_id:  149
+Covered target 135.0 was attacked 5 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 139.0 was attacked 2 times.
+Covered target 149.0 was attacked 1 times.
+Covered target 140.0 was attacked 1 times.
+Covered target 48.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 135, 138, 139, 140, 145, 148, 149]
+Attacked target IDs: [48, 135, 138, 139, 140, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0   135.0      5
+1   138.0      2
+2   139.0      2
+3   149.0      1
+4   140.0      1
+5    48.0      1
+
+Total crop raid loss across the landscape: 979.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 979.0
+boundary_patch: 135.0 normalized reward: 0.2777777777777778
+boundary_patch: 138.0 normalized reward: 0.1111111111111111
+boundary_patch: 139.0 normalized reward: 0.1111111111111111
+boundary_patch: 149.0 normalized reward: 0.05555555555555555
+boundary_patch: 140.0 normalized reward: 0.05555555555555555
+boundary_patch: 48.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.011014851485148514
+boundary_patch: 66 normalized penalty: -0.011014851485148514
+boundary_patch: 74 normalized penalty: -0.011014851485148514
+boundary_patch: 79 normalized penalty: -0.011014851485148514
+boundary_patch: 81 normalized penalty: -0.011014851485148514
+boundary_patch: 82 normalized penalty: -0.011014851485148514
+boundary_patch: 85 normalized penalty: -0.011014851485148514
+boundary_patch: 87 normalized penalty: -0.011014851485148514
+boundary_patch: 91 normalized penalty: -0.011014851485148514
+boundary_patch: 95 normalized penalty: -0.011014851485148514
+boundary_patch: 145 normalized penalty: -0.011014851485148514
+boundary_patch: 148 normalized penalty: -0.011014851485148514
+boundary_patch: 155 normalized penalty: -0.011014851485148514
+boundary_patch: 157 normalized penalty: -0.011014851485148514
+boundary_patch: 162 normalized penalty: -0.011014851485148514
+boundary_patch: 166 normalized penalty: -0.011014851485148514
+boundary_patch: 169 normalized penalty: -0.011014851485148514
+boundary_patch: 171 normalized penalty: -0.011014851485148514
+boundary_patch: 176 normalized penalty: -0.011014851485148514
+boundary_patch: 181 normalized penalty: -0.011014851485148514
+boundary_patch: 184 normalized penalty: -0.011014851485148514
+boundary_patch: 186 normalized penalty: -0.011014851485148514
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []

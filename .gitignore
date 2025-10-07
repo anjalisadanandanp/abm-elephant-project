@@ -26,4 +26,5 @@ guarding-policies/FPL-UE_learning-memory-v1_1/model-runs/
 guarding-policies/FPL-UE_no-memory-model-v1_2/model-runs/
 guarding-policies/FPL-UE_learning-memory-v1_2/model-runs/
 guarding-policies/HERDS_no-memory-model-v1_1/model-runs/
-guarding-policies/HERDS_learning-memory-v1_1/model-runs
+guarding-policies/HERDS_learning-memory-v1_1/model-runs/
+guarding-policies/abm-runs-learning-memory/model-runs/

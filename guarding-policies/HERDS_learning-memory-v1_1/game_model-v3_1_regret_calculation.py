@@ -34,11 +34,6 @@ plt.rcParams.update(
 import sys
 sys.path.append(os.getcwd())
 
-module = importlib.import_module('guarding-policies.HERDS_no-memory-model-v1_1.abm_model_HEC_with_landscape_deterrent_policies_without_ranger_proximity')
-batch_run_model = module.batch_run_model
-
-
-
 def combination_to_binary_vector(combination, NUM_LANDSCAPE_CELLS):
 
     binary_vector = np.zeros(NUM_LANDSCAPE_CELLS, dtype=int)
@@ -355,7 +350,7 @@ def run_abm(output_folder, NUM_LANDSCAPE_CELLS):
             landuse_matrix = gdal.Open(os.path.join(output_folder, simulation_folder, "env", "LULC.tif")).ReadAsArray()
             boundary_patches_guarded = gdal.Open(os.path.join(output_folder, simulation_folder, "env", "defender_coverage_matrix_0.tif")).ReadAsArray()
 
-            boundary_patches = gdal.Open("guarding-policies/HERDS_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/mitigation-measures-within-plantations/latitude-[[1049000]]-longitude-[[8570800]]/solitary_bulls/random-food-distribition-within-agricultural-plots/landscape-food-probability-forest-0.1-cropland-1.0/water-source-rivers-landscape-0.05/random-memory-forest-and_plantation-fringe-model/full-memory-forest-and_plantation-model/num_days_agent_survives_in_deprivation-10/maximum-food-in-a-forest-cell-25/thermoregulation-threshold-temperature-28/threshold_days_of_food_deprivation-0/threshold_days_of_water_deprivation-3/slope_tolerance-30/num_days_agent_survives_in_deprivation-10/elephant_aggression_value_0.8/2010/Mar/num_protected_targets_3/num_strategic_traj_12_num_iterations_12/boundary_raster_discretised_1200m/budget_k_3-max_game_steps_50-eta_10-M_12/coverage_matrix_init/potential_coverage_matrix.tif").ReadAsArray()
+            boundary_patches = gdal.Open("guarding-policies/HERDS_learning-memory-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/mitigation-measures-within-plantations/latitude-[[1049000]]-longitude-[[8570800]]/solitary_bulls/random-food-distribition-within-agricultural-plots/landscape-food-probability-forest-0.1-cropland-1.0/water-source-rivers-landscape-0.05/random-memory-forest-and_plantation-fringe-model/full-memory-forest-and_plantation-model/num_days_agent_survives_in_deprivation-10/maximum-food-in-a-forest-cell-25/thermoregulation-threshold-temperature-28/threshold_days_of_food_deprivation-0/threshold_days_of_water_deprivation-3/slope_tolerance-30/num_days_agent_survives_in_deprivation-10/elephant_aggression_value_0.8/2010/Mar/num_protected_targets_3/num_strategic_traj_12_num_iterations_12/boundary_raster_discretised_1200m/budget_k_3-max_game_steps_50-eta_10-M_12/coverage_matrix_init/potential_coverage_matrix.tif").ReadAsArray()
             boundary_patches_unguarded = boundary_patches - boundary_patches_guarded
 
             rows, cols = lat_lon_to_pixel(
@@ -438,7 +433,7 @@ def calculate_best_strategy(defender_strategies, attacker_strategy_history, n_pr
 
     with mp.Pool(processes=n_processes) as pool:
         for total_reward, v in tqdm(
-            pool.imap(process_func, defender_strategies, chunksize=512), 
+            pool.imap(process_func, defender_strategies), 
             total=total_iterations
         ):
             if total_reward > max_reward:
@@ -515,7 +510,7 @@ def calculate_defender_regret(defender_strategy_history, attacker_strategy_histo
 
     return REGRET
 
-def run_single_play(output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K):
+def make_regret_df(output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K):
 
     defender_strategy_history = []
     attacker_strategy_history = []
@@ -566,17 +561,25 @@ def run_single_play(output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K
 
     plot_defender_regret(defender_regret_values)
 
+    game_steps = list(range(1, len(defender_regret_values) + 1))
+
+    if len(game_steps) != len(defender_regret_values):
+        print("Error: The number of steps does not match the number of regret values.")
+    else:
+        data = {
+            'GameStep': game_steps,
+            'RegretValue': defender_regret_values
+        }
+
+        df = pd.DataFrame(data)
+
+        output_filepath = os.path.join(OUTPUT_FOLDER, 'coverage_matrix_init/regret_df_HERDS_learning-memory-v1_1.csv')
+        df.to_csv(output_filepath, index=False)
+        
     return  
 
 
 
-
-
-
-
-def optimise_strategy(output_folder, NUM_LANDSCAPE_CELLS, BUDGET_K, MAX_GAME_STEPS):
-
-    run_single_play(output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K)
 
 
 
@@ -611,7 +614,7 @@ if __name__ == "__main__":
     projection = source_file.GetProjection()
     geotransform = source_file.GetGeoTransform()
 
-    output_file = os.path.join("guarding-policies/HERDS_no-memory-model-v1_1/defender_coverage_matrix.tif")
+    output_file = os.path.join("guarding-policies/HERDS_learning-memory-v1_1/defender_coverage_matrix.tif")
 
     driver = gdal.GetDriverByName("GTiff")
     output_dataset = driver.Create(output_file, cols, rows, 1, gdal.GDT_Byte)
@@ -645,7 +648,7 @@ if __name__ == "__main__":
     
     parameter_combinations = list(itertools.product(proximity_filter_parameter, cost_function_threshold_parameter))
 
-    num_resources_k = [6]
+    num_resources_k = [7]
     
     for ranger_proximity_threshold, cost_ranger_proximity_threshold in parameter_combinations:
 
@@ -775,7 +778,7 @@ if __name__ == "__main__":
 
 
             output_folder = os.path.join(
-                "guarding-policies/HERDS_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
+                "guarding-policies/HERDS_learning-memory-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
                 experiment_name,
                 starting_location,
                 elephant_category,
@@ -804,7 +807,7 @@ if __name__ == "__main__":
             global OUTPUT_FOLDER
             
             OUTPUT_FOLDER = os.path.join(
-                "guarding-policies/HERDS_no-memory-model-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
+                "guarding-policies/HERDS_learning-memory-v1_1/model-runs/game_model-v3_1-run-model-with-intervention-v2-no-knowledge/",
                 experiment_name,
                 starting_location,
                 elephant_category,
@@ -829,7 +832,7 @@ if __name__ == "__main__":
                 FPL_UE_params
             )
             
-            optimise_strategy(
+            make_regret_df(
                 output_folder=output_folder,
                 NUM_LANDSCAPE_CELLS = total_num_targets,
                 BUDGET_K = BUDGET_K,

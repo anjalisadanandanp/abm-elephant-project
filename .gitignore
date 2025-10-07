@@ -18,8 +18,12 @@ game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v1_3/*
 game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v1_4/*
 game_theory_codes/OUR-MODEL/mitigation-measures-within-plantations-FPL-UE_v2_1/*
 
-guarding-policies/static-guarding-model-v1/model-runs/*
-guarding-policies/dynamic-guarding-model-v1/model-runs/*
 guarding-policies/FPL-UE-test-codes/model-runs/*
-guarding-policies/FPL-UE_no-memory-model-v1_1/model-runs/*
-guarding-policies/HERDS_no-memory-model-v1_1/model-runs/*
+guarding-policies/static-guarding-model-v1/model-runs/
+guarding-policies/dynamic-guarding-model-v1/model-runs/
+guarding-policies/FPL-UE_no-memory-model-v1_1/model-runs/
+guarding-policies/FPL-UE_learning-memory-v1_1/model-runs/
+guarding-policies/FPL-UE_no-memory-model-v1_2/model-runs/
+guarding-policies/FPL-UE_learning-memory-v1_2/model-runs/
+guarding-policies/HERDS_no-memory-model-v1_1/model-runs/
+guarding-policies/HERDS_learning-memory-v1_1/model-runs

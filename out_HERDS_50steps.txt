@@ -26718,3 +26718,1527 @@ exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
 exploration_indices_list:  []
 exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
 exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6666666666666667
+
+----- GameStep 36 -----
+gamma: 0.022029207263562927
+Total budget_k: 8, Exploitation cells: 8, Exploration cells: 0
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  140
+target_id:  145
+target_id:  148
+target_id:  149
+Covered target 48.0 was attacked 2 times.
+Covered target 138.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 135, 138, 139, 140, 145, 148, 149]
+Attacked target IDs: [48, 138]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+1   138.0      1
+
+Total crop raid loss across the landscape: 0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 0
+boundary_patch: 48.0 normalized reward: 0.1111111111111111
+boundary_patch: 138.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.0
+boundary_patch: 66 normalized penalty: -0.0
+boundary_patch: 74 normalized penalty: -0.0
+boundary_patch: 79 normalized penalty: -0.0
+boundary_patch: 81 normalized penalty: -0.0
+boundary_patch: 82 normalized penalty: -0.0
+boundary_patch: 85 normalized penalty: -0.0
+boundary_patch: 87 normalized penalty: -0.0
+boundary_patch: 91 normalized penalty: -0.0
+boundary_patch: 95 normalized penalty: -0.0
+boundary_patch: 135 normalized penalty: -0.0
+boundary_patch: 139 normalized penalty: -0.0
+boundary_patch: 140 normalized penalty: -0.0
+boundary_patch: 145 normalized penalty: -0.0
+boundary_patch: 148 normalized penalty: -0.0
+boundary_patch: 149 normalized penalty: -0.0
+boundary_patch: 155 normalized penalty: -0.0
+boundary_patch: 157 normalized penalty: -0.0
+boundary_patch: 162 normalized penalty: -0.0
+boundary_patch: 166 normalized penalty: -0.0
+boundary_patch: 169 normalized penalty: -0.0
+boundary_patch: 171 normalized penalty: -0.0
+boundary_patch: 176 normalized penalty: -0.0
+boundary_patch: 181 normalized penalty: -0.0
+boundary_patch: 184 normalized penalty: -0.0
+boundary_patch: 186 normalized penalty: -0.0
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1
+ 0 0 0 0 1 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.16666666666666666
+
+----- GameStep 37 -----
+gamma: 0.0
+Total budget_k: 8, Exploitation cells: 8, Exploration cells: 0
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  140
+target_id:  145
+target_id:  148
+target_id:  149
+Covered target 139.0 was attacked 3 times.
+Covered target 140.0 was attacked 2 times.
+Covered target 135.0 was attacked 2 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 149.0 was attacked 2 times.
+Covered target 148.0 was attacked 1 times.
+Covered target 145.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 135, 138, 139, 140, 145, 148, 149]
+Attacked target IDs: [135, 138, 139, 140, 145, 148, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      3
+1   140.0      2
+2   135.0      2
+3   138.0      2
+4   149.0      2
+5   148.0      1
+6   145.0      1
+
+Total crop raid loss across the landscape: 18705.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 18705.0
+boundary_patch: 139.0 normalized reward: 0.16666666666666666
+boundary_patch: 140.0 normalized reward: 0.1111111111111111
+boundary_patch: 135.0 normalized reward: 0.1111111111111111
+boundary_patch: 138.0 normalized reward: 0.1111111111111111
+boundary_patch: 149.0 normalized reward: 0.1111111111111111
+boundary_patch: 148.0 normalized reward: 0.05555555555555555
+boundary_patch: 145.0 normalized reward: 0.05555555555555555
+boundary_patch: 48 normalized penalty: -0.21045229522952294
+boundary_patch: 54 normalized penalty: -0.21045229522952294
+boundary_patch: 66 normalized penalty: -0.21045229522952294
+boundary_patch: 74 normalized penalty: -0.21045229522952294
+boundary_patch: 79 normalized penalty: -0.21045229522952294
+boundary_patch: 81 normalized penalty: -0.21045229522952294
+boundary_patch: 82 normalized penalty: -0.21045229522952294
+boundary_patch: 85 normalized penalty: -0.21045229522952294
+boundary_patch: 87 normalized penalty: -0.21045229522952294
+boundary_patch: 91 normalized penalty: -0.21045229522952294
+boundary_patch: 95 normalized penalty: -0.21045229522952294
+boundary_patch: 155 normalized penalty: -0.21045229522952294
+boundary_patch: 157 normalized penalty: -0.21045229522952294
+boundary_patch: 162 normalized penalty: -0.21045229522952294
+boundary_patch: 166 normalized penalty: -0.21045229522952294
+boundary_patch: 169 normalized penalty: -0.21045229522952294
+boundary_patch: 171 normalized penalty: -0.21045229522952294
+boundary_patch: 176 normalized penalty: -0.21045229522952294
+boundary_patch: 181 normalized penalty: -0.21045229522952294
+boundary_patch: 184 normalized penalty: -0.21045229522952294
+boundary_patch: 186 normalized penalty: -0.21045229522952294
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 140, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.7222222222222222
+
+----- GameStep 38 -----
+gamma: 0.42089511937175134
+Total budget_k: 8, Exploitation cells: 5, Exploration cells: 3
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [140, 54, 79]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  54
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  140
+target_id:  145
+target_id:  148
+Covered target 135.0 was attacked 2 times.
+Covered target 148.0 was attacked 2 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 48.0 was attacked 3 times.
+Covered target 145.0 was attacked 1 times.
+Covered target 54.0 was attacked 1 times.
+Covered target 140.0 was attacked 1 times.
+Covered target 79.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 54, 79, 135, 138, 140, 145, 148]
+Attacked target IDs: [48, 54, 79, 135, 138, 140, 145, 148]
+trajectories successfully intercepted by guards (reward):    target  count
+0   135.0      2
+1   148.0      2
+2   138.0      2
+3    48.0      3
+4   145.0      1
+5    54.0      1
+6   140.0      1
+7    79.0      2
+
+Total crop raid loss across the landscape: 22503.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 22503.0
+boundary_patch: 135.0 normalized reward: 0.1111111111111111
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 138.0 normalized reward: 0.1111111111111111
+boundary_patch: 48.0 normalized reward: 0.16666666666666666
+boundary_patch: 145.0 normalized reward: 0.05555555555555555
+boundary_patch: 54.0 normalized reward: 0.05555555555555555
+boundary_patch: 140.0 normalized reward: 0.05555555555555555
+boundary_patch: 79.0 normalized reward: 0.1111111111111111
+boundary_patch: 66 normalized penalty: -0.25318406840684066
+boundary_patch: 74 normalized penalty: -0.25318406840684066
+boundary_patch: 81 normalized penalty: -0.25318406840684066
+boundary_patch: 82 normalized penalty: -0.25318406840684066
+boundary_patch: 85 normalized penalty: -0.25318406840684066
+boundary_patch: 87 normalized penalty: -0.25318406840684066
+boundary_patch: 91 normalized penalty: -0.25318406840684066
+boundary_patch: 95 normalized penalty: -0.25318406840684066
+boundary_patch: 139 normalized penalty: -0.25318406840684066
+boundary_patch: 149 normalized penalty: -0.25318406840684066
+boundary_patch: 155 normalized penalty: -0.25318406840684066
+boundary_patch: 157 normalized penalty: -0.25318406840684066
+boundary_patch: 162 normalized penalty: -0.25318406840684066
+boundary_patch: 166 normalized penalty: -0.25318406840684066
+boundary_patch: 169 normalized penalty: -0.25318406840684066
+boundary_patch: 171 normalized penalty: -0.25318406840684066
+boundary_patch: 176 normalized penalty: -0.25318406840684066
+boundary_patch: 181 normalized penalty: -0.25318406840684066
+boundary_patch: 184 normalized penalty: -0.25318406840684066
+boundary_patch: 186 normalized penalty: -0.25318406840684066
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [66, 82, 87]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [171, 169, 85]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [74, 166, 155]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [74, 87, 81]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [140, 155, 74]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [155, 91, 176]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [140, 82, 184]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [95, 169, 81]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [181, 139, 169]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [79, 166, 181]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [171, 176, 79]
+exploitation indices: {135, 138, 48, 145, 148}
+exploration_indices_list:  [149, 95, 155]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.7777777777777778
+
+----- GameStep 39 -----
+gamma: 0.5063567426475551
+Total budget_k: 8, Exploitation cells: 4, Exploration cells: 4
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [54, 166, 176, 149]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  54
+target_id:  135
+target_id:  138
+target_id:  148
+target_id:  149
+target_id:  166
+target_id:  176
+Covered target 135.0 was attacked 5 times.
+Covered target 138.0 was attacked 4 times.
+Covered target 148.0 was attacked 2 times.
+Covered target 149.0 was attacked 1 times.
+Covered target 54.0 was attacked 1 times.
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 54, 135, 138, 148, 149, 166, 176]
+Attacked target IDs: [48, 54, 135, 138, 148, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0   135.0      5
+1   138.0      4
+2   148.0      2
+3   149.0      1
+4    54.0      1
+5    48.0      2
+
+Total crop raid loss across the landscape: 3976.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 3976.0
+boundary_patch: 135.0 normalized reward: 0.2777777777777778
+boundary_patch: 138.0 normalized reward: 0.2222222222222222
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 149.0 normalized reward: 0.05555555555555555
+boundary_patch: 54.0 normalized reward: 0.05555555555555555
+boundary_patch: 48.0 normalized reward: 0.1111111111111111
+boundary_patch: 66 normalized penalty: -0.044734473447344734
+boundary_patch: 74 normalized penalty: -0.044734473447344734
+boundary_patch: 79 normalized penalty: -0.044734473447344734
+boundary_patch: 81 normalized penalty: -0.044734473447344734
+boundary_patch: 82 normalized penalty: -0.044734473447344734
+boundary_patch: 85 normalized penalty: -0.044734473447344734
+boundary_patch: 87 normalized penalty: -0.044734473447344734
+boundary_patch: 91 normalized penalty: -0.044734473447344734
+boundary_patch: 95 normalized penalty: -0.044734473447344734
+boundary_patch: 139 normalized penalty: -0.044734473447344734
+boundary_patch: 140 normalized penalty: -0.044734473447344734
+boundary_patch: 145 normalized penalty: -0.044734473447344734
+boundary_patch: 155 normalized penalty: -0.044734473447344734
+boundary_patch: 157 normalized penalty: -0.044734473447344734
+boundary_patch: 162 normalized penalty: -0.044734473447344734
+boundary_patch: 166 normalized penalty: -0.044734473447344734
+boundary_patch: 169 normalized penalty: -0.044734473447344734
+boundary_patch: 171 normalized penalty: -0.044734473447344734
+boundary_patch: 176 normalized penalty: -0.044734473447344734
+boundary_patch: 181 normalized penalty: -0.044734473447344734
+boundary_patch: 184 normalized penalty: -0.044734473447344734
+boundary_patch: 186 normalized penalty: -0.044734473447344734
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [85, 186, 162, 91]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [176, 139, 186, 157]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [145, 95, 166, 91]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [157, 87, 74, 186]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [181, 91, 157, 66]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [181, 54, 79, 91]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [162, 140, 157, 66]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [162, 169, 91, 155]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [157, 171, 66, 91]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [186, 169, 166, 149]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [79, 169, 155, 91]
+exploitation indices: {48, 138, 148, 135}
+exploration_indices_list:  [140, 162, 85, 145]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.8333333333333334
+
+----- GameStep 40 -----
+gamma: 0.08946693368736076
+Total budget_k: 8, Exploitation cells: 8, Exploration cells: 0
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  140
+target_id:  145
+target_id:  148
+target_id:  149
+Covered target 135.0 was attacked 4 times.
+Covered target 138.0 was attacked 1 times.
+Covered target 149.0 was attacked 1 times.
+Covered target 148.0 was attacked 1 times.
+Covered target 79.0 was attacked 2 times.
+Covered target 48.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 140, 145, 148, 149]
+Attacked target IDs: [48, 79, 135, 138, 148, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0   135.0      4
+1   138.0      1
+2   149.0      1
+3   148.0      1
+4    79.0      2
+5    48.0      2
+
+Total crop raid loss across the landscape: 2729.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 2729.0
+boundary_patch: 135.0 normalized reward: 0.2222222222222222
+boundary_patch: 138.0 normalized reward: 0.05555555555555555
+boundary_patch: 149.0 normalized reward: 0.05555555555555555
+boundary_patch: 148.0 normalized reward: 0.05555555555555555
+boundary_patch: 79.0 normalized reward: 0.1111111111111111
+boundary_patch: 48.0 normalized reward: 0.1111111111111111
+boundary_patch: 54 normalized penalty: -0.030704320432043204
+boundary_patch: 66 normalized penalty: -0.030704320432043204
+boundary_patch: 74 normalized penalty: -0.030704320432043204
+boundary_patch: 81 normalized penalty: -0.030704320432043204
+boundary_patch: 82 normalized penalty: -0.030704320432043204
+boundary_patch: 85 normalized penalty: -0.030704320432043204
+boundary_patch: 87 normalized penalty: -0.030704320432043204
+boundary_patch: 91 normalized penalty: -0.030704320432043204
+boundary_patch: 95 normalized penalty: -0.030704320432043204
+boundary_patch: 139 normalized penalty: -0.030704320432043204
+boundary_patch: 140 normalized penalty: -0.030704320432043204
+boundary_patch: 145 normalized penalty: -0.030704320432043204
+boundary_patch: 155 normalized penalty: -0.030704320432043204
+boundary_patch: 157 normalized penalty: -0.030704320432043204
+boundary_patch: 162 normalized penalty: -0.030704320432043204
+boundary_patch: 166 normalized penalty: -0.030704320432043204
+boundary_patch: 169 normalized penalty: -0.030704320432043204
+boundary_patch: 171 normalized penalty: -0.030704320432043204
+boundary_patch: 176 normalized penalty: -0.030704320432043204
+boundary_patch: 181 normalized penalty: -0.030704320432043204
+boundary_patch: 184 normalized penalty: -0.030704320432043204
+boundary_patch: 186 normalized penalty: -0.030704320432043204
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6111111111111112
+
+----- GameStep 41 -----
+gamma: 0.06140725906257735
+Total budget_k: 8, Exploitation cells: 8, Exploration cells: 0
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  140
+target_id:  145
+target_id:  148
+target_id:  149
+Covered target 148.0 was attacked 2 times.
+Covered target 149.0 was attacked 2 times.
+Covered target 138.0 was attacked 4 times.
+Covered target 135.0 was attacked 5 times.
+Covered target 79.0 was attacked 5 times.
+Covered target 48.0 was attacked 3 times.
+Covered target 140.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 140, 145, 148, 149]
+Attacked target IDs: [48, 79, 135, 138, 140, 148, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0   148.0      2
+1   149.0      2
+2   138.0      4
+3   135.0      5
+4    79.0      5
+5    48.0      3
+6   140.0      1
+
+Total crop raid loss across the landscape: 7909.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 7909.0
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 149.0 normalized reward: 0.1111111111111111
+boundary_patch: 138.0 normalized reward: 0.2222222222222222
+boundary_patch: 135.0 normalized reward: 0.2777777777777778
+boundary_patch: 79.0 normalized reward: 0.2777777777777778
+boundary_patch: 48.0 normalized reward: 0.16666666666666666
+boundary_patch: 140.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.08898514851485148
+boundary_patch: 66 normalized penalty: -0.08898514851485148
+boundary_patch: 74 normalized penalty: -0.08898514851485148
+boundary_patch: 81 normalized penalty: -0.08898514851485148
+boundary_patch: 82 normalized penalty: -0.08898514851485148
+boundary_patch: 85 normalized penalty: -0.08898514851485148
+boundary_patch: 87 normalized penalty: -0.08898514851485148
+boundary_patch: 91 normalized penalty: -0.08898514851485148
+boundary_patch: 95 normalized penalty: -0.08898514851485148
+boundary_patch: 139 normalized penalty: -0.08898514851485148
+boundary_patch: 145 normalized penalty: -0.08898514851485148
+boundary_patch: 155 normalized penalty: -0.08898514851485148
+boundary_patch: 157 normalized penalty: -0.08898514851485148
+boundary_patch: 162 normalized penalty: -0.08898514851485148
+boundary_patch: 166 normalized penalty: -0.08898514851485148
+boundary_patch: 169 normalized penalty: -0.08898514851485148
+boundary_patch: 171 normalized penalty: -0.08898514851485148
+boundary_patch: 176 normalized penalty: -0.08898514851485148
+boundary_patch: 181 normalized penalty: -0.08898514851485148
+boundary_patch: 184 normalized penalty: -0.08898514851485148
+boundary_patch: 186 normalized penalty: -0.08898514851485148
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 1.2222222222222223
+
+----- GameStep 42 -----
+gamma: 0.17796629238766004
+Total budget_k: 8, Exploitation cells: 7, Exploration cells: 1
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [171]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  145
+target_id:  148
+target_id:  149
+target_id:  171
+Covered target 148.0 was attacked 1 times.
+Covered target 138.0 was attacked 1 times.
+Covered target 135.0 was attacked 5 times.
+Covered target 145.0 was attacked 1 times.
+Covered target 79.0 was attacked 1 times.
+Covered target 48.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 145, 148, 149, 171]
+Attacked target IDs: [48, 79, 135, 138, 145, 148]
+trajectories successfully intercepted by guards (reward):    target  count
+0   148.0      1
+1   138.0      1
+2   135.0      5
+3   145.0      1
+4    79.0      1
+5    48.0      1
+
+Total crop raid loss across the landscape: 666.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 666.0
+boundary_patch: 148.0 normalized reward: 0.05555555555555555
+boundary_patch: 138.0 normalized reward: 0.05555555555555555
+boundary_patch: 135.0 normalized reward: 0.2777777777777778
+boundary_patch: 145.0 normalized reward: 0.05555555555555555
+boundary_patch: 79.0 normalized reward: 0.05555555555555555
+boundary_patch: 48.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.007493249324932493
+boundary_patch: 66 normalized penalty: -0.007493249324932493
+boundary_patch: 74 normalized penalty: -0.007493249324932493
+boundary_patch: 81 normalized penalty: -0.007493249324932493
+boundary_patch: 82 normalized penalty: -0.007493249324932493
+boundary_patch: 85 normalized penalty: -0.007493249324932493
+boundary_patch: 87 normalized penalty: -0.007493249324932493
+boundary_patch: 91 normalized penalty: -0.007493249324932493
+boundary_patch: 95 normalized penalty: -0.007493249324932493
+boundary_patch: 139 normalized penalty: -0.007493249324932493
+boundary_patch: 140 normalized penalty: -0.007493249324932493
+boundary_patch: 149 normalized penalty: -0.007493249324932493
+boundary_patch: 155 normalized penalty: -0.007493249324932493
+boundary_patch: 157 normalized penalty: -0.007493249324932493
+boundary_patch: 162 normalized penalty: -0.007493249324932493
+boundary_patch: 166 normalized penalty: -0.007493249324932493
+boundary_patch: 169 normalized penalty: -0.007493249324932493
+boundary_patch: 171 normalized penalty: -0.007493249324932493
+boundary_patch: 176 normalized penalty: -0.007493249324932493
+boundary_patch: 181 normalized penalty: -0.007493249324932493
+boundary_patch: 184 normalized penalty: -0.007493249324932493
+boundary_patch: 186 normalized penalty: -0.007493249324932493
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [66]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [166]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [181]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [54]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [166]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [139]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [184]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [85]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [162]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [186]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [95]
+exploitation indices: {135, 138, 79, 48, 145, 148, 149}
+exploration_indices_list:  [66]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.5555555555555556
+
+----- GameStep 43 -----
+gamma: 0.014986161427510632
+Total budget_k: 8, Exploitation cells: 8, Exploration cells: 0
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  140
+target_id:  145
+target_id:  148
+target_id:  149
+Covered target 135.0 was attacked 4 times.
+Covered target 79.0 was attacked 1 times.
+Covered target 48.0 was attacked 1 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 148.0 was attacked 2 times.
+Covered target 140.0 was attacked 1 times.
+Covered target 145.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 140, 145, 148, 149]
+Attacked target IDs: [48, 79, 135, 138, 140, 145, 148]
+trajectories successfully intercepted by guards (reward):    target  count
+0   135.0      4
+1    79.0      1
+2    48.0      1
+3   138.0      2
+4   148.0      2
+5   140.0      1
+6   145.0      1
+
+Total crop raid loss across the landscape: 18613.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 18613.0
+boundary_patch: 135.0 normalized reward: 0.2222222222222222
+boundary_patch: 79.0 normalized reward: 0.05555555555555555
+boundary_patch: 48.0 normalized reward: 0.05555555555555555
+boundary_patch: 138.0 normalized reward: 0.1111111111111111
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 140.0 normalized reward: 0.05555555555555555
+boundary_patch: 145.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.20941719171917192
+boundary_patch: 66 normalized penalty: -0.20941719171917192
+boundary_patch: 74 normalized penalty: -0.20941719171917192
+boundary_patch: 81 normalized penalty: -0.20941719171917192
+boundary_patch: 82 normalized penalty: -0.20941719171917192
+boundary_patch: 85 normalized penalty: -0.20941719171917192
+boundary_patch: 87 normalized penalty: -0.20941719171917192
+boundary_patch: 91 normalized penalty: -0.20941719171917192
+boundary_patch: 95 normalized penalty: -0.20941719171917192
+boundary_patch: 139 normalized penalty: -0.20941719171917192
+boundary_patch: 149 normalized penalty: -0.20941719171917192
+boundary_patch: 155 normalized penalty: -0.20941719171917192
+boundary_patch: 157 normalized penalty: -0.20941719171917192
+boundary_patch: 162 normalized penalty: -0.20941719171917192
+boundary_patch: 166 normalized penalty: -0.20941719171917192
+boundary_patch: 169 normalized penalty: -0.20941719171917192
+boundary_patch: 171 normalized penalty: -0.20941719171917192
+boundary_patch: 176 normalized penalty: -0.20941719171917192
+boundary_patch: 181 normalized penalty: -0.20941719171917192
+boundary_patch: 184 normalized penalty: -0.20941719171917192
+boundary_patch: 186 normalized penalty: -0.20941719171917192
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 140, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6666666666666667
+
+----- GameStep 44 -----
+gamma: 0.4188249589343174
+Total budget_k: 8, Exploitation cells: 5, Exploration cells: 3
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [139, 85, 87]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  85
+target_id:  87
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  148
+target_id:  149
+Covered target 139.0 was attacked 4 times.
+Covered target 135.0 was attacked 4 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 87.0 was attacked 1 times.
+Covered target 148.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 85, 87, 135, 138, 139, 148, 149]
+Attacked target IDs: [87, 135, 138, 139, 148]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      4
+1   135.0      4
+2   138.0      2
+3    87.0      1
+4   148.0      1
+
+Total crop raid loss across the landscape: 5178.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 5178.0
+boundary_patch: 139.0 normalized reward: 0.2222222222222222
+boundary_patch: 135.0 normalized reward: 0.2222222222222222
+boundary_patch: 138.0 normalized reward: 0.1111111111111111
+boundary_patch: 87.0 normalized reward: 0.05555555555555555
+boundary_patch: 148.0 normalized reward: 0.05555555555555555
+boundary_patch: 48 normalized penalty: -0.05825832583258326
+boundary_patch: 54 normalized penalty: -0.05825832583258326
+boundary_patch: 66 normalized penalty: -0.05825832583258326
+boundary_patch: 74 normalized penalty: -0.05825832583258326
+boundary_patch: 79 normalized penalty: -0.05825832583258326
+boundary_patch: 81 normalized penalty: -0.05825832583258326
+boundary_patch: 82 normalized penalty: -0.05825832583258326
+boundary_patch: 85 normalized penalty: -0.05825832583258326
+boundary_patch: 91 normalized penalty: -0.05825832583258326
+boundary_patch: 95 normalized penalty: -0.05825832583258326
+boundary_patch: 140 normalized penalty: -0.05825832583258326
+boundary_patch: 145 normalized penalty: -0.05825832583258326
+boundary_patch: 149 normalized penalty: -0.05825832583258326
+boundary_patch: 155 normalized penalty: -0.05825832583258326
+boundary_patch: 157 normalized penalty: -0.05825832583258326
+boundary_patch: 162 normalized penalty: -0.05825832583258326
+boundary_patch: 166 normalized penalty: -0.05825832583258326
+boundary_patch: 169 normalized penalty: -0.05825832583258326
+boundary_patch: 171 normalized penalty: -0.05825832583258326
+boundary_patch: 176 normalized penalty: -0.05825832583258326
+boundary_patch: 181 normalized penalty: -0.05825832583258326
+boundary_patch: 184 normalized penalty: -0.05825832583258326
+boundary_patch: 186 normalized penalty: -0.05825832583258326
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [74, 91, 87]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [91, 95, 181]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [162, 171, 85]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [140, 155, 91]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [54, 157, 184]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [184, 186, 87]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [79, 155, 91]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [181, 176, 139]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [87, 181, 155]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [82, 85, 54]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [139, 91, 157]
+exploitation indices: {135, 138, 48, 148, 149}
+exploration_indices_list:  [81, 145, 139]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6666666666666666
+
+----- GameStep 45 -----
+gamma: 0.11651402983731239
+Total budget_k: 8, Exploitation cells: 8, Exploration cells: 0
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  145
+target_id:  148
+target_id:  149
+Covered target 139.0 was attacked 4 times.
+Covered target 135.0 was attacked 3 times.
+Covered target 149.0 was attacked 1 times.
+Covered target 138.0 was attacked 1 times.
+Covered target 48.0 was attacked 3 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 139, 145, 148, 149]
+Attacked target IDs: [48, 135, 138, 139, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      4
+1   135.0      3
+2   149.0      1
+3   138.0      1
+4    48.0      3
+
+Total crop raid loss across the landscape: 21685.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 21685.0
+boundary_patch: 139.0 normalized reward: 0.2222222222222222
+boundary_patch: 135.0 normalized reward: 0.16666666666666666
+boundary_patch: 149.0 normalized reward: 0.05555555555555555
+boundary_patch: 138.0 normalized reward: 0.05555555555555555
+boundary_patch: 48.0 normalized reward: 0.16666666666666666
+boundary_patch: 54 normalized penalty: -0.24398064806480646
+boundary_patch: 66 normalized penalty: -0.24398064806480646
+boundary_patch: 74 normalized penalty: -0.24398064806480646
+boundary_patch: 79 normalized penalty: -0.24398064806480646
+boundary_patch: 81 normalized penalty: -0.24398064806480646
+boundary_patch: 82 normalized penalty: -0.24398064806480646
+boundary_patch: 85 normalized penalty: -0.24398064806480646
+boundary_patch: 87 normalized penalty: -0.24398064806480646
+boundary_patch: 91 normalized penalty: -0.24398064806480646
+boundary_patch: 95 normalized penalty: -0.24398064806480646
+boundary_patch: 140 normalized penalty: -0.24398064806480646
+boundary_patch: 145 normalized penalty: -0.24398064806480646
+boundary_patch: 148 normalized penalty: -0.24398064806480646
+boundary_patch: 155 normalized penalty: -0.24398064806480646
+boundary_patch: 157 normalized penalty: -0.24398064806480646
+boundary_patch: 162 normalized penalty: -0.24398064806480646
+boundary_patch: 166 normalized penalty: -0.24398064806480646
+boundary_patch: 169 normalized penalty: -0.24398064806480646
+boundary_patch: 171 normalized penalty: -0.24398064806480646
+boundary_patch: 176 normalized penalty: -0.24398064806480646
+boundary_patch: 181 normalized penalty: -0.24398064806480646
+boundary_patch: 184 normalized penalty: -0.24398064806480646
+boundary_patch: 186 normalized penalty: -0.24398064806480646
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6666666666666666
+
+----- GameStep 46 -----
+gamma: 0.4879503161495016
+Total budget_k: 8, Exploitation cells: 5, Exploration cells: 3
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [186, 79, 171]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 0 0 0 1
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  148
+target_id:  171
+target_id:  186
+Covered target 139.0 was attacked 3 times.
+Covered target 135.0 was attacked 3 times.
+Covered target 48.0 was attacked 3 times.
+Covered target 138.0 was attacked 1 times.
+Covered target 148.0 was attacked 2 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 139, 148, 171, 186]
+Attacked target IDs: [48, 135, 138, 139, 148]
+trajectories successfully intercepted by guards (reward):    target  count
+0   139.0      3
+1   135.0      3
+2    48.0      3
+3   138.0      1
+4   148.0      2
+
+Total crop raid loss across the landscape: 4020.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 4020.0
+boundary_patch: 139.0 normalized reward: 0.16666666666666666
+boundary_patch: 135.0 normalized reward: 0.16666666666666666
+boundary_patch: 48.0 normalized reward: 0.16666666666666666
+boundary_patch: 138.0 normalized reward: 0.05555555555555555
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 54 normalized penalty: -0.04522952295229523
+boundary_patch: 66 normalized penalty: -0.04522952295229523
+boundary_patch: 74 normalized penalty: -0.04522952295229523
+boundary_patch: 79 normalized penalty: -0.04522952295229523
+boundary_patch: 81 normalized penalty: -0.04522952295229523
+boundary_patch: 82 normalized penalty: -0.04522952295229523
+boundary_patch: 85 normalized penalty: -0.04522952295229523
+boundary_patch: 87 normalized penalty: -0.04522952295229523
+boundary_patch: 91 normalized penalty: -0.04522952295229523
+boundary_patch: 95 normalized penalty: -0.04522952295229523
+boundary_patch: 140 normalized penalty: -0.04522952295229523
+boundary_patch: 145 normalized penalty: -0.04522952295229523
+boundary_patch: 149 normalized penalty: -0.04522952295229523
+boundary_patch: 155 normalized penalty: -0.04522952295229523
+boundary_patch: 157 normalized penalty: -0.04522952295229523
+boundary_patch: 162 normalized penalty: -0.04522952295229523
+boundary_patch: 166 normalized penalty: -0.04522952295229523
+boundary_patch: 169 normalized penalty: -0.04522952295229523
+boundary_patch: 171 normalized penalty: -0.04522952295229523
+boundary_patch: 176 normalized penalty: -0.04522952295229523
+boundary_patch: 181 normalized penalty: -0.04522952295229523
+boundary_patch: 184 normalized penalty: -0.04522952295229523
+boundary_patch: 186 normalized penalty: -0.04522952295229523
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [184, 79, 181]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [145, 87, 169]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [162, 169, 79]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [176, 85, 91]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [155, 171, 181]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [157, 169, 166]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [81, 87, 149]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [95, 176, 184]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [81, 181, 184]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [95, 66, 184]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [140, 181, 176]
+exploitation indices: {135, 138, 139, 48, 148}
+exploration_indices_list:  [82, 66, 79]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6666666666666666
+
+----- GameStep 47 -----
+gamma: 0.09045701041830742
+Total budget_k: 8, Exploitation cells: 8, Exploration cells: 0
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  145
+target_id:  148
+target_id:  149
+Covered target 48.0 was attacked 2 times.
+Covered target 139.0 was attacked 4 times.
+Covered target 135.0 was attacked 4 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 148.0 was attacked 2 times.
+Covered target 149.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 139, 145, 148, 149]
+Attacked target IDs: [48, 135, 138, 139, 148, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+1   139.0      4
+2   135.0      4
+3   138.0      2
+4   148.0      2
+5   149.0      1
+
+Total crop raid loss across the landscape: 15530.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 15530.0
+boundary_patch: 48.0 normalized reward: 0.1111111111111111
+boundary_patch: 139.0 normalized reward: 0.2222222222222222
+boundary_patch: 135.0 normalized reward: 0.2222222222222222
+boundary_patch: 138.0 normalized reward: 0.1111111111111111
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 149.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.17472997299729973
+boundary_patch: 66 normalized penalty: -0.17472997299729973
+boundary_patch: 74 normalized penalty: -0.17472997299729973
+boundary_patch: 79 normalized penalty: -0.17472997299729973
+boundary_patch: 81 normalized penalty: -0.17472997299729973
+boundary_patch: 82 normalized penalty: -0.17472997299729973
+boundary_patch: 85 normalized penalty: -0.17472997299729973
+boundary_patch: 87 normalized penalty: -0.17472997299729973
+boundary_patch: 91 normalized penalty: -0.17472997299729973
+boundary_patch: 95 normalized penalty: -0.17472997299729973
+boundary_patch: 140 normalized penalty: -0.17472997299729973
+boundary_patch: 145 normalized penalty: -0.17472997299729973
+boundary_patch: 155 normalized penalty: -0.17472997299729973
+boundary_patch: 157 normalized penalty: -0.17472997299729973
+boundary_patch: 162 normalized penalty: -0.17472997299729973
+boundary_patch: 166 normalized penalty: -0.17472997299729973
+boundary_patch: 169 normalized penalty: -0.17472997299729973
+boundary_patch: 171 normalized penalty: -0.17472997299729973
+boundary_patch: 176 normalized penalty: -0.17472997299729973
+boundary_patch: 181 normalized penalty: -0.17472997299729973
+boundary_patch: 184 normalized penalty: -0.17472997299729973
+boundary_patch: 186 normalized penalty: -0.17472997299729973
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+exploitation indices: {135, 138, 139, 79, 48, 145, 148, 149}
+exploration_indices_list:  []
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.8333333333333333
+
+----- GameStep 48 -----
+gamma: 0.3494520825363966
+Total budget_k: 8, Exploitation cells: 6, Exploration cells: 2
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [181, 79]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+ 0]
+target_id:  48
+target_id:  79
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  148
+target_id:  149
+target_id:  181
+Covered target 48.0 was attacked 2 times.
+Covered target 79.0 was attacked 1 times.
+Covered target 135.0 was attacked 3 times.
+Covered target 138.0 was attacked 3 times.
+Covered target 149.0 was attacked 1 times.
+Covered target 148.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 79, 135, 138, 139, 148, 149, 181]
+Attacked target IDs: [48, 79, 135, 138, 148, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+1    79.0      1
+2   135.0      3
+3   138.0      3
+4   149.0      1
+5   148.0      1
+
+Total crop raid loss across the landscape: 7580.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 7580.0
+boundary_patch: 48.0 normalized reward: 0.1111111111111111
+boundary_patch: 79.0 normalized reward: 0.05555555555555555
+boundary_patch: 135.0 normalized reward: 0.16666666666666666
+boundary_patch: 138.0 normalized reward: 0.16666666666666666
+boundary_patch: 149.0 normalized reward: 0.05555555555555555
+boundary_patch: 148.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.08528352835283529
+boundary_patch: 66 normalized penalty: -0.08528352835283529
+boundary_patch: 74 normalized penalty: -0.08528352835283529
+boundary_patch: 81 normalized penalty: -0.08528352835283529
+boundary_patch: 82 normalized penalty: -0.08528352835283529
+boundary_patch: 85 normalized penalty: -0.08528352835283529
+boundary_patch: 87 normalized penalty: -0.08528352835283529
+boundary_patch: 91 normalized penalty: -0.08528352835283529
+boundary_patch: 95 normalized penalty: -0.08528352835283529
+boundary_patch: 139 normalized penalty: -0.08528352835283529
+boundary_patch: 140 normalized penalty: -0.08528352835283529
+boundary_patch: 145 normalized penalty: -0.08528352835283529
+boundary_patch: 155 normalized penalty: -0.08528352835283529
+boundary_patch: 157 normalized penalty: -0.08528352835283529
+boundary_patch: 162 normalized penalty: -0.08528352835283529
+boundary_patch: 166 normalized penalty: -0.08528352835283529
+boundary_patch: 169 normalized penalty: -0.08528352835283529
+boundary_patch: 171 normalized penalty: -0.08528352835283529
+boundary_patch: 176 normalized penalty: -0.08528352835283529
+boundary_patch: 181 normalized penalty: -0.08528352835283529
+boundary_patch: 184 normalized penalty: -0.08528352835283529
+boundary_patch: 186 normalized penalty: -0.08528352835283529
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [91, 145]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [166, 79]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [145, 166]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [145, 82]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [145, 91]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [162, 54]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [181, 184]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [79, 95]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [155, 95]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [162, 157]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [81, 79]
+exploitation indices: {135, 138, 139, 48, 148, 149}
+exploration_indices_list:  [145, 166]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.6111111111111112
+
+----- GameStep 49 -----
+gamma: 0.17056321864944532
+Total budget_k: 8, Exploitation cells: 7, Exploration cells: 1
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [155]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  145
+target_id:  148
+target_id:  149
+target_id:  155
+Covered target 135.0 was attacked 6 times.
+Covered target 138.0 was attacked 2 times.
+Covered target 48.0 was attacked 1 times.
+Covered target 148.0 was attacked 2 times.
+Covered target 139.0 was attacked 2 times.
+Covered target 145.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 135, 138, 139, 145, 148, 149, 155]
+Attacked target IDs: [48, 135, 138, 139, 145, 148]
+trajectories successfully intercepted by guards (reward):    target  count
+0   135.0      6
+1   138.0      2
+2    48.0      1
+3   148.0      2
+4   139.0      2
+5   145.0      1
+
+Total crop raid loss across the landscape: 7559.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 7559.0
+boundary_patch: 135.0 normalized reward: 0.3333333333333333
+boundary_patch: 138.0 normalized reward: 0.1111111111111111
+boundary_patch: 48.0 normalized reward: 0.05555555555555555
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 139.0 normalized reward: 0.1111111111111111
+boundary_patch: 145.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.08504725472547255
+boundary_patch: 66 normalized penalty: -0.08504725472547255
+boundary_patch: 74 normalized penalty: -0.08504725472547255
+boundary_patch: 79 normalized penalty: -0.08504725472547255
+boundary_patch: 81 normalized penalty: -0.08504725472547255
+boundary_patch: 82 normalized penalty: -0.08504725472547255
+boundary_patch: 85 normalized penalty: -0.08504725472547255
+boundary_patch: 87 normalized penalty: -0.08504725472547255
+boundary_patch: 91 normalized penalty: -0.08504725472547255
+boundary_patch: 95 normalized penalty: -0.08504725472547255
+boundary_patch: 140 normalized penalty: -0.08504725472547255
+boundary_patch: 149 normalized penalty: -0.08504725472547255
+boundary_patch: 155 normalized penalty: -0.08504725472547255
+boundary_patch: 157 normalized penalty: -0.08504725472547255
+boundary_patch: 162 normalized penalty: -0.08504725472547255
+boundary_patch: 166 normalized penalty: -0.08504725472547255
+boundary_patch: 169 normalized penalty: -0.08504725472547255
+boundary_patch: 171 normalized penalty: -0.08504725472547255
+boundary_patch: 176 normalized penalty: -0.08504725472547255
+boundary_patch: 181 normalized penalty: -0.08504725472547255
+boundary_patch: 184 normalized penalty: -0.08504725472547255
+boundary_patch: 186 normalized penalty: -0.08504725472547255
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [184]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [176]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [184]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [155]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [95]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [79]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [171]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [181]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [85]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [155]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [162]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [95]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.7777777777777777
+
+----- GameStep 50 -----
+gamma: 0.17009068202785715
+Total budget_k: 8, Exploitation cells: 7, Exploration cells: 1
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [176]
+Defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+ 0]
+target_id:  48
+target_id:  135
+target_id:  138
+target_id:  139
+target_id:  145
+target_id:  148
+target_id:  149
+target_id:  176
+Covered target 48.0 was attacked 2 times.
+Covered target 135.0 was attacked 5 times.
+Covered target 139.0 was attacked 3 times.
+Covered target 138.0 was attacked 3 times.
+Covered target 148.0 was attacked 2 times.
+Covered target 145.0 was attacked 1 times.
+Covered target 149.0 was attacked 1 times.
+Attacker strategy: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Protected target IDs: [48, 135, 138, 139, 145, 148, 149, 176]
+Attacked target IDs: [48, 135, 138, 139, 145, 148, 149]
+trajectories successfully intercepted by guards (reward):    target  count
+0    48.0      2
+1   135.0      5
+2   139.0      3
+3   138.0      3
+4   148.0      2
+5   145.0      1
+6   149.0      1
+
+Total crop raid loss across the landscape: 32.0 (kg)
+
+total crop raid loss from non-intercepted trajectories (penalty): 32.0
+boundary_patch: 48.0 normalized reward: 0.1111111111111111
+boundary_patch: 135.0 normalized reward: 0.2777777777777778
+boundary_patch: 139.0 normalized reward: 0.16666666666666666
+boundary_patch: 138.0 normalized reward: 0.16666666666666666
+boundary_patch: 148.0 normalized reward: 0.1111111111111111
+boundary_patch: 145.0 normalized reward: 0.05555555555555555
+boundary_patch: 149.0 normalized reward: 0.05555555555555555
+boundary_patch: 54 normalized penalty: -0.00036003600360036
+boundary_patch: 66 normalized penalty: -0.00036003600360036
+boundary_patch: 74 normalized penalty: -0.00036003600360036
+boundary_patch: 79 normalized penalty: -0.00036003600360036
+boundary_patch: 81 normalized penalty: -0.00036003600360036
+boundary_patch: 82 normalized penalty: -0.00036003600360036
+boundary_patch: 85 normalized penalty: -0.00036003600360036
+boundary_patch: 87 normalized penalty: -0.00036003600360036
+boundary_patch: 91 normalized penalty: -0.00036003600360036
+boundary_patch: 95 normalized penalty: -0.00036003600360036
+boundary_patch: 140 normalized penalty: -0.00036003600360036
+boundary_patch: 155 normalized penalty: -0.00036003600360036
+boundary_patch: 157 normalized penalty: -0.00036003600360036
+boundary_patch: 162 normalized penalty: -0.00036003600360036
+boundary_patch: 166 normalized penalty: -0.00036003600360036
+boundary_patch: 169 normalized penalty: -0.00036003600360036
+boundary_patch: 171 normalized penalty: -0.00036003600360036
+boundary_patch: 176 normalized penalty: -0.00036003600360036
+boundary_patch: 181 normalized penalty: -0.00036003600360036
+boundary_patch: 184 normalized penalty: -0.00036003600360036
+boundary_patch: 186 normalized penalty: -0.00036003600360036
+MAX_STEP_CROP_RAIDING_VAL:  44440.0
+MAX_STEP_TRAJECTORIES_ENCOUNTERED:  9
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [54]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [82]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [66]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [79]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [169]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [91]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [186]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [74]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [166]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [181]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [169]
+exploitation indices: {135, 138, 139, 48, 145, 148, 149}
+exploration_indices_list:  [87]
+Best defender strategy: [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0]
+step utility for defender: 0.9444444444444444

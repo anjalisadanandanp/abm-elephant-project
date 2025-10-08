@@ -166,7 +166,7 @@ def calculate_reward_for_strategy(defender_strategy, perturbed_reward):
     total_reward = np.dot(v, perturbed_reward)
     return total_reward, v
 
-def find_best_strategy_parallel(defender_strategies, perturbed_reward, n_processes=16):
+def find_best_strategy_parallel(defender_strategies, perturbed_reward, n_processes=22):
     
     process_func = partial(
         calculate_reward_for_strategy,
@@ -425,7 +425,7 @@ def calculate_reward_for_single_defender_strategy(
 
     return total_cumulative_reward, defender_strategy
      
-def calculate_best_strategy(defender_strategies, attacker_strategy_history, n_processes=16):
+def calculate_best_strategy(defender_strategies, attacker_strategy_history, n_processes=22):
 
     process_func = partial(
         calculate_reward_for_single_defender_strategy,
@@ -566,6 +566,21 @@ def run_single_play(output_folder, MAX_GAME_STEPS, NUM_LANDSCAPE_CELLS, BUDGET_K
 
     plot_defender_regret(defender_regret_values)
 
+    game_steps = list(range(1, len(defender_regret_values) + 1))
+
+    if len(game_steps) != len(defender_regret_values):
+        print("Error: The number of steps does not match the number of regret values.")
+    else:
+        data = {
+            'GameStep': game_steps,
+            'RegretValue': defender_regret_values
+        }
+
+        df = pd.DataFrame(data)
+
+        output_filepath = os.path.join(OUTPUT_FOLDER, 'coverage_matrix_init/regret_df_HERDS_learning-memory-v1_1.csv')
+        df.to_csv(output_filepath, index=False)
+        
     return  
 
 
